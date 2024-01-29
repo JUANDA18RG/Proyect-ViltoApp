@@ -10,8 +10,8 @@ const works = [
 
 export default function Works() {
   return (
-    <div className="flex flex-col mt-14">
-      <div className="flex ml-20">
+    <div className="flex flex-col mt-14 px-4 md:px-20">
+      <div className="flex justify-center md:justify-start">
         <ButtonAdd />
         <p className="text-lg items-center text-center ml-5 mt-1 text-gray-400">
           You have three proyects free

@@ -19,17 +19,19 @@ const Task = ({ onAddTask }) => {
   return (
     <div className="mt-6 flex items-center justify-center">
       {addingTask ? (
-        <div className="mt-4 flex items-center justify-between">
+        <div
+          className="flex items-center justify-between"
+          onBlur={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget)) {
+              setAddingTask(false);
+            }
+          }}
+        >
           <textarea
             rows="1"
             cols="20"
             value={newTaskText}
             onChange={(e) => setNewTaskText(e.target.value)}
-            onBlur={(e) => {
-              if (e.relatedTarget !== document.getElementById("sendButton")) {
-                setAddingTask(false);
-              }
-            }}
             placeholder="Ingrese la nueva tarea"
             className="p-2 rounded-md resize-none flex-grow"
           />
@@ -57,7 +59,7 @@ const Task = ({ onAddTask }) => {
       ) : (
         <button
           onClick={() => setAddingTask(true)}
-          className="bg-gray-300 text-center items-center p-2 rounded-md flex"
+          className="bg-gray-300 text-center items-center p-2 rounded-md flex text-gray-500 text-sm "
         >
           Agregar Tarea
           <svg
@@ -66,7 +68,7 @@ const Task = ({ onAddTask }) => {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-6 h-6 ml-2"
+            className="w-6 h-6"
           >
             <path
               strokeLinecap="round"

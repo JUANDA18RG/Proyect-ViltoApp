@@ -71,12 +71,12 @@ export default function SignUp() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-50 ">
+    <div className="flex items-center justify-center min-h-screen bg-slate-50 sm:px-4 lg:px-7 m-3">
       <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg relative z-10 border-2 border-red-500">
         <img
           src="Logo.png"
           alt="Logo"
-          className="w-24 h-24 rounded-full mx-auto mt-2 mb-4"
+          className="w-24 h-24 rounded-full mx-auto mb-4"
         />
         <h1 className="text-2xl text-center text-gray-700 mb-4 font-bold">
           Register In ViltoApp
@@ -203,7 +203,6 @@ export default function SignUp() {
                 </svg>
               )}
             </span>
-            <div className="flex items-center justify-center m-4"></div>
           </div>
           <div className="flex items-center justify-center">
             <ReCAPTCHA
@@ -229,11 +228,16 @@ export default function SignUp() {
           )}
         </form>
         {error && (
-          <div className="text-red-500 text-center text-lg m-2">{error}</div>
+          <div className="text-red-500 text-center text-sm m-2 md:text-md">
+            {error}
+          </div>
         )}
-        <div className="text-center mt-4 text-gray-600">
+        <div className="text-center mt-2 text-gray-600">
           Already have an account?
-          <Link to={"/SignIn"} className="ml-1 text-blue-500 hover:underline">
+          <Link
+            to={"/SignIn"}
+            className="ml-1 text-blue-500 hover:underline md:text-sm text-sm"
+          >
             Sign In
           </Link>
         </div>

@@ -33,9 +33,13 @@ export default function NavbarPage() {
         <Link to={"/PageInit"}>
           <img className="w-10 h-10 rounded-md" src="Logo.png" alt="Workflow" />
         </Link>
-        <Link to={"/PageInit"}>
-          <div className="text-xl font-bold text-gray-900">ViltoApp</div>
-        </Link>
+        <div className="hidden sm:block">
+          <Link to={"/PageInit"}>
+            <div className="sm:text-xl md:text-2xl lg:text-xl font-bold text-gray-900">
+              ViltoApp
+            </div>
+          </Link>
+        </div>
       </div>
       <div className="flex items-center space-x-4">
         <Menu as="nav" className="relative z-20">
@@ -52,7 +56,7 @@ export default function NavbarPage() {
                     className={`w-12 h-12 rounded-full m-2 p-1 mr-1 `}
                   />
                 )}
-                <span className="text-black m-2 font-semibold">
+                <span className="sm:text-xl md:text-sm lg:text-base font-bold text-gray-900 hidden md:block mr-1">
                   {displayName}
                 </span>
                 <svg
@@ -75,7 +79,7 @@ export default function NavbarPage() {
               </Menu.Button>
               <Menu.Items
                 className={
-                  "absolute p-1 top-full right-0 w-48 bg-active rounded-md translate-y-5 border-2 border-gray-400"
+                  "absolute p-1 top-full right-0 w-48 bg-active rounded-md translate-y-5 border-2 border-gray-400 shadow-sm bg-white md:text-sm"
                 }
               >
                 <Menu.Item className="hover:bg-gradient-to-r from-red-500 to-pink-500 rounded-md transition duration-100 ease-in-out">

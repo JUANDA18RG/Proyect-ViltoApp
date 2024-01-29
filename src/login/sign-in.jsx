@@ -49,14 +49,14 @@ export default function SignIn() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-50">
-      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg relative z-10 border-2 border-red-500 ">
+    <div className="flex items-center justify-center min-h-screen bg-slate-50 md:p-8 m-4">
+      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg relative z-10 border-2 border-red-500 md:p-5">
         <img
           src="Logo.png"
           alt="Logo"
-          className="w-40 h-40 rounded-full mx-auto mt-2 mb-4"
+          className="w-40 h-40 rounded-full mx-auto mt-2 mb-4  md:block"
         />
-        <h1 className="text-2xl text-center text-gray-700 mb-4 font-bold">
+        <h1 className="text-2xl text-center text-gray-700 mb-4 font-bold  md:text-3xl">
           Login In ViltoApp
         </h1>
         <form className="space-y-4">
@@ -139,12 +139,14 @@ export default function SignIn() {
                 src="Google.png"
                 alt="Workflow"
               />
-              Google
+              <span>Google</span>
             </div>
           </button>
         </form>
         {error && (
-          <div className="text-red-500 text-center text-lg m-2">{error}</div>
+          <div className="text-red-500 text-center text-sm m-2 md:text-md">
+            {error}
+          </div>
         )}
         <div className="text-center mt-4 text-gray-600">
           Already have an account?

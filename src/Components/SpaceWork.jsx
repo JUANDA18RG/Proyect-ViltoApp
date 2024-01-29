@@ -1,8 +1,7 @@
-// SpaceWork.js
 import { useState } from "react";
-import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import NavbarPage from "../Home/NavbarPage";
-import Task from "./Task"; // Importar el componente Task
+import Task from "./Task";
 
 const initialTasks = [
   { id: "1", content: "Take out the garbage", column: "column-1" },
@@ -32,12 +31,13 @@ const initialColumns = {
 const SpaceWork = () => {
   const [tasks, setTasks] = useState(initialTasks);
   const [columns, setColumns] = useState(initialColumns);
+  const [showAddColumn, setShowAddColumn] = useState(false);
+  const [newColumnTitle, setNewColumnTitle] = useState("");
 
   const onDragEnd = (result) => {
     if (!result.destination) {
       return;
     }
-
     const { source, destination, draggableId } = result;
 
     if (source.droppableId === destination.droppableId) {
@@ -88,7 +88,7 @@ const SpaceWork = () => {
   };
 
   const handleAddTask = (newTaskText) => {
-    const columnId = "column-1"; // Agregar tarea solo en la primera columna
+    const columnId = "column-1";
 
     const newTask = {
       id: `new-${Date.now()}`,
@@ -109,11 +109,32 @@ const SpaceWork = () => {
     setColumns(updatedColumns);
   };
 
+  const handleShowAddColumn = () => {
+    setShowAddColumn(true);
+  };
+
+  const handleConfirmAddColumn = () => {
+    const newColumnId = `column-${Date.now()}`;
+    const newColumn = {
+      id: newColumnId,
+      title: newColumnTitle || `New Column ${Object.keys(columns).length + 1}`,
+      taskIds: [],
+    };
+
+    setColumns((prevColumns) => ({
+      ...prevColumns,
+      [newColumnId]: newColumn,
+    }));
+
+    setNewColumnTitle("");
+    setShowAddColumn(false);
+  };
+
   return (
     <>
       <NavbarPage />
       <div className="flex justify-center items-center">
-        <div className="grid md:grid-cols-3 gap-4 p-8 mx-auto">
+        <div className="grid md:grid-cols-4 gap-4 p-8 mx-auto m-2">
           <DragDropContext onDragEnd={onDragEnd}>
             {Object.values(columns).map((column) => (
               <Droppable key={column.id} droppableId={column.id}>
@@ -152,6 +173,69 @@ const SpaceWork = () => {
                 )}
               </Droppable>
             ))}
+            <div className="flex items-center justify-center">
+              {showAddColumn ? (
+                <div
+                  className="flex items-center justify-between"
+                  onBlur={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget)) {
+                      setShowAddColumn(false);
+                    }
+                  }}
+                >
+                  <textarea
+                    type="text"
+                    rows="1"
+                    cols="30"
+                    value={newColumnTitle}
+                    onChange={(e) => setNewColumnTitle(e.target.value)}
+                    placeholder="Ingrese la nueva Columna"
+                    className="p-2 rounded-md resize-none flex-grow border-2 border-gray-300"
+                  />
+                  <button
+                    className="bg-gradient-to-r from-red-500 to-pink-500 text-white p-2 rounded-md ml-2"
+                    onClick={handleConfirmAddColumn}
+                  >
+                    {" "}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="m4.5 12.75 6 6 9-13.5"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  className="bg-gray-300 text-center items-center p-2 rounded-md flex text-gray-500 text-sm"
+                  onClick={handleShowAddColumn}
+                >
+                  Agregar Columna
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6 ml-2"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 4.5v15m7.5-7.5h-15"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
           </DragDropContext>
         </div>
       </div>

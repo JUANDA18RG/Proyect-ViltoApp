@@ -7,15 +7,19 @@ export default function Navbar() {
         <Link to="/">
           <img className="w-10 h-10 rounded-md" src="Logo.png" alt="Workflow" />
         </Link>
-        <Link to="/">
-          <div className="text-xl font-bold text-gray-900">ViltoApp</div>
-        </Link>
+        <div className="hidden sm:block">
+          <Link to="/">
+            <div className="sm:text-xl md:text-2xl lg:text-xl font-bold text-gray-900">
+              ViltoApp
+            </div>
+          </Link>
+        </div>
       </div>
       <div className="flex items-center space-x-4">
-        <button className=" font-bold py-2 px-4 rounded">
+        <button className="text-sm sm:text-base font-bold py-2 px-4 rounded">
           <Link to={"/SignIn"}>Login</Link>
         </button>
-        <button className="bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold py-2 px-4 rounded">
+        <button className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm sm:text-base font-bold py-2 px-4 rounded">
           <Link to={"/SignUp"}>Registre</Link>
         </button>
       </div>

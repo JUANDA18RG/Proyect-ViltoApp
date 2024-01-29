@@ -1,6 +1,6 @@
 export const Footer = () => {
   return (
-    <div className="fixed bottom-0 w-full p-4 border-t bg-slate-100 flex items-center justify-center">
+    <div className="fixed bottom-0 w-full p-1 border-t bg-slate-100 flex items-center justify-center">
       <div className="space-x-4 flex items-center justify-center">
         <button className="h-10 text-md text-neutral-400">
           Privacy Polity
