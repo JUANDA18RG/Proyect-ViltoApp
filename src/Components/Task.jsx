@@ -59,7 +59,7 @@ const Task = ({ onAddTask }) => {
       ) : (
         <button
           onClick={() => setAddingTask(true)}
-          className="bg-gray-300 text-center items-center p-2 rounded-md flex text-gray-500 text-sm "
+          className="bg-gray-300 text-center items-center p-2 rounded-md flex text-gray-600 text-sm"
         >
           Agregar Tarea
           <svg
@@ -68,7 +68,7 @@ const Task = ({ onAddTask }) => {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-6 h-6"
+            className="w-6 h-6 ml-2"
           >
             <path
               strokeLinecap="round"

@@ -53,7 +53,7 @@ export default function NavbarPage() {
                   <img
                     src={photoURL}
                     alt={displayName}
-                    className={`w-12 h-12 rounded-full m-2 p-1 mr-1 `}
+                    className={`w-12 h-12 rounded-full m-2 p-1 mr-1`}
                   />
                 )}
                 <span className="sm:text-xl md:text-sm lg:text-base font-bold text-gray-900 hidden md:block mr-1">

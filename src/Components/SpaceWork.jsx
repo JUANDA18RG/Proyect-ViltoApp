@@ -2,6 +2,7 @@ import { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import NavbarPage from "../Home/NavbarPage";
 import Task from "./Task";
+import Opciones from "./OpcionesColumn";
 
 const initialTasks = [
   { id: "1", content: "Take out the garbage", column: "column-1" },
@@ -138,26 +139,37 @@ const SpaceWork = () => {
           <DragDropContext onDragEnd={onDragEnd}>
             {Object.values(columns).map((column) => (
               <Droppable key={column.id} droppableId={column.id}>
-                {(provided) => (
+                {(provided, snapshot) => (
                   <div
                     {...provided.droppableProps}
                     ref={provided.innerRef}
-                    className="bg-gray-100 rounded-md p-4 w-72 m-5"
+                    className={`bg-gray-100 rounded-md p-4 w-72 m-5 ${
+                      snapshot.isDraggingOver
+                        ? "bg-gradient-to-r from-red-400 to-pink-400 transition duration-300"
+                        : ""
+                    }`}
                   >
-                    <h2 className="text-lg font-semibold mb-4">
-                      {column.title}
-                    </h2>
+                    <div className="flex justify-between">
+                      <h2 className="text-lg font-semibold mb-4">
+                        {column.title}
+                      </h2>
+                      <Opciones />
+                    </div>
                     {column.taskIds.map((taskId, index) => (
                       <Draggable
                         key={taskId}
                         draggableId={taskId}
                         index={index}
                       >
-                        {(provided) => (
+                        {(provided, snapshot) => (
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
+                            style={{
+                              ...provided.draggableProps.style,
+                              opacity: snapshot.isDragging ? 0.8 : 1,
+                            }}
                             className="bg-white p-2 mb-2 rounded-md border"
                           >
                             {tasks.find((task) => task.id === taskId)?.content}
@@ -165,10 +177,10 @@ const SpaceWork = () => {
                         )}
                       </Draggable>
                     ))}
+                    {provided.placeholder}
                     {column.id === "column-1" && (
                       <Task onAddTask={handleAddTask} />
                     )}
-                    {provided.placeholder}
                   </div>
                 )}
               </Droppable>
@@ -215,7 +227,7 @@ const SpaceWork = () => {
                 </div>
               ) : (
                 <button
-                  className="bg-gray-300 text-center items-center p-2 rounded-md flex text-gray-500 text-sm"
+                  className="bg-gray-300 text-center items-center p-2 rounded-md flex text-gray-600 text-sm"
                   onClick={handleShowAddColumn}
                 >
                   Agregar Columna
