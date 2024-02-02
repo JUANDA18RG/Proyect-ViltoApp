@@ -1,8 +1,10 @@
+// SpaceWork.js
 import { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import NavbarPage from "../Home/NavbarPage";
 import Task from "./Task";
 import Opciones from "./OpcionesColumn";
+import AlertConfirmation from "./AlertConfirmation";
+import AddColumn from "./Column";
 
 const initialTasks = [
   { id: "1", content: "Take out the garbage", column: "column-1" },
@@ -32,8 +34,7 @@ const initialColumns = {
 const SpaceWork = () => {
   const [tasks, setTasks] = useState(initialTasks);
   const [columns, setColumns] = useState(initialColumns);
-  const [showAddColumn, setShowAddColumn] = useState(false);
-  const [newColumnTitle, setNewColumnTitle] = useState("");
+  const [alertMessage, setAlertMessage] = useState(null);
 
   const onDragEnd = (result) => {
     if (!result.destination) {
@@ -55,6 +56,9 @@ const SpaceWork = () => {
         },
       }));
     } else {
+      setAlertMessage(
+        `La tarea fue movida a la columna ${destination.droppableId}`
+      );
       const sourceColumnId = source.droppableId;
       const destinationColumnId = destination.droppableId;
 
@@ -88,9 +92,7 @@ const SpaceWork = () => {
     }
   };
 
-  const handleAddTask = (newTaskText) => {
-    const columnId = "column-1";
-
+  const handleAddTask = (columnId, newTaskText) => {
     const newTask = {
       id: `new-${Date.now()}`,
       content: newTaskText,
@@ -106,19 +108,15 @@ const SpaceWork = () => {
         taskIds: [...columns[columnId].taskIds, newTask.id],
       },
     };
-
     setColumns(updatedColumns);
+    setAlertMessage(`La tarea de nombre ${newTask.content} fue creada.`);
   };
 
-  const handleShowAddColumn = () => {
-    setShowAddColumn(true);
-  };
-
-  const handleConfirmAddColumn = () => {
+  const handleConfirmAddColumn = (title) => {
     const newColumnId = `column-${Date.now()}`;
     const newColumn = {
       id: newColumnId,
-      title: newColumnTitle || `New Column ${Object.keys(columns).length + 1}`,
+      title: title || `New Column ${Object.keys(columns).length + 1}`,
       taskIds: [],
     };
 
@@ -126,132 +124,66 @@ const SpaceWork = () => {
       ...prevColumns,
       [newColumnId]: newColumn,
     }));
-
-    setNewColumnTitle("");
-    setShowAddColumn(false);
+    setAlertMessage(`La columna de nombre ${newColumn.title} fue creada.`);
   };
 
   return (
-    <>
-      <NavbarPage />
-      <div className="flex justify-center items-center">
-        <div className="grid md:grid-cols-4 gap-4 p-8 mx-auto m-2">
-          <DragDropContext onDragEnd={onDragEnd}>
-            {Object.values(columns).map((column) => (
-              <Droppable key={column.id} droppableId={column.id}>
-                {(provided, snapshot) => (
-                  <div
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                    className={`bg-gray-100 rounded-md p-4 w-72 m-5 ${
-                      snapshot.isDraggingOver
-                        ? "bg-gradient-to-r from-red-400 to-pink-400 transition duration-300"
-                        : ""
-                    }`}
-                  >
-                    <div className="flex justify-between">
-                      <h2 className="text-lg font-semibold mb-4">
-                        {column.title}
-                      </h2>
-                      <Opciones />
-                    </div>
-                    {column.taskIds.map((taskId, index) => (
-                      <Draggable
-                        key={taskId}
-                        draggableId={taskId}
-                        index={index}
-                      >
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            style={{
-                              ...provided.draggableProps.style,
-                              opacity: snapshot.isDragging ? 0.8 : 1,
-                            }}
-                            className="bg-white p-2 mb-2 rounded-md border"
-                          >
-                            {tasks.find((task) => task.id === taskId)?.content}
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                    {column.id === "column-1" && (
-                      <Task onAddTask={handleAddTask} />
-                    )}
-                  </div>
-                )}
-              </Droppable>
-            ))}
-            <div className="flex items-center justify-center">
-              {showAddColumn ? (
+    <div className="flex justify-center items-center flex-wra md:mt-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 p-8 mx-auto m-10">
+        <DragDropContext onDragEnd={onDragEnd}>
+          {Object.values(columns).map((column) => (
+            <Droppable key={column.id} droppableId={column.id}>
+              {(provided, snapshot) => (
                 <div
-                  className="flex items-center justify-between"
-                  onBlur={(e) => {
-                    if (!e.currentTarget.contains(e.relatedTarget)) {
-                      setShowAddColumn(false);
-                    }
-                  }}
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className={`bg-gray-100 rounded-md border-2 p-5 w-full xl:w-72 ${
+                    snapshot.isDraggingOver
+                      ? "bg-gradient-to-r from-red-400 to-pink-400 transition duration-300 ease-in-out"
+                      : ""
+                  }`}
                 >
-                  <textarea
-                    type="text"
-                    rows="1"
-                    cols="30"
-                    value={newColumnTitle}
-                    onChange={(e) => setNewColumnTitle(e.target.value)}
-                    placeholder="Ingrese la nueva Columna"
-                    className="p-2 rounded-md resize-none flex-grow border-2 border-gray-300"
-                  />
-                  <button
-                    className="bg-gradient-to-r from-red-500 to-pink-500 text-white p-2 rounded-md ml-2"
-                    onClick={handleConfirmAddColumn}
-                  >
-                    {" "}
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="w-6 h-6"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="m4.5 12.75 6 6 9-13.5"
-                      />
-                    </svg>
-                  </button>
+                  <div className="flex justify-between">
+                    <h2 className="text-lg font-semibold mb-4">
+                      {column.title}
+                    </h2>
+                    <Opciones />
+                  </div>
+                  {column.taskIds.map((taskId, index) => (
+                    <Draggable key={taskId} draggableId={taskId} index={index}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          style={{
+                            ...provided.draggableProps.style,
+                            opacity: snapshot.isDragging ? 0.8 : 1,
+                          }}
+                          className={`bg-white p-2 m-2 rounded-md border-2 shadow-md`}
+                        >
+                          {tasks.find((task) => task.id === taskId)?.content}
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+
+                  <Task columnId={column.id} onAddTask={handleAddTask} />
                 </div>
-              ) : (
-                <button
-                  className="bg-gray-300 text-center items-center p-2 rounded-md flex text-gray-600 text-sm"
-                  onClick={handleShowAddColumn}
-                >
-                  Agregar Columna
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-6 h-6 ml-2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 4.5v15m7.5-7.5h-15"
-                    />
-                  </svg>
-                </button>
               )}
-            </div>
-          </DragDropContext>
-        </div>
+            </Droppable>
+          ))}
+          <AddColumn onAddColumn={handleConfirmAddColumn} />
+        </DragDropContext>
       </div>
-    </>
+      {alertMessage && (
+        <AlertConfirmation
+          message={alertMessage}
+          onDismiss={() => setAlertMessage(null)}
+        />
+      )}
+    </div>
   );
 };
 

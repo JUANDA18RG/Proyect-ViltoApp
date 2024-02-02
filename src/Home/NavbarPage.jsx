@@ -28,8 +28,8 @@ export default function NavbarPage() {
   }
 
   return (
-    <div className="w-full h-16 px-4 shadow-sm bg-transparent flex items-center justify-between z-20">
-      <div className="flex items-center space-x-4">
+    <div className="w-full h-16 px-4  bg-transparent flex items-center justify-between z-20">
+      <div className="flex items-center space-x-4 animate-jump-in">
         <Link to={"/PageInit"}>
           <img className="w-10 h-10 rounded-md" src="Logo.png" alt="Workflow" />
         </Link>
@@ -46,14 +46,14 @@ export default function NavbarPage() {
           {({ open }) => (
             <>
               <Menu.Button
-                className={`flex h-8 items-center rounded-3xl bg-white
-                  pr-2 hover:scale-105 transform transition duration-500 ease-in-out`}
+                className={`flex h-8 items-center rounded-3xl bg-white animate-jump-in
+                  pr-2`}
               >
                 {photoURL && (
                   <img
                     src={photoURL}
                     alt={displayName}
-                    className={`w-12 h-12 rounded-full m-2 p-1 mr-1`}
+                    className={`w-10 h-10 rounded-full m-2 p-1 mr-1 border-2 border-red-400 `}
                   />
                 )}
                 <span className="sm:text-xl md:text-sm lg:text-base font-bold text-gray-900 hidden md:block mr-1">
@@ -79,12 +79,13 @@ export default function NavbarPage() {
               </Menu.Button>
               <Menu.Items
                 className={
-                  "absolute p-1 top-full right-0 w-48 bg-active rounded-md translate-y-5 border-2 border-gray-400 shadow-sm bg-white md:text-sm"
+                  "absolute p-1 top-16 right-5 w-48 bg-active rounded-md translate-y-5 border-2 border-gray-400 shadow-sm bg-white md:text-sm animate-jump-in"
                 }
               >
                 <Menu.Item className="hover:bg-gradient-to-r from-red-500 to-pink-500 rounded-md transition duration-100 ease-in-out">
                   {({ active }) => (
                     <Link
+                      to={"/Usuario"}
                       className={`h-10 flex items-center justify-between px-2 text-sm rounded-md${
                         active && "bg-white text-white"
                       }`}

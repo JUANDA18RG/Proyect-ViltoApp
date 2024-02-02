@@ -4,7 +4,8 @@ import SignIn from "./login/sign-in";
 import Portada from "./login/Portada";
 import { AuthProvider } from "./context/authContext";
 import PageInit from "./Home/pageInit";
-import SpaceWork from "./Components/SpaceWork";
+import Usuario from "./Perfil/Usuario";
+import AreaTrabajo from "./Components/AraTrabajo";
 
 function App() {
   return (
@@ -14,7 +15,9 @@ function App() {
         <Route path="/SignUp" element={<SignUp />} />
         <Route path="/SignIn" element={<SignIn />} />
         <Route path="/PageInit" element={<PageInit />} />
-        <Route path="/SpaceWork" element={<SpaceWork />} />
+        <Route path="/AreaTrabajo" element={<AreaTrabajo />} />
+        <Route path="/Usuario" element={<Usuario />} />
+        <Route path="*" element={<h1>Not Found</h1>} />
       </Routes>
     </AuthProvider>
   );

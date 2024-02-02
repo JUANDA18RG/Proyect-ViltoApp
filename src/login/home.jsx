@@ -12,7 +12,7 @@ export default function Home() {
         <source src="Banner.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
-      <div className="absolute w-full h-full bg-gray-700 opacity-20"></div>
+      <div className="absolute w-full h-full bg-gradient-to-t from-gray-900 to-white opacity-50"></div>
       <div className="relative z-10 flex items-center justify-center flex-col">
         <div className="mb-4 flex items-center shadow-sm p-4 bg-amber-100 text-amber-700 rounded-full uppercase">
           <div className="mr-2">
@@ -36,7 +36,7 @@ export default function Home() {
           high rises to the home office, the way your team works is
           unique—accomplish it all with ViltoApp.
         </div>
-        <button className=" m-5 text-sm md:text-xl text-white bg-black px-4 py-2 rounded-md shadow-sm">
+        <button className=" m-5 text-sm md:text-xl text-white bg-black px-4 py-2 rounded-md shadow-sm hover:animate-jump">
           <Link to={"/SignUp"}>Get ViltoApp for free</Link>
         </button>
       </div>

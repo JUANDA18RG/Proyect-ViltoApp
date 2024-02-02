@@ -1,6 +1,6 @@
 export default function ButtonAdd() {
   return (
-    <div className="bg-gradient-to-r from-red-500 to-pink-500 rounded-md p-2 text-white justify-between">
+    <div className="bg-gradient-to-r from-red-500 to-pink-500 rounded-md p-2 text-white justify-between animate-jump-in">
       <button className="flex items-center space-x-2 md:space-x-4">
         <span className="text-sm md:text-base">Agregar Proyecto</span>
         <svg

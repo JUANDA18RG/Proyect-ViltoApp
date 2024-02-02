@@ -1,44 +1,45 @@
-// Task.js
+// AddColumn.js
 import { useState } from "react";
-
 import PropTypes from "prop-types";
 
-const Task = ({ columnId, onAddTask }) => {
-  Task.propTypes = {
-    onAddTask: PropTypes.func.isRequired,
-  };
-  const [newTaskText, setNewTaskText] = useState("");
-  const [addingTask, setAddingTask] = useState(false);
+const AddColumn = ({ onAddColumn }) => {
+  const [showAddColumn, setShowAddColumn] = useState(false);
+  const [newColumnTitle, setNewColumnTitle] = useState("");
 
-  const handleAddTask = () => {
-    onAddTask(columnId, newTaskText);
-    setNewTaskText("");
-    setAddingTask(false);
+  const handleShowAddColumn = () => {
+    setShowAddColumn(true);
+  };
+
+  const handleConfirmAddColumn = () => {
+    const title = newColumnTitle || `New Column`;
+    onAddColumn(title);
+    setNewColumnTitle("");
+    setShowAddColumn(false);
   };
 
   return (
-    <div className="mt-6 flex items-center justify-center animate-jump-in m-2 transition ease-in-out">
-      {addingTask ? (
+    <div className="flex items-center justify-center animate-jump-in">
+      {showAddColumn ? (
         <div
           className="flex items-center justify-between animate-jump-in"
           onBlur={(e) => {
             if (!e.currentTarget.contains(e.relatedTarget)) {
-              setAddingTask(false);
+              setShowAddColumn(false);
             }
           }}
         >
           <textarea
+            type="text"
             rows="1"
             cols="20"
-            value={newTaskText}
-            onChange={(e) => setNewTaskText(e.target.value)}
-            placeholder="Ingrese la nueva tarea"
-            className="p-2 rounded-md resize-none flex-grow"
+            value={newColumnTitle}
+            onChange={(e) => setNewColumnTitle(e.target.value)}
+            placeholder="Enter new column title"
+            className="p-2 rounded-md resize-none flex-grow border-2 border-gray-300"
           />
           <button
-            id="sendButton"
-            onClick={handleAddTask}
             className="bg-gradient-to-r from-red-500 to-pink-500 text-white p-2 rounded-md ml-2"
+            onClick={handleConfirmAddColumn}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -58,10 +59,10 @@ const Task = ({ columnId, onAddTask }) => {
         </div>
       ) : (
         <button
-          onClick={() => setAddingTask(true)}
           className="bg-gray-300 text-center items-center p-2 rounded-md flex text-gray-600 text-sm opacity-70"
+          onClick={handleShowAddColumn}
         >
-          Agregar Tarea
+          Add Column
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -82,8 +83,8 @@ const Task = ({ columnId, onAddTask }) => {
   );
 };
 
-Task.propTypes = {
-  columnId: PropTypes.node.isRequired,
-};
+export default AddColumn;
 
-export default Task;
+AddColumn.propTypes = {
+  onAddColumn: PropTypes.func.isRequired,
+};

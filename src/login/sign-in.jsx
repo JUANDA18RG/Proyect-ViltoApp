@@ -49,8 +49,8 @@ export default function SignIn() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-50 md:p-8 m-4">
-      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg relative z-10 border-2 border-red-500 md:p-5">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-gray-200 to-white md:p-8">
+      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg relative z-10 border-2 border-red-500 md:p-5 animate-fade-left">
         <img
           src="Logo.png"
           alt="Logo"
@@ -131,7 +131,7 @@ export default function SignIn() {
           )}
           <button
             onClick={handleGoogle}
-            className="w-full py-2 border-2 rounded-md"
+            className="w-full py-2 border-2 rounded-md "
           >
             <div className="flex items-center justify-center">
               <img

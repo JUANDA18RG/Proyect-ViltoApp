@@ -71,8 +71,8 @@ export default function SignUp() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-50 sm:px-4 lg:px-7 m-3">
-      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg relative z-10 border-2 border-red-500">
+    <div className="flex items-center justify-center bg-gradient-to-b from-gray-200 to-white min-h-screen">
+      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg relative z-10 border-2 border-red-500 animate-fade-right">
         <img
           src="Logo.png"
           alt="Logo"
