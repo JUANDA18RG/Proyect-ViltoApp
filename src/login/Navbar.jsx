@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 
 export default function Navbar() {
   return (
-    <div className="fixed top-0 w-full h-14 px-4 border-b shadow-sm bg-white flex items-center justify-between z-20">
-      <div className="flex items-center space-x-4 hover:animate-jump transition duration-500">
+    <div className="fixed top-0 w-full h-14 px-4 border-b shadow-sm bg-white flex items-center justify-between z-20 ">
+      <div className="flex items-center space-x-4 hover:animate-jump ml-2">
         <Link to="/">
           <img className="w-10 h-10 rounded-md" src="Logo.png" alt="Workflow" />
         </Link>

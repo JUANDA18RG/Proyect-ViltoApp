@@ -18,7 +18,7 @@ const AddColumn = ({ onAddColumn }) => {
   };
 
   return (
-    <div className="flex items-center justify-center animate-jump-in">
+    <div className="flex items-center justify-center animate-jump-in m-5">
       {showAddColumn ? (
         <div
           className="flex items-center justify-between animate-jump-in"

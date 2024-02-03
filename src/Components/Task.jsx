@@ -17,7 +17,7 @@ const Task = ({ columnId, onAddTask }) => {
   };
 
   return (
-    <div className="mt-6 flex items-center justify-center animate-jump-in m-2 transition ease-in-out">
+    <div className="mt-6 flex items-center justify-center animate-jump-in m-2 transition">
       {addingTask ? (
         <div
           className="flex items-center justify-between animate-jump-in"

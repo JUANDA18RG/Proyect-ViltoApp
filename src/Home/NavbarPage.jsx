@@ -29,7 +29,7 @@ export default function NavbarPage() {
 
   return (
     <div className="w-full h-16 px-4  bg-transparent flex items-center justify-between z-20">
-      <div className="flex items-center space-x-4 animate-jump-in">
+      <div className="flex items-center space-x-4 animate-jump-in ml-2">
         <Link to={"/PageInit"}>
           <img className="w-10 h-10 rounded-md" src="Logo.png" alt="Workflow" />
         </Link>

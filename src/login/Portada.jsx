@@ -4,11 +4,11 @@ import Home from "./home";
 
 function Portada() {
   return (
-    <>
+    <div className="animate-fade-right">
       <Navbar />
       <Home />
       <Footer />
-    </>
+    </div>
   );
 }
 

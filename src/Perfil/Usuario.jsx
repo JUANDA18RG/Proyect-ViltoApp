@@ -9,8 +9,8 @@ export default function Usuario() {
   };
 
   return (
-    <div className="flex w-full h-screen">
-      <div className="w-1/3 flex flex-col items-center justify-center p-8">
+    <div className="flex w-full h-screen animate-fade-right">
+      <div className="w-1/3 flex flex-col items-center justify-center p-8 ">
         <button
           onClick={devolver}
           className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-pink-500 text-white p-3 rounded-full shadow-md hover:animate-jump"
@@ -43,7 +43,7 @@ export default function Usuario() {
           Gestionar Cuenta
         </button>
       </div>
-      <div className="w-2/3 bg-gray-100">
+      <div className="w-2/3 bg-gradient-to-b from-gray-200 to-white">
         <ProyectosRecientesUsuario />
         <ActividadUsuario />
       </div>
