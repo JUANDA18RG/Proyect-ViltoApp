@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import { useNavigate } from "react-router-dom";
 import { Menu } from "@headlessui/react";
+import MenuBurguer from "../Components/MenuBurguer";
 
 export default function NavbarPage() {
   const auth = useAuth();
@@ -28,7 +29,7 @@ export default function NavbarPage() {
   }
 
   return (
-    <div className="w-full h-16 px-4  bg-transparent flex items-center justify-between z-20">
+    <nav className="w-full h-16 px-4  bg-transparent flex items-center justify-between z-20">
       <div className="flex items-center space-x-4 animate-jump-in ml-2">
         <Link to={"/PageInit"}>
           <img className="w-10 h-10 rounded-md" src="Logo.png" alt="Workflow" />
@@ -41,7 +42,11 @@ export default function NavbarPage() {
           </Link>
         </div>
       </div>
-      <div className="flex items-center space-x-4">
+      <div className="md:hidden">
+        <MenuBurguer />
+      </div>
+
+      <div className=" items-center space-x-4 hidden md:flex">
         <Menu as="nav" className="relative z-20">
           {({ open }) => (
             <>
@@ -82,7 +87,7 @@ export default function NavbarPage() {
                   "absolute p-1 top-16 right-5 w-48 bg-active rounded-md translate-y-5 border-2 border-gray-400 shadow-sm bg-white md:text-sm animate-jump-in"
                 }
               >
-                <Menu.Item className="hover:bg-gradient-to-r from-red-500 to-pink-500 rounded-md transition duration-100 ease-in-out">
+                <Menu.Item className="hover:bg-gradient-to-r from-red-500 to-pink-500 rounded-md transition duration-100 ease-in-out m-1">
                   {({ active }) => (
                     <Link
                       to={"/Usuario"}
@@ -108,7 +113,7 @@ export default function NavbarPage() {
                     </Link>
                   )}
                 </Menu.Item>
-                <Menu.Item className="hover:bg-gradient-to-r from-red-500 to-pink-500 rounded-md transition duration-100 ease-in-out">
+                <Menu.Item className="hover:bg-gradient-to-r from-red-500 to-pink-500 rounded-md transition duration-100 ease-in-out m-1">
                   {({ active }) => (
                     <Link
                       className={`h-10 flex items-center justify-between px-2 text-sm rounded-md${
@@ -139,7 +144,7 @@ export default function NavbarPage() {
                     </Link>
                   )}
                 </Menu.Item>
-                <Menu.Item className="hover:bg-gradient-to-r from-red-500 to-pink-500 rounded-md transition duration-100 ease-in-out">
+                <Menu.Item className="hover:bg-gradient-to-r from-red-500 to-pink-500 rounded-md transition duration-100 ease-in-out m-1">
                   {({ active }) => (
                     <div className="flex justify-between hover:text-white">
                       <button
@@ -172,6 +177,6 @@ export default function NavbarPage() {
           )}
         </Menu>
       </div>
-    </div>
+    </nav>
   );
 }

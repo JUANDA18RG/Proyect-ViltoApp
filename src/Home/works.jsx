@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import ButtonAdd from "../Components/buttonAdd";
 import OpcionesProyects from "../Components/OpcionesProyects";
+import GuiaInicio from "../Components/GuiaInicio";
 
 const works = [
   { id: 1, name: "Proyecto 1", description: "Descripcion del proyecto 1" },
@@ -12,11 +13,14 @@ const works = [
 export default function Works() {
   return (
     <div className="flex flex-col mt-14 px-4 md:px-20 h-full">
-      <div className="flex mt-10 md:ml-14 ml-10 text-sm md:text-xl">
-        <ButtonAdd />
-        <p className="text-sm items-center text-center  ml-2 md:ml-5 mt-1 text-gray-400 md:text-lg">
-          You have three projects free
-        </p>
+      <div className="flex py-8 md:px-14 px-10 text-sm md:text-xl justify-between">
+        <div className="flex m-2">
+          <ButtonAdd />
+          <p className="text-sm items-center text-center  ml-2 md:ml-5 mt-1 text-gray-400 md:text-lg">
+            You have three projects free
+          </p>
+        </div>
+        <GuiaInicio />
       </div>
       <div className="text-center mt-5">
         <div className="text-center w-full">
