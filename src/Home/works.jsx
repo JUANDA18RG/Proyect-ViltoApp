@@ -16,9 +16,6 @@ export default function Works() {
       <div className="flex py-8 md:px-14 px-10 text-sm md:text-xl justify-between">
         <div className="flex m-2">
           <ButtonAdd />
-          <p className="text-sm items-center text-center  ml-2 md:ml-5 mt-1 text-gray-400 md:text-lg">
-            You have three projects free
-          </p>
         </div>
         <GuiaInicio />
       </div>

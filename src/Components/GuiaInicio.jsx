@@ -14,7 +14,7 @@ export default function GuiaInicio() {
 
   return (
     <>
-      <div className="flex items-center">
+      <div className="flex items-center animate-jump-in">
         <button
           type="button"
           onClick={openModal}
@@ -70,7 +70,7 @@ export default function GuiaInicio() {
                 <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                   <Dialog.Title
                     as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900"
+                    className="text-lg font-medium leading-6 text-gray-900 justify-center items-center flex"
                   >
                     Payment successful
                   </Dialog.Title>

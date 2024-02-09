@@ -140,7 +140,7 @@ const SpaceWork = () => {
         <Guia />
       </div>
       <div className="flex justify-center items-center flex-wrap">
-        <div className="overflow-auto max-h-[450px]">
+        <div className="overflow-y-auto max-h-[450px] border-b-2 border-gray-200">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 p-8 mx-auto">
             <DragDropContext onDragEnd={onDragEnd} enableDefaultBehaviour>
               {Object.values(columns).map((column) => (
@@ -149,14 +149,14 @@ const SpaceWork = () => {
                     <div
                       {...provided.droppableProps}
                       ref={provided.innerRef}
-                      className={`bg-gray-100 rounded-md border-2 p-5 w-80 h-full   ${
+                      className={`bg-gray-100 rounded-md border-2 p-5 w-80 h-full ${
                         snapshot.isDraggingOver
-                          ? "bg-gradient-to-r from-red-400 to-pink-400 transition duration-300 ease-in-out"
+                          ? "bg-gradient-to-r from-red-400 to-pink-400 "
                           : ""
                       }`}
                     >
-                      <div className="flex justify-between">
-                        <h2 className="text-lg font-semibold mb-4">
+                      <div className="flex justify-between ">
+                        <h2 className="text-lg font-semibold mb-4 animate-fade-left">
                           {column.title}
                         </h2>
                         <Opciones />
@@ -176,7 +176,7 @@ const SpaceWork = () => {
                                 ...provided.draggableProps.style,
                                 opacity: snapshot.isDragging ? 0.8 : 1,
                               }}
-                              className={`bg-white p-2 m-2 rounded-md border-2 shadow-sm`}
+                              className={`bg-white p-2 m-2 rounded-md border-2 shadow-sm `}
                             >
                               {
                                 tasks.find((task) => task.id === taskId)

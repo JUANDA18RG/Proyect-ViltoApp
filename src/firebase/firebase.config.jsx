@@ -1,21 +1,20 @@
-// Import the functions you need from the SDKs you need
-// Import the functions you need from the SDKs you need
+import { getAuth } from "firebase/auth";
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyCzGAfjmGvN-BuHUTIjO_lqhQk1I_-XILU",
-  authDomain: "symbolic-eye-411823.firebaseapp.com",
-  projectId: "symbolic-eye-411823",
-  storageBucket: "symbolic-eye-411823.appspot.com",
-  messagingSenderId: "927368673667",
-  appId: "1:927368673667:web:9c600478597a17f1741eb6",
-  measurementId: "G-E0LC8P24F2",
+  apiKey: "AIzaSyBjFih-4K8LxFOgA6VbE81k5rJClt61JBA",
+  authDomain: "viltoappproyect.firebaseapp.com",
+  projectId: "viltoappproyect",
+  storageBucket: "viltoappproyect.appspot.com",
+  messagingSenderId: "328721418700",
+  appId: "1:328721418700:web:b1a676bef38a143252b569",
+  measurementId: "G-3WTR6D2EB9",
 };
 
 // Initialize Firebase

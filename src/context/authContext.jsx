@@ -8,6 +8,7 @@ import {
   signOut,
   onAuthStateChanged,
   updateProfile,
+  GithubAuthProvider,
 } from "firebase/auth";
 
 import PropTypes from "prop-types";
@@ -68,6 +69,15 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const loginWithGithub = async () => {
+    try {
+      const responseGithub = new GithubAuthProvider();
+      await signInWithPopup(auth, responseGithub);
+    } catch (error) {
+      console.error("Error al iniciar sesión con Github:", error.message);
+    }
+  };
+
   const logout = async () => {
     try {
       await signOut(auth);
@@ -78,7 +88,14 @@ export function AuthProvider({ children }) {
 
   return (
     <authContext.Provider
-      value={{ register, login, loginWithGoogle, logout, user }}
+      value={{
+        register,
+        login,
+        loginWithGoogle,
+        logout,
+        user,
+        loginWithGithub,
+      }}
     >
       {children}
     </authContext.Provider>

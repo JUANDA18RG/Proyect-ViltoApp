@@ -48,6 +48,20 @@ export default function SignIn() {
     }
   };
 
+  const handleGithub = async (e) => {
+    e.preventDefault();
+
+    try {
+      setVerifying(true);
+      await auth.loginWithGithub();
+      navigate("/PageInit");
+    } catch (error) {
+      setError("Error al iniciar sesión con Github. Intenta de nuevo.");
+    } finally {
+      setVerifying(false);
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-gray-200 to-white md:p-8">
       <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg relative z-10 border-2 border-red-500 md:p-5 animate-fade-left">
@@ -131,7 +145,7 @@ export default function SignIn() {
           )}
           <button
             onClick={handleGoogle}
-            className="w-full py-2 border-2 rounded-md "
+            className="w-full py-1 border-2 rounded-md "
           >
             <div className="flex items-center justify-center">
               <img
@@ -140,6 +154,19 @@ export default function SignIn() {
                 alt="Workflow"
               />
               <span>Google</span>
+            </div>
+          </button>
+          <button
+            onClick={handleGithub}
+            className="w-full py-1 border-2 rounded-md "
+          >
+            <div className="flex items-center justify-center">
+              <img
+                className="w-8 h-8 rounded-md mr-2"
+                src="GitHub.png"
+                alt="Workflow"
+              />
+              <span>Github</span>
             </div>
           </button>
         </form>

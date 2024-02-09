@@ -23,9 +23,6 @@ export default function NavbarPage() {
   if (auth.user) {
     displayName = auth.user.displayName;
     photoURL = auth.user.photoURL;
-  } else {
-    displayName = "Usuario";
-    photoURL = "https://www.flaticon.es/svg/static/icons/svg/848/848043.svg";
   }
 
   return (
