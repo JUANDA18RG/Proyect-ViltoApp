@@ -58,7 +58,7 @@ export default function NavbarPage() {
                     className={`w-10 h-10 rounded-full m-2 p-1 mr-1 border-2 border-red-400 `}
                   />
                 )}
-                <span className="sm:text-xl md:text-sm lg:text-base font-bold text-gray-900 hidden md:block mr-1">
+                <span className="sm:text-xl md:text-sm  font-bold text-gray-900 hidden md:block mr-1 ">
                   {displayName}
                 </span>
                 <svg
@@ -67,7 +67,7 @@ export default function NavbarPage() {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className={`w-4 h-4 text-black mr-2 mt-1 transition duration-300 ease-in-out${
+                  className={`w-4 h-4 text-black mr-2 mt-1 transition duration-300 ease-in-out ml-1 ${
                     open === true &&
                     "transform rotate-180 transition duration-300 ease-in-out"
                   }`}

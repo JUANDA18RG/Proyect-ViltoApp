@@ -4,7 +4,7 @@ import Home from "./home";
 
 function Portada() {
   return (
-    <div className="animate-fade-right">
+    <div className="overflow-hidden">
       <Navbar />
       <Home />
       <Footer />

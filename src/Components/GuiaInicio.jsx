@@ -53,7 +53,7 @@ export default function GuiaInicio() {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-black/25" />
+            <div className="fixed inset-0 bg-black/40" />
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto animate-jump-in">
@@ -70,24 +70,26 @@ export default function GuiaInicio() {
                 <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                   <Dialog.Title
                     as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900 justify-center items-center flex"
+                    className="text-lg font-medium leading-6 text-gray-900 justify-center items-center flex m-2"
                   >
-                    Payment successful
+                    <h1 className="uppercase">Bienvenido a ViltoApp</h1>
                   </Dialog.Title>
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-500">
-                      Your payment has been successfully submitted. We’ve sent
-                      you an email with all of the details of your order.
+                  <div className="mt-4">
+                    <p className="text-sm text-gray-500 text-justify">
+                      Esta es tu area de trabajo, aqui podras ver tus proyectos
+                      activos y tambien donde podras crear nuevos proyectos y
+                      poder modificar los proyectos ya existentes en tu cuenta
+                      de ViltoApp.
                     </p>
                   </div>
 
-                  <div className="mt-4 items-center justify-center text-center">
+                  <div className="mt-6 items-center justify-center text-center">
                     <button
                       type="button"
                       className="inline-flex justify-center bg-gradient-to-r from-red-500 to-pink-500 shadow-md text-white rounded-md p-2"
                       onClick={closeModal}
                     >
-                      Got it, thanks!
+                      Entendido
                     </button>
                   </div>
                 </Dialog.Panel>

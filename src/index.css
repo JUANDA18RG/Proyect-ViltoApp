@@ -10,3 +10,33 @@
     text-decoration: none;
     list-style: none;
   }
+
+  body{
+    font-family: "Gill Sans", sans-serif;
+  }
+
+  .container{
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }                       
+
+/* Esto aplica a toda la barra de desplazamiento */
+::-webkit-scrollbar {
+  width: 10px; /* Ancho de la barra de desplazamiento */
+  border-radius: 5px; /* Hace que la barra de desplazamiento sea más redonda */
+  background: #D1D5DB;
+
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(#F56565, #ED64A6); /* Degradado de rojo a rosa */
+  border-radius: 5px; /* Hace que la barra de desplazamiento sea más redonda */
+}
+
+
+/* Esto aplica a los botones de desplazamiento */
+::-webkit-scrollbar-button:start:decrement {
+  display: none; /* Oculta el botón de desplazamiento hacia arriba */
+}
+
