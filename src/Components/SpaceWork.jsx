@@ -1,16 +1,29 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import Task from "./Task";
 import AddColumn from "./Column";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Guia from "./Guia";
+import PersonasActivas from "./PersonasActivas";
+import CompartirProyecto from "./CompartirProyecto";
+import ProyectosFavoritos from "./ProyectosFavoritos";
 
 const initialTasks = [
-  { id: "1", content: "Take out the garbage", column: "column-1" },
-  { id: "2", content: "Watch my favorite show", column: "column-1" },
-  { id: "3", content: "Charge my phone", column: "column-2" },
-  { id: "4", content: "Cook dinner", column: "column-3" },
+  {
+    id: "1",
+    content: "Take out the garbage 😀",
+    column: "column-1",
+    image: null,
+  },
+  {
+    id: "2",
+    content: "Watch my favorite show",
+    column: "column-1",
+    image: null,
+  },
+  { id: "3", content: "Charge my phone", column: "column-2", image: null },
+  { id: "4", content: "Cook dinner", column: "column-3", image: null },
 ];
 
 const initialColumns = {
@@ -36,6 +49,7 @@ const SpaceWork = () => {
   const [columns, setColumns] = useState(initialColumns);
   const [openMenuId, setOpenMenuId] = useState(null);
   const [menuRef, setMenuRef] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   const onDragEnd = (result) => {
     if (!result.destination) {
@@ -126,8 +140,6 @@ const SpaceWork = () => {
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -155,10 +167,30 @@ const SpaceWork = () => {
     });
   };
 
+  const fileInputRef = useRef();
+
+  const handleButtonClick = () => {
+    fileInputRef.current.click();
+  };
+
   return (
     <>
-      <div className="m-2 py-10 md:px-20 px-8">
-        <Guia />
+      <div className="flex py-10 md:px-20 px-8 justify-between mt-5">
+        <div className="flex rounded-md ">
+          <div className="flex items-center justify-center m-1">
+            <h1 className=" text-xl text-center p-2 bg-white rounded-md border animate-fade-right">
+              Nombre del proyecto
+            </h1>
+            <ProyectosFavoritos />
+          </div>
+          <div className="flex items-center ml-4 ">
+            <PersonasActivas />
+          </div>
+        </div>
+        <div className="flex items-center justify-center m-1">
+          <CompartirProyecto />
+          <Guia />
+        </div>
       </div>
       <div className="flex justify-center items-center flex-wrap">
         <div className="overflow-y-auto max-h-[450px]">
@@ -177,7 +209,7 @@ const SpaceWork = () => {
                       }}
                       className={`bg-gray-100 rounded-md border-2 p-5 w-80 h-full ${
                         snapshot.isDraggingOver
-                          ? "bg-gradient-to-r from-red-400 to-pink-400 "
+                          ? "bg-gradient-to-r from-red-400 to-pink-400"
                           : ""
                       }`}
                     >
@@ -185,25 +217,55 @@ const SpaceWork = () => {
                         <h2 className="text-lg font-semibold mb-4 animate-fade-left">
                           {column.title}
                         </h2>
-                        <button
-                          className="text-gray-400 mb-2"
-                          onClick={() => handleMenuClick(column.id)}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={1.5}
-                            stroke="currentColor"
-                            className="w-6 h-6"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
-                            />
-                          </svg>
-                        </button>
+                        <div className="">
+                          {isOpen && openMenuId === column.id ? (
+                            <button
+                              className="text-gray-400 mb-2 animate-jump-in"
+                              onClick={() => {
+                                handleMenuClick(column.id);
+                                setIsOpen(false);
+                              }}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.5}
+                                stroke="currentColor"
+                                className="w-6 h-6"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                            </button>
+                          ) : (
+                            <button
+                              className="text-gray-400 mb-2 animate-jump-in"
+                              onClick={() => {
+                                handleMenuClick(column.id);
+                                setIsOpen(true);
+                              }}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.5}
+                                stroke="currentColor"
+                                className="w-6 h-6"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
+                                />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
                       </div>
                       {openMenuId === column.id ? (
                         <div
@@ -262,19 +324,24 @@ const SpaceWork = () => {
                                   ...provided.draggableProps.style,
                                   opacity: snapshot.isDragging ? 0.8 : 1,
                                 }}
-                                className={`bg-white p-2 m-2 rounded-md border-2 shadow-sm`}
+                                className={`bg-white p-2 m-2 rounded-md border-2 shadow-sm overflow-hidden break-words`}
                               >
                                 {
                                   tasks.find((task) => task.id === taskId)
-                                    ?.content
+                                    .content
                                 }
+                                {tasks.find((task) => task.id === taskId).image}
                               </div>
                             )}
                           </Draggable>
                         ))
                       )}
                       {provided.placeholder}
-                      <Task columnId={column.id} onAddTask={handleAddTask} />
+                      <Task
+                        columnId={column.id}
+                        onAddTask={handleAddTask}
+                        image={handleButtonClick}
+                      />
                     </div>
                   )}
                 </Droppable>

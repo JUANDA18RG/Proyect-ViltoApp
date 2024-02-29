@@ -1,7 +1,7 @@
 export default function ButtonAdd() {
   return (
-    <div className="bg-gradient-to-r from-red-500 to-pink-500 rounded-md p-2 text-white animate-jump-in">
-      <button className="relative flex items-center justify-center space-x-2 md:space-x-4 px-1 py-1 w-full">
+    <div className="bg-gradient-to-r from-red-500 to-pink-500 rounded-md p-1 text-white hover:animate-jump">
+      <button className="relative flex items-center justify-center space-x-2 md:space-x-2 p-1 w-full">
         <span className="hidden md:inline text-sm md:text-sm">
           Agregar Proyecto
         </span>
@@ -12,7 +12,7 @@ export default function ButtonAdd() {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-4 h-4 mr-2"
+            className="w-4 h-4 "
           >
             <path
               strokeLinecap="round"

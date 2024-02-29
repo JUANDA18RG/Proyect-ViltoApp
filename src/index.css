@@ -40,3 +40,12 @@
   display: none; /* Oculta el botón de desplazamiento hacia arriba */
 }
 
+
+.slick-slider {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+ 
+}
+
+

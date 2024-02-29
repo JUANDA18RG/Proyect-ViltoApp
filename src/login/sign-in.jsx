@@ -145,14 +145,14 @@ export default function SignIn() {
             </div>
             <button
               onClick={handleLogin}
-              className="rounded-md w-full py-2 bg-gradient-to-r from-red-500 to-pink-500 hover:bg-pink-700 transition duration-300 text-white"
+              className="rounded-md w-full py-2 bg-gradient-to-r from-red-500 to-pink-500  text-white "
               disabled={verifying}
             >
               {verifying ? "Verificando..." : "Login"}
             </button>
             <button
               onClick={handleGoogle}
-              className="w-full py-1 border-2 rounded-md "
+              className="w-full py-1 border-2 rounded-md hover:bg-gray-200 transit duration-300 ease-in-out"
             >
               <div className="flex items-center justify-center">
                 <img
@@ -165,7 +165,7 @@ export default function SignIn() {
             </button>
             <button
               onClick={handleGithub}
-              className="w-full py-1 border-2 rounded-md "
+              className="w-full py-1 border-2 rounded-md hover:bg-gray-200 transit duration-300 ease-in-out"
             >
               <div className="flex items-center justify-center">
                 <img

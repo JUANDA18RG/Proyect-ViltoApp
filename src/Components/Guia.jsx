@@ -65,20 +65,19 @@ export default function MyModal() {
 
   return (
     <>
-      <div className="flex items-center">
+      <div className="flex items-center hover:animate-jump">
         <button
           type="button"
           onClick={openModal}
-          className="rounded-md  px-4 py-2 text-sm  text-white bg-gray-400 flex"
+          className=" p-2 text-sm  text-white bg-gray-400 flex rounded-full"
         >
-          Help
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-4 h-4 mt-0.5 ml-1"
+            className="w-5 h-5"
           >
             <path
               strokeLinecap="round"

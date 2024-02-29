@@ -17,6 +17,7 @@ function App() {
         <Route path="/PageInit" element={<PageInit />} />
         <Route path="/AreaTrabajo" element={<AreaTrabajo />} />
         <Route path="/Usuario" element={<Usuario />} />
+        <Route path="*" element={<Portada />} />
       </Routes>
     </AuthProvider>
   );
