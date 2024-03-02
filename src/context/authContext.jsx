@@ -54,6 +54,19 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     try {
       const response = await signInWithEmailAndPassword(auth, email, password);
+      const user = response.user;
+      await fetch("http://localhost:4000/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: user.displayName,
+          email: user.email,
+          uid: user.uid,
+        }),
+      });
+      setUser(user);
       console.log(response);
     } catch (error) {
       console.error("Error al iniciar sesión:", error.message);
@@ -62,8 +75,21 @@ export function AuthProvider({ children }) {
 
   const loginWithGoogle = async () => {
     try {
-      const responseGoogle = new GoogleAuthProvider();
-      await signInWithPopup(auth, responseGoogle);
+      const provider = new GoogleAuthProvider();
+      const response = await signInWithPopup(auth, provider);
+      const user = response.user;
+      await fetch("http://localhost:4000/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: user.displayName,
+          email: user.email,
+          uid: user.uid,
+        }),
+      });
+      setUser(user);
     } catch (error) {
       console.error("Error al iniciar sesión con Google:", error.message);
     }
@@ -71,8 +97,21 @@ export function AuthProvider({ children }) {
 
   const loginWithGithub = async () => {
     try {
-      const responseGithub = new GithubAuthProvider();
-      await signInWithPopup(auth, responseGithub);
+      const provider = new GithubAuthProvider();
+      const response = await signInWithPopup(auth, provider);
+      const user = response.user;
+      await fetch("http://localhost:4000/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: user.displayName,
+          email: user.email,
+          uid: user.uid,
+        }),
+      });
+      setUser(user);
     } catch (error) {
       console.error("Error al iniciar sesión con Github:", error.message);
     }
