@@ -1,4 +1,4 @@
-import { useAuth } from "../Context/AuthContext";
+import { useAuth } from "../context/authContext";
 import ActividadUsuario from "./ActividadUsuario";
 import ProyectosRecientesUsuario from "./ProyectosRecientesUsuario";
 
