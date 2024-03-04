@@ -3,6 +3,7 @@ import { useAuth } from "../context/authContext";
 import { useNavigate } from "react-router-dom";
 import { Menu } from "@headlessui/react";
 import MenuBurguer from "../Components/MenuBurguer";
+import logo from "/Logo.png";
 
 export default function NavbarPage() {
   const auth = useAuth();
@@ -31,7 +32,7 @@ export default function NavbarPage() {
     <nav className="w-full h-16 px-4  bg-transparent flex items-center justify-between z-20">
       <div className="flex items-center space-x-4 animate-jump-in ml-2">
         <Link to={"/PageInit"}>
-          <img className="w-10 h-10 rounded-md" src="Logo.png" alt="Workflow" />
+          <img className="w-10 h-10 rounded-md" src={logo} alt="Workflow" />
         </Link>
         <div className="hidden sm:block">
           <Link to={"/PageInit"}>

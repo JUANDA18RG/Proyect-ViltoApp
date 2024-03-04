@@ -8,6 +8,7 @@ import Guia from "./Guia";
 import PersonasActivas from "./PersonasActivas";
 import CompartirProyecto from "./CompartirProyecto";
 import ProyectosFavoritos from "./ProyectosFavoritos";
+import PropTypes from "prop-types";
 
 const initialTasks = [
   {
@@ -44,12 +45,24 @@ const initialColumns = {
   },
 };
 
-const SpaceWork = () => {
+const SpaceWork = ({ projectId }) => {
   const [tasks, setTasks] = useState(initialTasks);
   const [columns, setColumns] = useState(initialColumns);
   const [openMenuId, setOpenMenuId] = useState(null);
   const [menuRef, setMenuRef] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [project, setProject] = useState(null);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const response = await fetch(
+        `http://localhost:4000/project/${projectId}`
+      );
+      const data = await response.json();
+      setProject(data);
+    };
+    fetchProjects();
+  }, [projectId]);
 
   const onDragEnd = (result) => {
     if (!result.destination) {
@@ -178,8 +191,8 @@ const SpaceWork = () => {
       <div className="flex py-10 md:px-20 px-8 justify-between mt-5">
         <div className="flex rounded-md ">
           <div className="flex items-center justify-center m-1">
-            <h1 className=" text-xl text-center p-2 bg-white rounded-md border animate-fade-right">
-              Nombre del proyecto
+            <h1 className=" text-xl text-center p-2 bg-white rounded-md border animate-jump-in">
+              {project?.name}
             </h1>
             <ProyectosFavoritos />
           </div>
@@ -217,7 +230,7 @@ const SpaceWork = () => {
                         <h2 className="text-lg font-semibold mb-4 animate-fade-left">
                           {column.title}
                         </h2>
-                        <div className="">
+                        <div className="flex items-center text-center">
                           {isOpen && openMenuId === column.id ? (
                             <button
                               className="text-gray-400 mb-2 animate-jump-in"
@@ -372,3 +385,7 @@ const SpaceWork = () => {
 };
 
 export default SpaceWork;
+
+SpaceWork.propTypes = {
+  projectId: PropTypes.string,
+};

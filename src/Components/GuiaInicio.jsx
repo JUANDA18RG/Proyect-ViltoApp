@@ -71,7 +71,9 @@ export default function GuiaInicio() {
                     as="h3"
                     className="text-lg font-medium leading-6 text-gray-900 justify-center items-center flex m-2"
                   >
-                    <h1 className="uppercase">Bienvenido a ViltoApp</h1>
+                    <h1 className="uppercase border-b-2 border-red-500 text-xl mb-4">
+                      Bienvenido a ViltoApp 🧠🫡
+                    </h1>
                   </Dialog.Title>
                   <div className="mt-4">
                     <p className="text-sm text-gray-500 text-justify">
