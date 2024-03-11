@@ -40,10 +40,14 @@ export default function ButtonAdd({ setWorks }) {
     const data = await response.json();
 
     // Actualiza el estado de works para incluir el nuevo proyecto
-    setWorks((prevWorks) => [...prevWorks, data]);
+    setWorks((prevColumns) => [...prevColumns, data]);
     toast.success(`La tarea de nombre ${name} fue creada.`, {
       autoClose: 3000,
     });
+
+    // Limpia los campos
+    setName(null);
+    setDescription(null);
 
     console.log(data);
   };

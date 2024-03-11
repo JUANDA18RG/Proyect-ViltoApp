@@ -45,7 +45,12 @@
   position: relative;
   display: block;
   box-sizing: border-box;
- 
 }
 
+.emoji-picker-container {
+  position: absolute;
+  top: 10px; /* Ajusta según sea necesario para la posición deseada */
+  left: 0;
+  z-index: 1000; /* Ajusta según sea necesario para que esté por encima del contenido */
+}
 

@@ -10,7 +10,6 @@ import {
   updateProfile,
   GithubAuthProvider,
 } from "firebase/auth";
-
 import PropTypes from "prop-types";
 
 export const authContext = createContext();
@@ -31,13 +30,15 @@ export function AuthProvider({ children }) {
       setUser(currentUser);
     });
 
-    // No es necesario retornar una función de limpieza aquí
-
     return () => unsubscribe();
   }, []);
 
   const register = async (email, password, name) => {
     try {
+      if (!email || !password || !name) {
+        throw new Error("Todos los campos son obligatorios");
+      }
+
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -53,8 +54,23 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     try {
+      if (!email || !password) {
+        throw new Error("Por favor, completa todos los campos");
+      }
+
       const response = await signInWithEmailAndPassword(auth, email, password);
       const user = response.user;
+
+      await fetchUserData(user);
+
+      setUser(user);
+    } catch (error) {
+      console.error("Error al iniciar sesión:", error.message);
+    }
+  };
+
+  const fetchUserData = async (user) => {
+    try {
       await fetch("http://localhost:4000/users", {
         method: "POST",
         headers: {
@@ -66,10 +82,8 @@ export function AuthProvider({ children }) {
           uid: user.uid,
         }),
       });
-      setUser(user);
-      console.log(response);
     } catch (error) {
-      console.error("Error al iniciar sesión:", error.message);
+      console.error("Error al obtener datos del usuario:", error.message);
     }
   };
 
@@ -78,17 +92,7 @@ export function AuthProvider({ children }) {
       const provider = new GoogleAuthProvider();
       const response = await signInWithPopup(auth, provider);
       const user = response.user;
-      await fetch("http://localhost:4000/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: user.displayName,
-          email: user.email,
-          uid: user.uid,
-        }),
-      });
+      await fetchUserData(user);
       setUser(user);
     } catch (error) {
       console.error("Error al iniciar sesión con Google:", error.message);
@@ -100,17 +104,7 @@ export function AuthProvider({ children }) {
       const provider = new GithubAuthProvider();
       const response = await signInWithPopup(auth, provider);
       const user = response.user;
-      await fetch("http://localhost:4000/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: user.displayName,
-          email: user.email,
-          uid: user.uid,
-        }),
-      });
+      await fetchUserData(user);
       setUser(user);
     } catch (error) {
       console.error("Error al iniciar sesión con Github:", error.message);
@@ -120,6 +114,7 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       await signOut(auth);
+      setUser(null);
     } catch (error) {
       console.error("Error al cerrar sesión:", error.message);
     }

@@ -11,6 +11,9 @@ export default function Navbar() {
           <Link to="/">
             <div className="sm:text-xl md:text-2xl lg:text-xl font-bold text-gray-900">
               ViltoApp
+              <span className="text-sm" style={{ verticalAlign: "super" }}>
+                &reg;
+              </span>
             </div>
           </Link>
         </div>

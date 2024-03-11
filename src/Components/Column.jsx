@@ -1,9 +1,10 @@
-// AddColumn.js
 import { useState } from "react";
 import PropTypes from "prop-types";
 import Picker from "emoji-picker-react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const AddColumn = ({ onAddColumn }) => {
+const AddColumn = ({ projectId, onColumnCreated }) => {
   const [showAddColumn, setShowAddColumn] = useState(false);
   const [newColumnTitle, setNewColumnTitle] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -12,11 +13,35 @@ const AddColumn = ({ onAddColumn }) => {
     setShowAddColumn(true);
   };
 
-  const handleConfirmAddColumn = () => {
-    const title = newColumnTitle || `New Column`;
-    onAddColumn(title);
-    setNewColumnTitle("");
-    setShowAddColumn(false);
+  const handleConfirmAddColumn = async () => {
+    let title = newColumnTitle;
+
+    if (!title) {
+      title = "New Column";
+      setNewColumnTitle(title);
+    }
+
+    try {
+      const response = await fetch("http://localhost:4000/columns", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: title, projectId, tasks: [] }),
+      });
+
+      if (response.ok) {
+        toast.success("Column added successfully: " + title);
+        setShowAddColumn(false);
+        setNewColumnTitle("");
+        onColumnCreated({ _id: response.columnId, name: title }); // Ajusta las propiedades según tu estructura
+      } else {
+        toast.error("Error adding column");
+      }
+    } catch (error) {
+      console.error("Error adding column", error);
+      toast.error("Error adding column");
+    }
   };
 
   const handleEmojiSelect = (emojiObject) => {
@@ -122,8 +147,9 @@ const AddColumn = ({ onAddColumn }) => {
   );
 };
 
-export default AddColumn;
-
 AddColumn.propTypes = {
-  onAddColumn: PropTypes.func.isRequired,
+  projectId: PropTypes.string.isRequired,
+  onColumnCreated: PropTypes.func.isRequired,
 };
+
+export default AddColumn;

@@ -155,6 +155,14 @@ export default {
                   transformOrigin: 'top',
               },
           },
+          'spin': {
+                '0%': {
+                    transform: 'rotate(0deg)',
+                },
+                '100%': {
+                    transform: 'rotate(360deg)',
+                },
+            },
       },
       animation: {
           'wiggle': 'wiggle 1s both',
@@ -172,6 +180,7 @@ export default {
           'fade-right': 'fade-right 1s both',
           'flip-up': 'flip-up 1s both',
           'flip-down': 'flip-down 1s both',
+            'spin': 'spin 1s infinite',
       },
       animationDelay: {
           none: '0ms',

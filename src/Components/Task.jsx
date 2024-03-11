@@ -2,31 +2,52 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import Picker from "emoji-picker-react";
+import { toast } from "react-toastify";
 
-const Task = ({ columnId, onAddTask, onAddImage, image }) => {
+const Task = ({ columnId, onTaskCreated }) => {
   Task.propTypes = {
-    onAddTask: PropTypes.func.isRequired,
     columnId: PropTypes.node.isRequired,
-    onAddImage: PropTypes.func.isRequired,
-    image: PropTypes.object.isRequired,
+    onTaskCreated: PropTypes.func.isRequired,
   };
+
   const [newTaskText, setNewTaskText] = useState("");
   const [addingTask, setAddingTask] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const handleAddTask = () => {
-    onAddTask(columnId, newTaskText);
-    setNewTaskText("");
-    setAddingTask(false);
-  };
-
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      onAddImage(file);
-      setSelectedImage(file);
+    if (!newTaskText) {
+      toast.error("La tarea no puede estar vacía", {
+        autoClose: 3000,
+      });
+      return;
     }
+    const taskData = {
+      name: newTaskText,
+      columnId: columnId,
+    };
+    fetch("http://localhost:4000/tasks", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(taskData),
+    })
+      .then((response) => response.json()) // Convertir la respuesta a JSON
+      .then((data) => {
+        console.log("Success:", data);
+        onTaskCreated(data, columnId); // Ahora data debería ser un objeto JSON
+        setAddingTask(false);
+        setNewTaskText("");
+        toast.success(`La tarea de nombre ${newTaskText} fue creada.`, {
+          autoClose: 3000,
+        });
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        toast.error("Hubo un error al crear la tarea", {
+          autoClose: 3000,
+        });
+      });
   };
 
   const handleEmojiSelect = (emojiObject) => {
@@ -97,19 +118,7 @@ const Task = ({ columnId, onAddTask, onAddImage, image }) => {
                   />
                 </svg>
               </button>
-              <input
-                type="file"
-                accept="image/*"
-                ref={(input) => {
-                  image = input;
-                }}
-                onChange={handleImageChange}
-                className="hidden"
-              />
-              <button
-                className="bg-gradient-to-r from-red-500 to-pink-500 text-white p-1 rounded-md ml-2 hover:animate-jump"
-                onClick={() => image && image.click()}
-              >
+              <button className="bg-gradient-to-r from-red-500 to-pink-500 text-white p-1 rounded-md ml-2 hover:animate-jump">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -131,7 +140,7 @@ const Task = ({ columnId, onAddTask, onAddImage, image }) => {
             <div className="absolute top-full z-50 w-64 h-64 m-2">
               <Picker
                 onEmojiClick={handleEmojiSelect}
-                className="scale-75 origin-top-left"
+                className="scale-75 origin-top-left z-50"
               />
             </div>
           )}
@@ -158,19 +167,6 @@ const Task = ({ columnId, onAddTask, onAddImage, image }) => {
           </svg>
         </button>
       )}
-      {
-        <div className="flex items-center justify-center">
-          {selectedImage && (
-            <img
-              src={URL.createObjectURL(selectedImage)} // Usar el archivo seleccionado con URL.createObjectURL
-              alt="imagen"
-              className="rounded-md m-2"
-              width="100"
-              height="100"
-            />
-          )}
-        </div>
-      }
     </div>
   );
 };
