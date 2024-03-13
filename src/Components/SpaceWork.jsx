@@ -9,12 +9,14 @@ import PersonasActivas from "./PersonasActivas";
 import CompartirProyecto from "./CompartirProyecto";
 import ProyectosFavoritos from "./ProyectosFavoritos";
 import PropTypes from "prop-types";
+import isEqual from "lodash/isEqual";
 
 const SpaceWork = ({ projectId }) => {
   const [columns, setColumns] = useState([]);
   const [openMenuId, setOpenMenuId] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [project, setProject] = useState(null);
+  const [forceUpdate, setForceUpdate] = useState(false);
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -33,19 +35,17 @@ const SpaceWork = ({ projectId }) => {
           columnsData.data.map((column) => ({
             id: column._id,
             title: column.name,
-            taskIds: column.tasks.map((task) => task._id), // Mapea las tareas a sus IDs
-            tasks: column.tasks, // Añade las tareas a la columna
+            taskIds: column.tasks.map((task) => task._id),
+            tasks: column.tasks,
           }))
         );
-        console.log("Project data:", projectData);
-        console.log("Columns data:", columnsData);
       } catch (error) {
         console.error("Error fetching project data:", error);
       }
     };
 
     fetchProjectData();
-  }, [projectId]);
+  }, [projectId, forceUpdate]);
 
   const handleMenuClick = (id) => {
     setOpenMenuId(id);
@@ -108,6 +108,68 @@ const SpaceWork = ({ projectId }) => {
     });
   };
 
+  const onDragEnd = async (result) => {
+    const { destination, source, draggableId } = result;
+
+    if (!destination || isEqual(destination, source)) {
+      return;
+    }
+
+    try {
+      const updatedColumns = [...columns];
+      const sourceColumnIndex = updatedColumns.findIndex(
+        (column) => column.id === source.droppableId
+      );
+      const destinationColumnIndex = updatedColumns.findIndex(
+        (column) => column.id === destination.droppableId
+      );
+
+      const movedTask = updatedColumns[sourceColumnIndex].tasks.find(
+        (task) => task._id === draggableId
+      );
+
+      updatedColumns[sourceColumnIndex].tasks = updatedColumns[
+        sourceColumnIndex
+      ].tasks.filter((task) => task._id !== draggableId);
+
+      updatedColumns[destinationColumnIndex].tasks.splice(
+        destination.index,
+        0,
+        movedTask
+      );
+
+      setColumns(updatedColumns);
+
+      const response = await fetch(
+        `http://localhost:4000/mover/${draggableId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sourceColumnId: source.droppableId,
+            destinationColumnId: destination.droppableId,
+            sourceIndex: source.index,
+            destinationIndex: destination.index,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        toast.success("Tarea movida con éxito", { autoClose: 3000 });
+      } else {
+        setColumns(columns);
+        toast.error("Error al mover la tarea", { autoClose: 3000 });
+      }
+    } catch (error) {
+      console.error("Error in moveTask:", error);
+      toast.error("Error al mover la tarea", { autoClose: 3000 });
+    } finally {
+      setForceUpdate((prev) => !prev);
+    }
+  };
+
   return (
     <>
       <div className="flex py-10 md:px-20 px-8 justify-between mt-5">
@@ -130,15 +192,13 @@ const SpaceWork = ({ projectId }) => {
       <div className="flex justify-center items-center flex-wrap">
         <div className="overflow-y-auto max-h-[450px]">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 p-8 mx-auto">
-            <DragDropContext enableDefaultBehaviour>
+            <DragDropContext onDragEnd={onDragEnd} enableDefaultBehaviour>
               {Object.values(columns).map((column) => (
                 <Droppable key={column.id} droppableId={column.id}>
                   {(provided, snapshot) => (
                     <div
+                      ref={provided.innerRef}
                       {...provided.droppableProps}
-                      ref={(ref) => {
-                        provided.innerRef(ref);
-                      }}
                       className={`bg-gray-100 rounded-md border-2 p-5 w-80 h-full ${
                         snapshot.isDraggingOver
                           ? "bg-gradient-to-r from-red-400 to-pink-400"
@@ -255,13 +315,12 @@ const SpaceWork = ({ projectId }) => {
                                   }}
                                   className={`bg-white p-2 m-2 rounded-md border-2 shadow-sm overflow-hidden break-words`}
                                 >
-                                  {taskId === "add-task" ? (
-                                    <Task columnId={column.id} />
-                                  ) : (
+                                  {column.tasks.find(
+                                    (task) => task._id === taskId
+                                  ) &&
                                     column.tasks.find(
                                       (task) => task._id === taskId
-                                    ).name
-                                  )}
+                                    ).name}
                                 </div>
                               );
                             }}

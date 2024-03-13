@@ -61,7 +61,7 @@ export default function NavbarPage() {
                   <img
                     src={photoURL}
                     alt={UDI}
-                    className={`w-10 h-10 rounded-full m-2 p-1 mr-1 border-2 border-red-400 `}
+                    className={`w-12 h-12 rounded-full m-2 p-1 mr-1 border-2 border-red-400 `}
                   />
                 )}
                 <span className="sm:text-xl md:text-sm  font-bold text-gray-900 hidden md:block mr-1 ">
