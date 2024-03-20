@@ -5,11 +5,11 @@ import AddColumn from "./Column";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Guia from "./Guia";
-import PersonasActivas from "./PersonasActivas";
 import CompartirProyecto from "./CompartirProyecto";
 import ProyectosFavoritos from "./ProyectosFavoritos";
 import PropTypes from "prop-types";
 import isEqual from "lodash/isEqual";
+import io from "socket.io-client";
 
 const SpaceWork = ({ projectId }) => {
   const [columns, setColumns] = useState([]);
@@ -17,6 +17,14 @@ const SpaceWork = ({ projectId }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [project, setProject] = useState(null);
   const [forceUpdate, setForceUpdate] = useState(false);
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    const newSocket = io("http://localhost:4000");
+    setSocket(newSocket);
+
+    return () => newSocket.close();
+  }, [setSocket]);
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -57,6 +65,19 @@ const SpaceWork = ({ projectId }) => {
     setIsOpen(false);
   };
 
+  // Escuchar los eventos de socket.io
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("cambio en el proyecto", (data) => {
+      // Actualizar el estado con los nuevos datos del proyecto
+      setProject(data.project);
+      setColumns(data.columns);
+    });
+
+    return () => socket.off("cambio en el proyecto");
+  }, [socket, setProject, setColumns]);
+
   const handleDeleteColumn = async (id) => {
     console.log(id);
     try {
@@ -80,16 +101,26 @@ const SpaceWork = ({ projectId }) => {
     }
   };
 
-  const onColumnCreated = (newColumn) => {
-    setColumns((prevColumns) => [
-      ...prevColumns,
-      {
-        id: newColumn._id,
-        title: newColumn.name,
-        taskIds: [],
-      },
-    ]);
-  };
+  //mostar las columnas sin recargar la pagina
+  // const onColumnCreated = (newColumn) => {
+  //   setColumns((prevColumns) => [
+  //     ...prevColumns,
+  //     {
+  //       id: newColumn._id,
+  //       title: newColumn.name,
+  //       taskIds: [],
+  //     },
+  //   ]);
+
+  // };
+
+  // useEffect(() => {
+  //   const toastMessage = localStorage.getItem("toastMessage");
+  //   if (toastMessage) {
+  //     toast.success(toastMessage, { autoClose: 3000 });
+  //     localStorage.removeItem("toastMessage"); // Eliminar el mensaje después de mostrarlo
+  //   }
+  // }, []);
 
   //para mostrar las tareas sin recagar las pagina
   const onTaskCreated = (newTask, columnId) => {
@@ -172,7 +203,7 @@ const SpaceWork = ({ projectId }) => {
 
   return (
     <>
-      <div className="flex py-10 md:px-20 px-8 justify-between mt-5">
+      <div className="flex py-10 md:px-20 px-8 justify-between mt-5 ">
         <div className="flex rounded-md ">
           <div className="flex items-center justify-center m-1">
             <h1 className=" text-xl text-center p-2 bg-white rounded-md border animate-jump-in">
@@ -180,9 +211,7 @@ const SpaceWork = ({ projectId }) => {
             </h1>
             <ProyectosFavoritos />
           </div>
-          <div className="flex items-center ml-4 ">
-            <PersonasActivas />
-          </div>
+          <div className="flex items-center ml-4 "></div>
         </div>
         <div className="flex items-center justify-center m-1">
           <CompartirProyecto />
@@ -190,7 +219,7 @@ const SpaceWork = ({ projectId }) => {
         </div>
       </div>
       <div className="flex justify-center items-center flex-wrap">
-        <div className="overflow-y-auto max-h-[450px]">
+        <div className="overflow-y-auto max-h-[450px] overflow-x-hidden">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 p-8 mx-auto">
             <DragDropContext onDragEnd={onDragEnd} enableDefaultBehaviour>
               {Object.values(columns).map((column) => (
@@ -336,10 +365,16 @@ const SpaceWork = ({ projectId }) => {
                   )}
                 </Droppable>
               ))}
-              <AddColumn
-                projectId={projectId}
-                onColumnCreated={onColumnCreated}
-              />
+              {columns.length === 0 ? (
+                <div className="absolute inset-2 flex flex-col justify-center items-center pointer-events-none">
+                  <span className="text-gray-400 text-lg mb-1 pointer-events-auto">
+                    No hay columnas para mostrar en este proyecto
+                  </span>
+                  <AddColumn projectId={projectId} />
+                </div>
+              ) : (
+                <AddColumn projectId={projectId} />
+              )}
             </DragDropContext>
           </div>
         </div>

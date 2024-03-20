@@ -54,3 +54,6 @@
   z-index: 1000; /* Ajusta según sea necesario para que esté por encima del contenido */
 }
 
+::selection {
+  background: linear-gradient(#F56565, #ED64A6); /* Degradado de rojo a rosa */
+}

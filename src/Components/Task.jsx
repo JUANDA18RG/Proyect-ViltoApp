@@ -3,6 +3,7 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import Picker from "emoji-picker-react";
 import { toast } from "react-toastify";
+import { useSocket } from "../App";
 
 const Task = ({ columnId, onTaskCreated }) => {
   Task.propTypes = {
@@ -13,6 +14,7 @@ const Task = ({ columnId, onTaskCreated }) => {
   const [newTaskText, setNewTaskText] = useState("");
   const [addingTask, setAddingTask] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const socket = useSocket();
 
   const handleAddTask = () => {
     if (!newTaskText) {
@@ -38,6 +40,7 @@ const Task = ({ columnId, onTaskCreated }) => {
         onTaskCreated(data, columnId); // Ahora data debería ser un objeto JSON
         setAddingTask(false);
         setNewTaskText("");
+        socket.emit("task created", data);
         toast.success(`La tarea de nombre ${newTaskText} fue creada.`, {
           autoClose: 3000,
         });
@@ -137,10 +140,14 @@ const Task = ({ columnId, onTaskCreated }) => {
             </div>
           </div>
           {showEmojiPicker && (
-            <div className="absolute top-full z-50 w-64 h-64 m-2">
+            <div className="relative left-12 top-10">
               <Picker
                 onEmojiClick={handleEmojiSelect}
                 className="scale-75 origin-top-left z-50"
+                disableSearchBar={true}
+                maxFrequentRows={0}
+                previewPosition={"none"}
+                theme={"light"}
               />
             </div>
           )}

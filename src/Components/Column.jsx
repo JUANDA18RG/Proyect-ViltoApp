@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Picker from "emoji-picker-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSocket } from "../App";
 
-const AddColumn = ({ projectId, onColumnCreated }) => {
+const AddColumn = ({ projectId }) => {
   const [showAddColumn, setShowAddColumn] = useState(false);
   const [newColumnTitle, setNewColumnTitle] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const socket = useSocket();
 
   const handleShowAddColumn = () => {
     setShowAddColumn(true);
@@ -31,10 +33,16 @@ const AddColumn = ({ projectId, onColumnCreated }) => {
       });
 
       if (response.ok) {
-        toast.success("Column added successfully: " + title);
         setShowAddColumn(false);
+        const column = await response.json();
+        socket.emit("column created", column); // Emitir el evento de Socket.IO
         setNewColumnTitle("");
-        onColumnCreated({ _id: response.columnId, name: title }); // Ajusta las propiedades según tu estructura
+
+        localStorage.setItem(
+          "toastMessage",
+          "la columna: " + title + " se ha creado correctamente"
+        );
+        window.location.reload();
       } else {
         toast.error("Error adding column");
       }
@@ -49,8 +57,16 @@ const AddColumn = ({ projectId, onColumnCreated }) => {
     console.log(emojiObject.emoji);
   };
 
+  useEffect(() => {
+    const toastMessage = localStorage.getItem("toastMessage");
+    if (toastMessage) {
+      toast.success(toastMessage, { autoClose: 5000 });
+      localStorage.removeItem("toastMessage"); // Eliminar el mensaje después de mostrarlo
+    }
+  }, []);
+
   return (
-    <div className="flex items-center justify-center animate-jump-in m-4">
+    <div className="flex items-center justify-center animate-jump-in m-4 pointer-events-auto">
       {showAddColumn ? (
         <div
           className="flex items-center justify-between animate-jump-in"
@@ -113,10 +129,14 @@ const AddColumn = ({ projectId, onColumnCreated }) => {
             </div>
           </div>
           {showEmojiPicker && (
-            <div className="absolute top-full z-40 w-64 h-64 m-2">
+            <div className="absolute top-full">
               <Picker
-                onEmojiClick={handleEmojiSelect}
                 className="scale-75 origin-top-left"
+                onEmojiClick={handleEmojiSelect}
+                disableSearchBar={true}
+                maxFrequentRows={0}
+                previewPosition={"none"}
+                theme={"light"}
               />
             </div>
           )}
@@ -149,7 +169,6 @@ const AddColumn = ({ projectId, onColumnCreated }) => {
 
 AddColumn.propTypes = {
   projectId: PropTypes.string.isRequired,
-  onColumnCreated: PropTypes.func.isRequired,
 };
 
 export default AddColumn;

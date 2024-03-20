@@ -4,11 +4,14 @@ import { useAuth } from "../context/authContext";
 import PropTypes from "prop-types";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSocket } from "../App";
+import { useEffect } from "react";
 
 export default function ButtonAdd({ setWorks }) {
   let [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const socket = useSocket();
 
   function closeModal() {
     setIsOpen(false);
@@ -41,9 +44,11 @@ export default function ButtonAdd({ setWorks }) {
 
     // Actualiza el estado de works para incluir el nuevo proyecto
     setWorks((prevColumns) => [...prevColumns, data]);
-    toast.success(`La tarea de nombre ${name} fue creada.`, {
+    toast.success(`El proyecto de nombre ${name} fue creado con exito.`, {
       autoClose: 3000,
     });
+
+    socket.emit("proyect created", data);
 
     // Limpia los campos
     setName(null);
@@ -51,6 +56,16 @@ export default function ButtonAdd({ setWorks }) {
 
     console.log(data);
   };
+
+  useEffect(() => {
+    if (socket == null) return;
+
+    socket.on("project created", (newProject) => {
+      setWorks((prevWorks) => [...prevWorks, newProject]);
+    });
+
+    return () => socket.off("project created");
+  }, [socket, setWorks]);
 
   return (
     <>

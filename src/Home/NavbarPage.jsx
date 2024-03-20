@@ -73,7 +73,7 @@ export default function NavbarPage() {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className={`w-4 h-4 text-black mr-2 mt-1 transition duration-300 ease-in-out ml-1 ${
+                  className={`w-4 h-4 text-black mr-2  transition duration-300 ease-in-out ml-1 ${
                     open === true &&
                     "transform rotate-180 transition duration-300 ease-in-out"
                   }`}

@@ -5,12 +5,14 @@ import GuiaInicio from "../Components/GuiaInicio";
 import { useAuth } from "../context/authContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSocket } from "../App";
 
 export default function Works() {
   const [works, setWorks] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const socket = useSocket();
 
   const handleMenuClick = (id) => {
     setOpenMenuId(id);
@@ -38,7 +40,17 @@ export default function Works() {
     };
 
     fetchProjects();
-  }, [auth.user]);
+
+    socket.on("proyect created", (newProject) => {
+      // Actualiza el estado de works para incluir el nuevo proyecto
+      setWorks((prevWorks) => [...prevWorks, newProject]);
+    });
+
+    // Asegúrate de limpiar el evento cuando el componente se desmonte
+    return () => {
+      socket.off("proyect created");
+    };
+  }, [socket, auth.user]);
 
   const deleteProject = async (id) => {
     const response = await fetch(`http://localhost:4000/projects/${id}`, {
@@ -54,7 +66,7 @@ export default function Works() {
 
   return (
     <>
-      <div className="w-4/5 h-screen overflow-y-auto mt-8 pb-20">
+      <div className="w-4/5 h-screen overflow-y-auto mt-8 pb-20 ">
         <div className="flex flex-col px-4 md:px-20">
           <div className="flex py-8 md:px-14 px-10 text-sm md:text-xl justify-between">
             <div className="flex m-2">
@@ -99,7 +111,7 @@ export default function Works() {
                 {[...works].reverse().map((work) => (
                   <div
                     key={work._id}
-                    className="relative flex flex-col items-center justify-center w-64 h-60 m-5 rounded-lg bg-gray-100 animate-jump-in"
+                    className="relative flex flex-col items-center justify-center w-64 h-60 m-5 rounded-lg bg-gray-100  animate-jump-in"
                   >
                     <div className="absolute top-2 right-2 m-2">
                       <div className="flex items-center text-center">
