@@ -2,59 +2,42 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import Picker from "emoji-picker-react";
-import { toast } from "react-toastify";
-import { useSocket } from "../App";
+import io from "socket.io-client";
+import { useEffect } from "react";
 
-const Task = ({ columnId, onTaskCreated }) => {
+const Task = ({ columnId }) => {
   Task.propTypes = {
     columnId: PropTypes.node.isRequired,
-    onTaskCreated: PropTypes.func.isRequired,
   };
 
-  const [newTaskText, setNewTaskText] = useState("");
+  const [name, setName] = useState("");
   const [addingTask, setAddingTask] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const socket = useSocket();
+
+  useEffect(() => {
+    const socket = io("http://localhost:3000");
+    socket.on("tareaCreada", (Task) => {
+      console.log("Columna creada:", Task);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   const handleAddTask = () => {
-    if (!newTaskText) {
-      toast.error("La tarea no puede estar vacía", {
-        autoClose: 3000,
-      });
-      return;
-    }
-    const taskData = {
-      name: newTaskText,
-      columnId: columnId,
+    const newTask = {
+      name,
+      columnId,
     };
-    fetch("http://localhost:4000/tasks", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(taskData),
-    })
-      .then((response) => response.json()) // Convertir la respuesta a JSON
-      .then((data) => {
-        console.log("Success:", data);
-        onTaskCreated(data, columnId); // Ahora data debería ser un objeto JSON
-        setAddingTask(false);
-        setNewTaskText("");
-        socket.emit("task created", data);
-        toast.success(`La tarea de nombre ${newTaskText} fue creada.`, {
-          autoClose: 3000,
-        });
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        toast.error("Hubo un error al crear la tarea", {
-          autoClose: 3000,
-        });
-      });
+    const socket = io("http://localhost:3000");
+    socket.emit("crearTarea", newTask);
+    setName("");
+    setAddingTask(false);
   };
 
   const handleEmojiSelect = (emojiObject) => {
-    setNewTaskText((prevText) => prevText + emojiObject.emoji);
+    setName((prevText) => prevText + emojiObject.emoji);
     console.log(emojiObject.emoji);
   };
 
@@ -92,8 +75,8 @@ const Task = ({ columnId, onTaskCreated }) => {
                   </svg>
                 </button>
                 <input
-                  value={newTaskText}
-                  onChange={(e) => setNewTaskText(e.target.value)}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   type="text"
                   placeholder="Ingrese la tarea..."
                   className="p-2 rounded-md resize-none flex-grow focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-transparent w-40"

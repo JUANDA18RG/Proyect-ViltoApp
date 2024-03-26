@@ -4,14 +4,13 @@ import { useAuth } from "../context/authContext";
 import PropTypes from "prop-types";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useSocket } from "../App";
+import io from "socket.io-client";
 import { useEffect } from "react";
 
 export default function ButtonAdd({ setWorks }) {
   let [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const socket = useSocket();
 
   function closeModal() {
     setIsOpen(false);
@@ -23,6 +22,25 @@ export default function ButtonAdd({ setWorks }) {
 
   const auth = useAuth();
 
+  useEffect(() => {
+    const socket = io("http://localhost:3000");
+
+    socket.on("proyectoCreado", (project) => {
+      // Actualiza el estado de los proyectos
+      setWorks((prevWorks) => [...prevWorks, project]);
+      toast.success(
+        `El proyecto de nombre ${project.name} fue creado con exito.`,
+        {
+          autoClose: 3000,
+        }
+      );
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
   const handleSubmit = async () => {
     const userEmail = auth.user.email;
 
@@ -32,40 +50,12 @@ export default function ButtonAdd({ setWorks }) {
       users: [{ email: userEmail }],
     };
 
-    const response = await fetch("http://localhost:4000/projects", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(project),
-    });
+    const socket = io("http://localhost:3000");
+    socket.emit("crearProyecto", project);
 
-    const data = await response.json();
-
-    // Actualiza el estado de works para incluir el nuevo proyecto
-    setWorks((prevColumns) => [...prevColumns, data]);
-    toast.success(`El proyecto de nombre ${name} fue creado con exito.`, {
-      autoClose: 3000,
-    });
-
-    socket.emit("proyect created", data);
-
-    // Limpia los campos
-    setName(null);
-    setDescription(null);
-
-    console.log(data);
+    setName("");
+    setDescription("");
   };
-
-  useEffect(() => {
-    if (socket == null) return;
-
-    socket.on("project created", (newProject) => {
-      setWorks((prevWorks) => [...prevWorks, newProject]);
-    });
-
-    return () => socket.off("project created");
-  }, [socket, setWorks]);
 
   return (
     <>

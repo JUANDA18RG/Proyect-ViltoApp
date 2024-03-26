@@ -33,7 +33,7 @@ export default function Spinner() {
           }}
         />
       </div>
-      <span className="absolute text-center text-gray-200 dark:text-gray-300 bottom-10 ">
+      <span className="absolute text-center text-gray-400 dark:text-gray-300 bottom-10 ">
         Cargando...
       </span>
     </>

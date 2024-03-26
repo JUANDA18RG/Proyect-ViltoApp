@@ -1,36 +1,35 @@
 import SpaceWork from "./SpaceWork";
 import NavbarPage from "../Home/NavbarPage";
 import { useParams } from "react-router-dom";
-import { useEffect } from "react";
-import { useSocket } from "../App";
+import { useEffect, useState } from "react";
+import io from "socket.io-client";
 
 export default function AraTrabajo() {
   const { id } = useParams();
-  const socket = useSocket();
+  const [project, setProject] = useState(null);
 
   useEffect(() => {
-    if (socket == null) return;
+    const socket = io("http://localhost:3000");
 
-    socket.emit("join room", id);
+    socket.emit("obtenerProyecto", id);
+
+    socket.on("proyecto", (project) => {
+      setProject(project);
+    });
+
+    socket.on("error", (error) => {
+      console.error(error);
+    });
 
     return () => {
-      socket.emit("leave room", id);
+      socket.disconnect();
     };
-  }, [socket, id]);
-
-  useEffect(() => {
-    const fetchProjects = async () => {
-      const response = await fetch(`http://localhost:4000/projects/${id}`);
-      const data = await response.json();
-      console.log(data);
-    };
-    fetchProjects();
   }, [id]);
 
   return (
     <div className="bg-gradient-to-b from-gray-200 to-white animate-fade-right h-screen overflow-x-hidden">
       <NavbarPage />
-      <SpaceWork projectId={id} />
+      {project && <SpaceWork projectId={id} project={project} />}
     </div>
   );
 }

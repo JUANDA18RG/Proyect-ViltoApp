@@ -5,14 +5,13 @@ import GuiaInicio from "../Components/GuiaInicio";
 import { useAuth } from "../context/authContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useSocket } from "../App";
+import io from "socket.io-client";
 
 export default function Works() {
   const [works, setWorks] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const socket = useSocket();
+  const [isLoading] = useState(false);
 
   const handleMenuClick = (id) => {
     setOpenMenuId(id);
@@ -27,41 +26,59 @@ export default function Works() {
   const auth = useAuth();
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      setIsLoading(true);
-      if (auth.user) {
-        const email = auth.user.email;
-        const response = await fetch(`http://localhost:4000/projects/${email}`);
-        const data = await response.json();
-        setWorks(data);
-        console.log(data);
-      }
-      setIsLoading(false);
-    };
+    const socket = io("http://localhost:3000");
 
-    fetchProjects();
+    if (auth.user) {
+      const email = auth.user.email;
+      socket.emit("obtenerProyectos", email);
+    }
 
-    socket.on("proyect created", (newProject) => {
-      // Actualiza el estado de works para incluir el nuevo proyecto
-      setWorks((prevWorks) => [...prevWorks, newProject]);
+    socket.on("proyectos", (data) => {
+      setWorks(data);
+      console.log(data);
     });
 
-    // Asegúrate de limpiar el evento cuando el componente se desmonte
     return () => {
-      socket.off("proyect created");
+      socket.disconnect();
     };
-  }, [socket, auth.user]);
+  }, [auth.user]);
+
+  useEffect(() => {
+    const socket = io("http://localhost:3000");
+
+    if (auth.user) {
+      const email = auth.user.email;
+      works.forEach((work) => {
+        socket.emit("obtenerEstadoFavorito", {
+          projectId: work._id,
+          userEmail: email,
+        });
+      });
+    }
+
+    socket.on("estadoFavorito", (data) => {
+      setWorks((prevWorks) =>
+        prevWorks.map((work) =>
+          work._id === data.projectId
+            ? { ...work, isFavorite: data.isFavorite }
+            : work
+        )
+      );
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [auth.user, works]);
 
   const deleteProject = async (id) => {
-    const response = await fetch(`http://localhost:4000/projects/${id}`, {
-      method: "DELETE",
+    const socket = io("http://localhost:3000");
+    socket.emit("eliminarProyecto", id);
+
+    setWorks((prevWorks) => prevWorks.filter((work) => work._id !== id));
+    toast.success("Proyecto eliminado con exito.", {
+      autoClose: 3000,
     });
-    if (response.status === 200) {
-      toast.warning("El proyecto fue eliminado", {
-        autoClose: 3000,
-      });
-      setWorks((prevWorks) => prevWorks.filter((work) => work._id !== id));
-    }
   };
 
   return (
@@ -113,6 +130,46 @@ export default function Works() {
                     key={work._id}
                     className="relative flex flex-col items-center justify-center w-64 h-60 m-5 rounded-lg bg-gray-100  animate-jump-in"
                   >
+                    <div className="absolute bottom-0 right-0 p-2 text-xs text-gray-500">
+                      Creado el: {new Date(work.createdAt).toLocaleDateString()}
+                    </div>
+                    <div className="absolute top-2 left-2 m-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-full p-1 text-white">
+                      <div className="flex items-center text-center">
+                        {work.isFavorite ? (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            className="w-5 h-5 font-bold"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
+                              fill={"white"}
+                            />
+                          </svg>
+                        ) : (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            className="w-5 h-5 font-bold"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
+                              fill={"none"}
+                            />
+                          </svg>
+                        )}
+                      </div>
+                    </div>
                     <div className="absolute top-2 right-2 m-2">
                       <div className="flex items-center text-center">
                         {isOpen && openMenuId === work._id ? (

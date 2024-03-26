@@ -6,29 +6,28 @@ import { AuthProvider } from "./context/authContext";
 import PageInit from "./Home/pageInit";
 import Usuario from "./Perfil/Usuario";
 import AreaTrabajo from "./Components/AraTrabajo";
-import { useState, useEffect, createContext, useContext } from "react";
+import { useState, useEffect } from "react";
 import Spinner from "./Perfil/Spinner";
-import { io } from "socket.io-client";
-
-const SocketContext = createContext();
+import socket from "./Sockets";
 
 function App() {
   const [loading, setLoading] = useState(true);
-  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
     }, 2000);
 
-    return () => clearTimeout(timer); // Limpiar el temporizador si el componente se desmonta
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:4000");
-    setSocket(newSocket);
-
-    return () => newSocket.close();
+    socket.on("connect", () => {
+      console.log("Conectado al servidor");
+    });
+    socket.on("disconnect", () => {
+      console.log("Desconectado del servidor");
+    });
   }, []);
 
   return loading ? (
@@ -36,24 +35,18 @@ function App() {
       <Spinner />
     </div>
   ) : (
-    <SocketContext.Provider value={socket}>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Portada />} />
-          <Route path="/SignUp" element={<SignUp />} />
-          <Route path="/SignIn" element={<SignIn />} />
-          <Route path="/PageInit" element={<PageInit />} />
-          <Route path="/AreaTrabajo/:id" element={<AreaTrabajo />} />
-          <Route path="/Usuario" element={<Usuario />} />
-          <Route path="*" element={<Portada />} />
-        </Routes>
-      </AuthProvider>
-    </SocketContext.Provider>
+    <AuthProvider>
+      <Routes>
+        <Route path="/" element={<Portada />} />
+        <Route path="/SignUp" element={<SignUp />} />
+        <Route path="/SignIn" element={<SignIn />} />
+        <Route path="/PageInit" element={<PageInit />} />
+        <Route path="/AreaTrabajo/:id" element={<AreaTrabajo />} />
+        <Route path="/Usuario" element={<Usuario />} />
+        <Route path="*" element={<Portada />} />
+      </Routes>
+    </AuthProvider>
   );
-}
-
-export function useSocket() {
-  return useContext(SocketContext);
 }
 
 export default App;

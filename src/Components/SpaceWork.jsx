@@ -8,8 +8,8 @@ import Guia from "./Guia";
 import CompartirProyecto from "./CompartirProyecto";
 import ProyectosFavoritos from "./ProyectosFavoritos";
 import PropTypes from "prop-types";
-import isEqual from "lodash/isEqual";
 import io from "socket.io-client";
+import ButtonChat from "../Chat/ButtonChat";
 
 const SpaceWork = ({ projectId }) => {
   const [columns, setColumns] = useState([]);
@@ -17,42 +17,136 @@ const SpaceWork = ({ projectId }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [project, setProject] = useState(null);
   const [forceUpdate, setForceUpdate] = useState(false);
-  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:4000");
-    setSocket(newSocket);
+    const socket = io("http://localhost:3000");
 
-    return () => newSocket.close();
-  }, [setSocket]);
-
-  useEffect(() => {
     const fetchProjectData = async () => {
       try {
-        const projectResponse = await fetch(
-          `http://localhost:4000/project/${projectId}`
-        );
-        const projectData = await projectResponse.json();
-        setProject(projectData);
+        socket.emit("obtenerProyecto", projectId);
 
-        const columnsResponse = await fetch(
-          `http://localhost:4000/columns/${projectId}`
-        );
-        const columnsData = await columnsResponse.json();
-        setColumns(
-          columnsData.data.map((column) => ({
+        socket.on("proyecto", async (projectData) => {
+          setProject(projectData);
+
+          const columnsData = await new Promise((resolve, reject) => {
+            socket.emit("obtenerColumnas", projectId, (data) => {
+              if (data.success) {
+                resolve(data.data);
+              } else {
+                reject(data.error);
+              }
+            });
+          });
+          const updatedColumns = columnsData.map((column) => ({
             id: column._id,
             title: column.name,
             taskIds: column.tasks.map((task) => task._id),
             tasks: column.tasks,
-          }))
-        );
+          }));
+
+          setColumns(updatedColumns);
+        });
+
+        socket.on("columnaCreada", (column) => {
+          setColumns((prevColumns) => [
+            ...prevColumns,
+            {
+              id: column._id,
+              title: column.name,
+              taskIds: column.tasks.map((task) => task._id),
+              tasks: column.tasks,
+            },
+          ]);
+          toast.success(`Columna ${column.name} creada con éxito`, {
+            autoClose: 3000,
+          });
+        });
+
+        socket.on("columnaEliminada", (id) => {
+          setColumns((prevColumns) =>
+            prevColumns.filter((column) => column.id !== id)
+          );
+          toast.success(`Columna eliminada con éxito`, { autoClose: 3000 });
+        });
+
+        // Dentro de tu componente SpaceWork
+        socket.on("tareaCreada", (newTask) => {
+          // Actualizar el estado de las columnas de manera síncrona
+          setColumns((prevColumns) => {
+            const columnIndex = prevColumns.findIndex(
+              (column) => column.id === newTask.columnId
+            );
+
+            if (columnIndex !== -1) {
+              const newColumns = [...prevColumns];
+              newColumns[columnIndex].tasks.push(newTask);
+              return newColumns;
+            }
+
+            return prevColumns;
+          });
+
+          // Mostrar una notificación de éxito
+          toast.success(`Tarea Creada con éxito`, { autoClose: 3000 });
+
+          // Forzar un nuevo renderizado del componente
+          setForceUpdate((prev) => !prev);
+        });
+
+        socket.on("tareaMovida", (data) => {
+          // Actualizar el estado de las columnas de manera síncrona
+          setColumns((prevColumns) => {
+            const sourceColumnIndex = prevColumns.findIndex(
+              (column) => column.id === data.sourceColumnId
+            );
+            const destinationColumnIndex = prevColumns.findIndex(
+              (column) => column.id === data.destinationColumnId
+            );
+
+            if (sourceColumnIndex !== -1 && destinationColumnIndex !== -1) {
+              const newColumns = [...prevColumns];
+              const movedTask = newColumns[sourceColumnIndex].tasks.find(
+                (task) => task._id === data.taskId
+              );
+
+              if (movedTask) {
+                newColumns[sourceColumnIndex].tasks = newColumns[
+                  sourceColumnIndex
+                ].tasks.filter((task) => task._id !== data.taskId);
+                newColumns[destinationColumnIndex].tasks.splice(
+                  data.destinationIndex,
+                  0,
+                  movedTask
+                );
+              }
+
+              return newColumns;
+            }
+
+            return prevColumns;
+          });
+
+          // Mostrar una notificación de éxito
+          toast.success(`Tarea Movida con éxito`, { autoClose: 3000 });
+
+          // Forzar un nuevo renderizado del componente
+          setForceUpdate((prev) => !prev);
+        });
+
+        socket.emit("esFavorito", projectId);
       } catch (error) {
         console.error("Error fetching project data:", error);
       }
     };
 
     fetchProjectData();
+    return () => {
+      socket.off("proyecto");
+      socket.off("columnaCreada");
+      socket.off("columnaEliminada");
+      socket.off("tareaCreada");
+      socket.off("tareaMovida");
+    };
   }, [projectId, forceUpdate]);
 
   const handleMenuClick = (id) => {
@@ -65,155 +159,105 @@ const SpaceWork = ({ projectId }) => {
     setIsOpen(false);
   };
 
-  // Escuchar los eventos de socket.io
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on("cambio en el proyecto", (data) => {
-      // Actualizar el estado con los nuevos datos del proyecto
-      setProject(data.project);
-      setColumns(data.columns);
-    });
-
-    return () => socket.off("cambio en el proyecto");
-  }, [socket, setProject, setColumns]);
-
   const handleDeleteColumn = async (id) => {
-    console.log(id);
-    try {
-      const response = await fetch(`http://localhost:4000/columns/${id}`, {
-        method: "DELETE",
-      });
-      console.log("Response status:", response.status);
-      const responseBody = await response.text();
-      console.log("Response body:", responseBody);
-      if (response.ok) {
-        setColumns((prevColumns) =>
-          prevColumns.filter((column) => column.id !== id)
-        );
-
-        toast.success("Columna eliminada", { autoClose: 3000 });
-      } else {
+    const socket = io("http://localhost:3000");
+    socket.emit("eliminarColumna", id, (response) => {
+      if (!response.success) {
         toast.error("Error al eliminar la columna", { autoClose: 3000 });
       }
-    } catch (error) {
-      console.error("Error deleting column:", error);
-    }
-  };
-
-  //mostar las columnas sin recargar la pagina
-  // const onColumnCreated = (newColumn) => {
-  //   setColumns((prevColumns) => [
-  //     ...prevColumns,
-  //     {
-  //       id: newColumn._id,
-  //       title: newColumn.name,
-  //       taskIds: [],
-  //     },
-  //   ]);
-
-  // };
-
-  // useEffect(() => {
-  //   const toastMessage = localStorage.getItem("toastMessage");
-  //   if (toastMessage) {
-  //     toast.success(toastMessage, { autoClose: 3000 });
-  //     localStorage.removeItem("toastMessage"); // Eliminar el mensaje después de mostrarlo
-  //   }
-  // }, []);
-
-  //para mostrar las tareas sin recagar las pagina
-  const onTaskCreated = (newTask, columnId) => {
-    setColumns((prevColumns) => {
-      return prevColumns.map((column) => {
-        if (column.id === columnId) {
-          return {
-            ...column,
-            tasks: [...column.tasks, newTask],
-            taskIds: [...column.taskIds, newTask._id],
-          };
-        } else {
-          return column;
-        }
-      });
     });
   };
 
   const onDragEnd = async (result) => {
     const { destination, source, draggableId } = result;
 
-    if (!destination || isEqual(destination, source)) {
+    if (!destination) {
       return;
     }
 
-    try {
-      const updatedColumns = [...columns];
-      const sourceColumnIndex = updatedColumns.findIndex(
-        (column) => column.id === source.droppableId
-      );
-      const destinationColumnIndex = updatedColumns.findIndex(
-        (column) => column.id === destination.droppableId
-      );
-
-      const movedTask = updatedColumns[sourceColumnIndex].tasks.find(
-        (task) => task._id === draggableId
-      );
-
-      updatedColumns[sourceColumnIndex].tasks = updatedColumns[
-        sourceColumnIndex
-      ].tasks.filter((task) => task._id !== draggableId);
-
-      updatedColumns[destinationColumnIndex].tasks.splice(
-        destination.index,
-        0,
-        movedTask
-      );
-
-      setColumns(updatedColumns);
-
-      const response = await fetch(
-        `http://localhost:4000/mover/${draggableId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            sourceColumnId: source.droppableId,
-            destinationColumnId: destination.droppableId,
-            sourceIndex: source.index,
-            destinationIndex: destination.index,
-          }),
-        }
-      );
-
-      if (response.ok) {
-        toast.success("Tarea movida con éxito", { autoClose: 3000 });
-      } else {
-        setColumns(columns);
-        toast.error("Error al mover la tarea", { autoClose: 3000 });
-      }
-    } catch (error) {
-      console.error("Error in moveTask:", error);
-      toast.error("Error al mover la tarea", { autoClose: 3000 });
-    } finally {
-      setForceUpdate((prev) => !prev);
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
     }
+
+    const start = columns.find((column) => column.id === source.droppableId);
+    const finish = columns.find(
+      (column) => column.id === destination.droppableId
+    );
+
+    if (!start || !finish) {
+      return;
+    }
+
+    if (start === finish) {
+      const newTaskIds = Array.from(start.taskIds);
+      newTaskIds.splice(source.index, 1);
+      newTaskIds.splice(destination.index, 0, draggableId);
+
+      const newColumn = {
+        ...start,
+        taskIds: newTaskIds,
+      };
+      setColumns((prevColumns) =>
+        prevColumns.map((column) =>
+          column.id === newColumn.id ? newColumn : column
+        )
+      );
+
+      return;
+    }
+
+    const startTaskIds = Array.from(start.taskIds);
+    startTaskIds.splice(source.index, 1);
+    const newStart = {
+      ...start,
+      taskIds: startTaskIds,
+    };
+
+    const finishTaskIds = Array.from(finish.taskIds);
+    finishTaskIds.splice(destination.index, 0, draggableId);
+    const newFinish = {
+      ...finish,
+      taskIds: finishTaskIds,
+    };
+
+    setColumns((prevColumns) =>
+      prevColumns.map((column) =>
+        column.id === newStart.id
+          ? newStart
+          : column.id === newFinish.id
+          ? newFinish
+          : column
+      )
+    );
+
+    const socket = io("http://localhost:3000");
+    socket.emit("moverTarea", {
+      taskId: draggableId,
+      sourceColumnId: source.droppableId,
+      destinationColumnId: destination.droppableId,
+      sourceIndex: source.index,
+      destinationIndex: destination.index,
+    });
   };
 
   return (
     <>
       <div className="flex py-10 md:px-20 px-8 justify-between mt-5 ">
         <div className="flex rounded-md ">
-          <div className="flex items-center justify-center m-1">
+          <div className="flex items-center justify-center m-2">
             <h1 className=" text-xl text-center p-2 bg-white rounded-md border animate-jump-in">
               {project?.name}
             </h1>
-            <ProyectosFavoritos />
+            <div className="flex items-center justify-center ml-7 space-x-5">
+              <ProyectosFavoritos projectId={projectId} />
+              <ButtonChat />
+            </div>
           </div>
-          <div className="flex items-center ml-4 "></div>
         </div>
-        <div className="flex items-center justify-center m-1">
+        <div className="flex items-center justify-center m-2 space-x-7">
           <CompartirProyecto />
           <Guia />
         </div>
@@ -357,10 +401,7 @@ const SpaceWork = ({ projectId }) => {
                         ))
                       )}
                       {provided.placeholder}
-                      <Task
-                        columnId={column.id}
-                        onTaskCreated={onTaskCreated}
-                      />
+                      <Task columnId={column.id} />
                     </div>
                   )}
                 </Droppable>

@@ -1,69 +1,46 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Picker from "emoji-picker-react";
-import { toast } from "react-toastify";
+
 import "react-toastify/dist/ReactToastify.css";
-import { useSocket } from "../App";
+import io from "socket.io-client";
 
 const AddColumn = ({ projectId }) => {
   const [showAddColumn, setShowAddColumn] = useState(false);
-  const [newColumnTitle, setNewColumnTitle] = useState("");
+  const [name, setNewColumnTitle] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const socket = useSocket();
 
   const handleShowAddColumn = () => {
     setShowAddColumn(true);
   };
 
-  const handleConfirmAddColumn = async () => {
-    let title = newColumnTitle;
+  useEffect(() => {
+    const socket = io("http://localhost:3000");
+    socket.on("columnaCreada", (column) => {
+      console.log("Columna creada:", column);
+    });
 
-    if (!title) {
-      title = "New Column";
-      setNewColumnTitle(title);
-    }
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
-    try {
-      const response = await fetch("http://localhost:4000/columns", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name: title, projectId, tasks: [] }),
-      });
+  const handleConfirmAddColumn = () => {
+    const column = {
+      name,
+      projectId,
+    };
+    const socket = io("http://localhost:3000");
+    socket.emit("crearColumna", column);
 
-      if (response.ok) {
-        setShowAddColumn(false);
-        const column = await response.json();
-        socket.emit("column created", column); // Emitir el evento de Socket.IO
-        setNewColumnTitle("");
-
-        localStorage.setItem(
-          "toastMessage",
-          "la columna: " + title + " se ha creado correctamente"
-        );
-        window.location.reload();
-      } else {
-        toast.error("Error adding column");
-      }
-    } catch (error) {
-      console.error("Error adding column", error);
-      toast.error("Error adding column");
-    }
+    setNewColumnTitle("");
+    setShowAddColumn(false);
   };
 
   const handleEmojiSelect = (emojiObject) => {
     setNewColumnTitle((prevText) => prevText + emojiObject.emoji);
     console.log(emojiObject.emoji);
   };
-
-  useEffect(() => {
-    const toastMessage = localStorage.getItem("toastMessage");
-    if (toastMessage) {
-      toast.success(toastMessage, { autoClose: 5000 });
-      localStorage.removeItem("toastMessage"); // Eliminar el mensaje después de mostrarlo
-    }
-  }, []);
 
   return (
     <div className="flex items-center justify-center animate-jump-in m-4 pointer-events-auto">
@@ -100,7 +77,7 @@ const AddColumn = ({ projectId }) => {
                 </button>
                 <input
                   type="text"
-                  value={newColumnTitle}
+                  value={name}
                   onChange={(e) => setNewColumnTitle(e.target.value)}
                   placeholder="new column title"
                   className="p-2 rounded-md resize-none flex-grow focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-transparent w-40"

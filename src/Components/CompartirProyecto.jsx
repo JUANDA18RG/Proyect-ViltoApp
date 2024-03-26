@@ -1,6 +1,6 @@
 export default function CompartirProyecto() {
   return (
-    <div className="bg-gradient-to-r from-red-500 to-pink-500 rounded-md p-1 text-white  mr-5 hover:animate-jump">
+    <div className="bg-gradient-to-r from-red-500 to-pink-500 rounded-md p-1 text-white  hover:animate-jump">
       <button className="relative flex items-center justify-center space-x-2 md:space-x-2 p-1 w-full ">
         <span className="hidden md:inline text-lg md:text-sm ">Compartir</span>
         <svg
