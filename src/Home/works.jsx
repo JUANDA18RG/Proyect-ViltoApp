@@ -324,7 +324,7 @@ export default function Works() {
         bodyClassName={"text-sm p-2 m-2 inset-0 "}
         style={{
           position: "fixed",
-          bottom: "20px",
+          bottom: "10px",
           right: "30px",
           zIndex: 10, // Reducir el valor de zIndex
         }}

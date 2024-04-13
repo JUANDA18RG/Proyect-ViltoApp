@@ -3,15 +3,18 @@ import { Fragment, useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import io from "socket.io-client";
 import { obtenerUrlImagen } from "../firebase/firebase.config";
+import { toast } from "react-toastify";
+import User from "../../public/user.png";
 
 export default function CompartirProyecto({ projectName, projectId }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
-  const [selectedUserEmail, setSelectedUserEmail] = useState(""); // Nuevo estado para almacenar el correo electrónico del usuario seleccionado
+  const [selectedUserEmail, setSelectedUserEmail] = useState("");
   const [imagenesUsuarios, setImagenesUsuarios] = useState({});
   const socket = useRef();
+  const [numUsers, setNumUsers] = useState(0);
 
   useEffect(() => {
     const filteredResults = allUsers.filter((user) =>
@@ -23,7 +26,7 @@ export default function CompartirProyecto({ projectName, projectId }) {
   function closeModal() {
     setIsOpen(false);
     setSearchTerm("");
-    setSelectedUserEmail(""); // Reinicia el correo electrónico seleccionado
+    setSelectedUserEmail("");
     if (socket.current) {
       socket.current.disconnect();
     }
@@ -48,15 +51,32 @@ export default function CompartirProyecto({ projectName, projectId }) {
   const handleSearchChange = (event) => {
     const value = event.target.value;
     setSearchTerm(value);
-    setSelectedUserEmail(""); // Reinicia el correo electrónico seleccionado al cambiar el término de búsqueda
+    setSelectedUserEmail("");
   };
 
-  // Función para manejar el clic en un usuario de la lista
   const handleUserClick = (email) => {
     setSelectedUserEmail(email);
-    setSearchTerm(email); // Actualiza el valor del input con el correo electrónico seleccionado
+    setSearchTerm(email);
   };
 
+  // Función para manejar el clic en el botón "Agregar Usuario"
+  const handleAddUserClick = () => {
+    closeModal();
+    if (numUsers >= 4) {
+      toast.warning(
+        "El proyecto ya tiene 4 participantes. No puedes agregar más."
+      );
+    } else if (selectedUserEmail) {
+      socket.current.emit("agregarUsuario", {
+        projectId,
+        userEmail: selectedUserEmail,
+      });
+      toast.success("Usuario agregado correctamente");
+      closeModal();
+    } else {
+      alert("Por favor, selecciona un usuario para agregar.");
+    }
+  };
   useEffect(() => {
     console.log("Search results updated", searchResults);
   }, [searchResults]);
@@ -67,6 +87,7 @@ export default function CompartirProyecto({ projectName, projectId }) {
     socket.on("proyecto", (proyecto) => {
       console.log(`Proyecto: ${proyecto.name}`);
       if (proyecto.users) {
+        setNumUsers(proyecto.users.length);
         proyecto.users.forEach((usuario) => {
           obtenerUrlImagen(usuario.email)
             .then((url) => {
@@ -77,6 +98,10 @@ export default function CompartirProyecto({ projectName, projectId }) {
             })
             .catch((error) => {
               console.error("Error obteniendo la imagen del usuario:", error);
+              setImagenesUsuarios((prev) => ({
+                ...prev,
+                [usuario.email]: User, // Establecer la imagen predeterminada cuando no se encuentra la imagen del usuario
+              }));
             });
         });
       } else {
@@ -202,10 +227,10 @@ export default function CompartirProyecto({ projectName, projectId }) {
                     )}
 
                     <p className="text-sm text-gray-500 text-justify mt-5">
-                      Esta es tu area de trabajo, aqui podras ver tus proyectos
-                      activos y tambien donde podras crear nuevos proyectos y
-                      poder modificar los proyectos ya existentes en tu cuenta
-                      de ViltoApp.
+                      En esta sección puedes buscar a los usuarios que deseas
+                      agregar al proyecto puedes agregar a cualquier usuario que
+                      este registrado en la plataforma y que no este ya en el
+                      proyecto
                     </p>
                   </div>
 
@@ -213,7 +238,7 @@ export default function CompartirProyecto({ projectName, projectId }) {
                     <button
                       type="button"
                       className="inline-flex justify-center bg-gradient-to-r from-red-500 to-pink-500 shadow-md text-white rounded-md p-2 "
-                      onClick={closeModal}
+                      onClick={handleAddUserClick}
                     >
                       Agregar Usuario
                     </button>

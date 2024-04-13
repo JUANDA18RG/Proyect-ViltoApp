@@ -6,6 +6,7 @@ import Corona from "/Corona.png";
 import io from "socket.io-client";
 import logo from "/Logo.png";
 import { useEffect, useState } from "react";
+import userImage from "../../public/user.png";
 
 export default function NavbarPage() {
   const auth = useAuth();
@@ -83,16 +84,13 @@ export default function NavbarPage() {
           {({ open }) => (
             <>
               <Menu.Button
-                className={`flex h-8 items-center rounded-3xl bg-white animate-jump-in
-                  pr-2`}
+                className={`flex h-8 items-center rounded-3xl bg-white animate-jump-in pr-2`}
               >
-                {photoURL && (
-                  <img
-                    src={photoURL}
-                    alt={UDI}
-                    className={`w-12 h-12 rounded-full m-2 p-1 mr-1 border-2 border-red-400 `}
-                  />
-                )}
+                <img
+                  src={photoURL ? photoURL : userImage}
+                  alt={UDI}
+                  className={`w-12 h-12 rounded-full m-2 p-1 mr-1 border-2 border-red-400 `}
+                />
                 <span className="sm:text-xl md:text-sm  font-bold text-gray-900 hidden md:block mr-1 ">
                   {displayName}
                 </span>

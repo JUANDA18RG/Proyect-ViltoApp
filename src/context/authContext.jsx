@@ -12,6 +12,7 @@ import {
 } from "firebase/auth";
 import PropTypes from "prop-types";
 import { uploadFile } from "../firebase/firebase.config";
+import io from "socket.io-client";
 
 export const authContext = createContext();
 
@@ -70,22 +71,13 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const fetchUserData = async (user) => {
-    try {
-      await fetch("http://localhost:4000/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: user.displayName,
-          email: user.email,
-          uid: user.uid,
-        }),
-      });
-    } catch (error) {
-      console.error("Error al obtener datos del usuario:", error.message);
-    }
+  const socket = io("http://localhost:3000");
+  const fetchUserData = (user) => {
+    socket.emit("crearUsuario", {
+      name: user.displayName,
+      email: user.email,
+      uid: user.uid,
+    });
   };
 
   const loginWithGoogle = async () => {

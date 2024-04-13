@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import io from "socket.io-client";
 import PropTypes from "prop-types";
 import { obtenerUrlImagen } from "../firebase/firebase.config";
+import User from "../../public/user.png"
 
 export default function PersonasActivas({ projectId }) {
   const [imagenesUsuarios, setImagenesUsuarios] = useState({});
@@ -12,6 +13,7 @@ export default function PersonasActivas({ projectId }) {
     socket.on("proyecto", (proyecto) => {
       console.log(`Proyecto: ${proyecto.name}`);
       if (proyecto.users) {
+        console.log("Usuarios en este proyecto:", proyecto.users);
         proyecto.users.forEach((usuario) => {
           obtenerUrlImagen(usuario.email)
             .then((url) => {
@@ -22,6 +24,11 @@ export default function PersonasActivas({ projectId }) {
             })
             .catch((error) => {
               console.error("Error obteniendo la imagen del usuario:", error);
+              // Si hay un error al obtener la imagen del usuario, establece la imagen predeterminada
+              setImagenesUsuarios((prev) => ({
+                ...prev,
+                [usuario.email]: User,
+              }));
             });
         });
       } else {

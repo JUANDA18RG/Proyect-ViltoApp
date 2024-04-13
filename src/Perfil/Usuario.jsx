@@ -1,6 +1,7 @@
 import { useAuth } from "../context/authContext";
 import ActividadUsuario from "./ActividadUsuario";
 import ProyectosRecientesUsuario from "./ProyectosRecientesUsuario";
+import userImage from "../../public/user.png";
 
 export default function Usuario() {
   const auth = useAuth();
@@ -32,7 +33,7 @@ export default function Usuario() {
         </button>
         <div className="text-center mb-6">
           <img
-            src={auth.user.photoURL}
+            src={auth.user.photoURL ? auth.user.photoURL : userImage}
             alt={auth.user.displayName}
             className="w-36 h-36 rounded-full mx-auto mb-4  shadow-md animate-jump-in"
           />
