@@ -1,16 +1,16 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { useAuth } from "../context/authContext";
 import PropTypes from "prop-types";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import io from "socket.io-client";
-import { useEffect } from "react";
 
 export default function ButtonAdd({ setWorks }) {
   let [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [isPremium, setIsPremium] = useState(false); // Nuevo estado para almacenar si el usuario es premium o no
 
   function closeModal() {
     setIsOpen(false);
@@ -25,6 +25,11 @@ export default function ButtonAdd({ setWorks }) {
   useEffect(() => {
     const socket = io("http://localhost:3000");
 
+    if (auth.user) {
+      const email = auth.user.email;
+      socket.emit("obtenerEstadoPremium", email); // Nuevo evento para obtener el estado premium del usuario
+    }
+
     socket.on("proyectoCreado", (project) => {
       // Actualiza el estado de los proyectos
       setWorks((prevWorks) => [...prevWorks, project]);
@@ -36,22 +41,44 @@ export default function ButtonAdd({ setWorks }) {
       );
     });
 
+    socket.on("estadoPremium", (estadoPremium) => {
+      // Nuevo oyente para el estado premium del usuario
+      setIsPremium(estadoPremium);
+    });
+
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [auth.user]);
 
   const handleSubmit = async () => {
     const userEmail = auth.user.email;
 
-    const project = {
-      name,
-      description,
-      users: [{ email: userEmail }],
-    };
-
     const socket = io("http://localhost:3000");
-    socket.emit("crearProyecto", project);
+    socket.emit("obtenerProyectos", userEmail); // Solicita los proyectos del usuario
+
+    socket.on("proyectos", (proyectos) => {
+      // Recibe los proyectos del usuario
+      if (!isPremium && proyectos.length >= 6) {
+        // Si el usuario no es premium y tiene 6 o más proyectos
+        toast.warning(
+          "Solo puedes tener 6 proyectos, si deseas tener más proyectos puedes adquirir una membresía premium.",
+          {
+            autoClose: 5000,
+          }
+        );
+        return;
+      }
+
+      const project = {
+        name,
+        description,
+        users: [{ email: userEmail }],
+        userEmail,
+      };
+
+      socket.emit("crearProyecto", project);
+    });
 
     setName("");
     setDescription("");
@@ -59,7 +86,7 @@ export default function ButtonAdd({ setWorks }) {
 
   return (
     <>
-      <div className="bg-gradient-to-r from-red-500 to-pink-500 rounded-md p-1 text-white hover:animate-jump">
+      <div className="bg-gradient-to-r from-red-500 to-pink-500 rounded-md p-1 text-white hover:animate-jump z-10">
         <button
           onClick={openModal}
           className="relative flex items-center justify-center space-x-2 md:space-x-2 p-1 w-full"
@@ -100,7 +127,7 @@ export default function ButtonAdd({ setWorks }) {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-black/40" />
+            <div className="fixed inset-0 bg-black/50" />
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto animate-jump-in">
@@ -114,28 +141,29 @@ export default function ButtonAdd({ setWorks }) {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-gradient-to-t from-gray-300 to-white p-6 text-left align-middle shadow-xl ">
                   <Dialog.Title
                     as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900 justify-center items-center flex m-2"
+                    className="text-lg font-bold leading-6 text-gray-900 justify-center items-center flex m-2"
                   >
-                    <h1 className="uppercase border-b-2 border-red-500 text-xl text-center">
-                      Crea tu proyecto 😃💯❤️
+                    <h1 className="uppercase text-lg font-bold text-center px-2 rounded-md">
+                      Crea tu proyecto
                     </h1>
                   </Dialog.Title>
-                  <div className="mt-4">
+
+                  <div className="mt-6">
                     <p className="text-sm text-gray-500 text-justify">
-                      Crea un proyecto para trabajar en equipo, comparte
-                      archivos, ideas y mucho más con tus compañeros de trabajo
-                      y amigos.
+                      aqui puedes crear un nuevo proyecto colaborativo, solo
+                      necesitas un nombre y una descripcion de tu proyecto para
+                      empezar a trabajar.
                     </p>
                   </div>
                   <div className="mt-6 flex flex-col items-center justify-center text-center">
                     <input
                       id="projectTitle"
                       type="text"
-                      className="p-2 w-full border rounded-lg bg-gray-100 border-gray-300 focus:border-red-500 focus:ring-red-500 focus:ring-opacity-50 m-2"
-                      placeholder="Nombre del Proyecto 👏"
+                      className="p-2 w-full border-2 rounded-lg bg-gray-100 border-gray-400 focus:border-red-500 focus:ring-red-500 focus:ring-opacity-50 m-2"
+                      placeholder="Nombre del Proyecto"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required
@@ -145,8 +173,8 @@ export default function ButtonAdd({ setWorks }) {
                     <input
                       id="projectDescription"
                       type="text"
-                      className="p-2 w-full border rounded-lg bg-gray-100 border-gray-300 focus:border-red-500 focus:ring-red-500 focus:ring-opacity-50 m-2"
-                      placeholder="Descripcion del Proyecto 🤌"
+                      className="p-2 w-full border-2 rounded-lg bg-gray-100 border-gray-400 focus:border-red-500 focus:ring-red-500 focus:ring-opacity-50 m-2"
+                      placeholder="Descripcion del Proyecto"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                     />
@@ -160,7 +188,7 @@ export default function ButtonAdd({ setWorks }) {
                         closeModal();
                       }}
                     >
-                      Crear
+                      Crear Proyecto
                     </button>
                   </div>
                 </Dialog.Panel>
@@ -169,21 +197,6 @@ export default function ButtonAdd({ setWorks }) {
           </div>
         </Dialog>
       </Transition>
-      <ToastContainer
-        position="bottom-right"
-        autoClose={3000}
-        closeOnClick={false}
-        pauseOnHover={true}
-        draggablePercent={100}
-        bodyClassName={"text-sm p-2 m-2 "}
-        style={{
-          position: "fixed",
-          bottom: "10px",
-          right: "20px",
-          zIndex: 20,
-        }}
-        toastClassName="overflow-visible"
-      />
     </>
   );
 }

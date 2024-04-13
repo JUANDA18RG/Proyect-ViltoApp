@@ -1,21 +1,56 @@
-import { useAuth } from "../context/authContext";
+import { useEffect, useState } from "react";
+import io from "socket.io-client";
+import PropTypes from "prop-types";
+import { obtenerUrlImagen } from "../firebase/firebase.config";
 
-export default function PersonasActivas() {
-  const auth = useAuth();
-  const avatars = [auth.user.photoURL, auth.user.photoURL, auth.user.photoURL];
+export default function PersonasActivas({ projectId }) {
+  const [imagenesUsuarios, setImagenesUsuarios] = useState({});
+
+  useEffect(() => {
+    const socket = io.connect("http://localhost:3000");
+    socket.emit("obtenerProyecto", projectId);
+    socket.on("proyecto", (proyecto) => {
+      console.log(`Proyecto: ${proyecto.name}`);
+      if (proyecto.users) {
+        proyecto.users.forEach((usuario) => {
+          obtenerUrlImagen(usuario.email)
+            .then((url) => {
+              setImagenesUsuarios((prev) => ({
+                ...prev,
+                [usuario.email]: url,
+              }));
+            })
+            .catch((error) => {
+              console.error("Error obteniendo la imagen del usuario:", error);
+            });
+        });
+      } else {
+        console.log("No hay usuarios en este proyecto.");
+      }
+    });
+    return () => {
+      socket.disconnect();
+    };
+  }, [projectId]);
 
   return (
     <div className="text-sm">
-      <div className="rounded-full flex">
-        {avatars.map((avatar, index) => (
+      {Object.entries(imagenesUsuarios).map(([nombreUsuario, urlImagen]) => (
+        <div key={nombreUsuario} className="relative group inline-block mr-1">
           <img
-            key={index}
-            src={avatar}
-            alt={`Avatar ${index + 1}`}
-            className="w-10 h-10 rounded-full border-2 border-white"
+            src={urlImagen}
+            alt={`Imagen de ${nombreUsuario}`}
+            className="rounded-full w-10 h-10 border-2 border-red-500 mt-1"
           />
-        ))}
-      </div>
+          <div className="absolute left-0 top-full mt-2 px-2 py-1 text-sm text-white bg-gradient-to-r from-red-500 to-pink-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            {nombreUsuario}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
+
+PersonasActivas.propTypes = {
+  projectId: PropTypes.string.isRequired,
+};

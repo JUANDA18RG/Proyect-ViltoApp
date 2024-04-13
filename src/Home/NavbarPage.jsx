@@ -2,12 +2,34 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import { useNavigate } from "react-router-dom";
 import { Menu } from "@headlessui/react";
-import MenuBurguer from "../Components/MenuBurguer";
+import Corona from "/Corona.png";
+import io from "socket.io-client";
 import logo from "/Logo.png";
+import { useEffect, useState } from "react";
 
 export default function NavbarPage() {
   const auth = useAuth();
   const navigate = useNavigate();
+  const [isPremium, setIsPremium] = useState(false);
+  const socket = io("http://localhost:3000"); // Asegúrate de reemplazar esto con tu URL de servidor
+
+  useEffect(() => {
+    if (auth.user) {
+      socket.emit("obtenerEstadoPremium", auth.user.email);
+      socket.on("estadoPremium", (estadoPremium) => {
+        setIsPremium(estadoPremium);
+        console.log(estadoPremium);
+      });
+      socket.on("error", (error) => {
+        console.error(error);
+      });
+    }
+    return () => {
+      socket.off("estadoPremium");
+      socket.off("error");
+      console.log(isPremium);
+    };
+  }, [auth.user, socket]);
 
   const handleLogout = async () => {
     try {
@@ -29,10 +51,10 @@ export default function NavbarPage() {
   }
 
   return (
-    <nav className="w-full h-16 px-4  bg-transparent flex items-center justify-between z-20">
+    <nav className="w-full h-16 px-4  bg-transparent flex items-center justify-between z-20 relative">
       <div className="flex items-center space-x-4 animate-jump-in ml-2">
         <Link to={"/PageInit"}>
-          <img className="w-10 h-10 rounded-md" src={logo} alt="Workflow" />
+          <img className=" w-10 h-10 rounded-lg" src={logo} alt="Workflow" />
         </Link>
         <div className="hidden sm:block">
           <Link to={"/PageInit"}>
@@ -45,12 +67,19 @@ export default function NavbarPage() {
           </Link>
         </div>
       </div>
-      <div className="md:hidden">
-        <MenuBurguer />
-      </div>
 
-      <div className=" items-center space-x-4 hidden md:flex">
-        <Menu as="nav" className="relative z-20">
+      <div className=" items-center space-x-10 hidden md:flex ">
+        {!auth.isPremium && (
+          <button className="relative flex items-center justify-center h-8 px-3 text-sm font-medium text-white rounded-lg bg-gradient-to-b from-purple-500 to-pink-500 animate-jump-in ">
+            <img
+              src={Corona}
+              alt="Corona"
+              className="absolute top-0 left-0 transform -translate-x-1/2 -translate-y-1/2 w-10 h-8 -rotate-45 "
+            />
+            <span className="mr-2 ml-2 font-semibold">Obtener Premium</span>
+          </button>
+        )}
+        <Menu as="nav" className="relative z-10">
           {({ open }) => (
             <>
               <Menu.Button
@@ -87,7 +116,7 @@ export default function NavbarPage() {
               </Menu.Button>
               <Menu.Items
                 className={
-                  "absolute p-1 top-16 right-5 w-48 bg-active rounded-md translate-y-5 border-2 border-gray-400 shadow-sm bg-white md:text-sm animate-jump-in"
+                  "absolute p-1 top-16 right-5 w-48 bg-active rounded-md translate-y-5 border-2 border-gray-400 shadow-sm bg-white md:text-sm animate-jump-in z-50"
                 }
               >
                 <Menu.Item className="hover:bg-gradient-to-r from-red-500 to-pink-500 rounded-md transition duration-100 ease-in-out m-1">

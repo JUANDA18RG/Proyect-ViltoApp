@@ -9,8 +9,8 @@ export default function Usuario() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row w-full h-screen animate-fade-right">
-      <div className="w-full md:w-1/3 flex flex-col items-center justify-center p-8 ">
+    <div className="flex flex-col md:flex-row w-full h-screen animate-fade-right overflow-hidden">
+      <div className="w-full md:w-1/3 flex flex-col items-center justify-center p-8 bg-gradient-to-t from-gray-200 to-white">
         <button
           onClick={devolver}
           className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-pink-500 text-white p-3 rounded-full shadow-md hover:animate-jump"
@@ -34,7 +34,7 @@ export default function Usuario() {
           <img
             src={auth.user.photoURL}
             alt={auth.user.displayName}
-            className="w-24 h-24 rounded-full mx-auto mb-4 border-red-500"
+            className="w-36 h-36 rounded-full mx-auto mb-4  shadow-md animate-jump-in"
           />
           <p className="text-xl font-semibold">{auth.user.displayName}</p>
           <p className="text-gray-500 text-sm">{auth.user.email}</p>
@@ -43,7 +43,7 @@ export default function Usuario() {
           Gestionar Cuenta
         </button>
       </div>
-      <div className="w-full md:w-2/3 bg-gradient-to-b from-gray-200 to-white">
+      <div className="w-2/3 bg-gradient-to-b from-gray-200 to-white flex-col overflow-y-auto">
         <ProyectosRecientesUsuario />
         <ActividadUsuario />
       </div>

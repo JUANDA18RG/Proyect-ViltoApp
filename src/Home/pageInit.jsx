@@ -7,7 +7,6 @@ export default function PageInit() {
     <div className="bg-gradient-to-b from-gray-200 to-white animate-fade-right overflow-hidden h-screen ">
       <div className="bg-transparen">
         <NavbarPage />
-
         <div className="flex">
           <Menu />
           <Work />

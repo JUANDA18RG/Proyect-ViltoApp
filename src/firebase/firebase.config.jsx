@@ -1,6 +1,7 @@
 import { getAuth } from "firebase/auth";
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -21,5 +22,22 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 export const auth = getAuth(app);
+const storage = getStorage(app);
 
 console.log(analytics);
+
+export function uploadFile(file, fileName) {
+  const storageRef = ref(storage, `profileImages/${fileName}`);
+  uploadBytes(storageRef, file)
+    .then((snapshot) => {
+      console.log("Uploaded a blob or file!", snapshot);
+    })
+    .catch((error) => {
+      console.error("Error uploading file:", error);
+    });
+}
+
+export function obtenerUrlImagen(nombreUsuario) {
+  const imagenRef = ref(storage, `profileImages/${nombreUsuario}`);
+  return getDownloadURL(imagenRef);
+}

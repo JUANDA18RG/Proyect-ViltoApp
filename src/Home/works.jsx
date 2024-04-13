@@ -3,15 +3,39 @@ import { Link } from "react-router-dom";
 import ButtonAdd from "../Components/buttonAdd";
 import GuiaInicio from "../Components/GuiaInicio";
 import { useAuth } from "../context/authContext";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import io from "socket.io-client";
+import { motion } from "framer-motion";
 
 export default function Works() {
   const [works, setWorks] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
   const [isLoading] = useState(false);
+  const [hoveredCardId, setHoveredCardId] = useState(null);
+  const [rotation, setRotation] = useState({ rotateX: 0, rotateY: 0 });
+
+  const handleHoverStart = (id) => {
+    setHoveredCardId(id);
+  };
+
+  const handleHoverEnd = () => {
+    setHoveredCardId(null);
+  };
+
+  const calculateRotation = (e) => {
+    const card = e.currentTarget;
+    const boundingRect = card.getBoundingClientRect();
+    const offsetX = e.clientX - boundingRect.left - boundingRect.width / 2;
+    const offsetY = e.clientY - boundingRect.top - boundingRect.height / 2;
+
+    const maxRotation = 20;
+    const rotationX = (offsetY / boundingRect.height) * maxRotation;
+    const rotationY = (-offsetX / boundingRect.width) * maxRotation;
+
+    setRotation({ rotateX: rotationX, rotateY: rotationY });
+  };
 
   const handleMenuClick = (id) => {
     setOpenMenuId(id);
@@ -83,17 +107,24 @@ export default function Works() {
 
   return (
     <>
-      <div className="w-4/5 h-screen overflow-y-auto mt-8 pb-20 ">
-        <div className="flex flex-col px-4 md:px-20">
+      <div className="w-4/5 h-screen overflow-y-auto mt-2 relative animate-fade-right">
+        <div
+          className="absolute inset-0 bg-bottom bg-no-repeat bg-cover transform rotate-180 opacity-60"
+          style={{ backgroundImage: `url('wavesOpacity.svg')` }}
+        ></div>
+        <div className="flex flex-col px-4 md:px-20 absolute inset-0 overflow-y-auto">
           <div className="flex py-8 md:px-14 px-10 text-sm md:text-xl justify-between">
             <div className="flex m-2">
               <ButtonAdd setWorks={setWorks} />
+              <p className="ml-5 text-gray-600 opacity-70 items-center text-center mt-1 text-base bg-gray-200 rounded-lg p-1 border-2 shadow-sm">
+                Cuenta gratis solo puedes crear 6 proyectos
+              </p>
             </div>
             <GuiaInicio />
           </div>
-          <div className="text-center mt-2">
+          <div className="text-center ">
             <div className="text-center w-full">
-              <div className="flex flex-wrap justify-center  items-center m-5 gap-x-10 ">
+              <div className="flex flex-wrap justify-center  items-center m-5 gap-x-10">
                 {isLoading && (
                   <div className="flex justify-center items-center w-full h-full mt-32">
                     <div role="status">
@@ -126,9 +157,21 @@ export default function Works() {
                 )}
 
                 {[...works].reverse().map((work) => (
-                  <div
+                  <motion.div
                     key={work._id}
-                    className="relative flex flex-col items-center justify-center w-64 h-60 m-5 rounded-lg bg-gray-100  animate-jump-in"
+                    className={`relative flex flex-col items-center justify-center w-64 h-60 m-5 rounded-lg bg-gray-100 transform hover:shadow-xl mb-20 ${
+                      hoveredCardId === work._id ? "hovered-card" : ""
+                    }`}
+                    onMouseEnter={() => handleHoverStart(work._id)}
+                    onMouseLeave={handleHoverEnd}
+                    onMouseMove={calculateRotation}
+                    whileHover={{ scale: 1.1 }}
+                    style={{
+                      rotateX:
+                        hoveredCardId === work._id ? rotation.rotateX : 0,
+                      rotateY:
+                        hoveredCardId === work._id ? rotation.rotateY : 0,
+                    }}
                   >
                     <div className="absolute bottom-0 right-0 p-2 text-xs text-gray-500">
                       Creado el: {new Date(work.createdAt).toLocaleDateString()}
@@ -265,13 +308,28 @@ export default function Works() {
                         </div>
                       </Link>
                     )}
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
           </div>
         </div>
       </div>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        closeOnClick={false}
+        pauseOnHover={true}
+        draggablePercent={100}
+        bodyClassName={"text-sm p-2 m-2 inset-0 "}
+        style={{
+          position: "fixed",
+          bottom: "20px",
+          right: "30px",
+          zIndex: 10, // Reducir el valor de zIndex
+        }}
+        toastClassName={"rounded-md shadow-md"}
+      />
     </>
   );
 }

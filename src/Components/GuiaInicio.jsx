@@ -52,7 +52,7 @@ export default function GuiaInicio() {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-black/40" />
+            <div className="fixed inset-0 bg-black/50" />
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto animate-jump-in">
@@ -66,13 +66,13 @@ export default function GuiaInicio() {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-gradient-to-t from-gray-300 to-white p-6 text-left align-middle shadow-xl transition-all">
                   <Dialog.Title
                     as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900 justify-center items-center flex m-2"
+                    className="text-lg font-bold leading-6 text-gray-900 justify-center items-center flex m-2"
                   >
-                    <h1 className="uppercase border-b-2 border-red-500 text-xl mb-4">
-                      Bienvenido a ViltoApp 🧠🫡
+                    <h1 className="uppercase text-xl mb-3">
+                      Bienvenido a ViltoApp
                     </h1>
                   </Dialog.Title>
                   <div className="mt-4">

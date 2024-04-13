@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Picker from "emoji-picker-react";
-
 import "react-toastify/dist/ReactToastify.css";
 import io from "socket.io-client";
+import { useAuth } from "../context/authContext";
 
 const AddColumn = ({ projectId }) => {
   const [showAddColumn, setShowAddColumn] = useState(false);
   const [name, setNewColumnTitle] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const { user } = useAuth();
 
   const handleShowAddColumn = () => {
     setShowAddColumn(true);
@@ -29,6 +30,7 @@ const AddColumn = ({ projectId }) => {
     const column = {
       name,
       projectId,
+      userEmail: user.email,
     };
     const socket = io("http://localhost:3000");
     socket.emit("crearColumna", column);
@@ -43,7 +45,7 @@ const AddColumn = ({ projectId }) => {
   };
 
   return (
-    <div className="flex items-center justify-center animate-jump-in m-4 pointer-events-auto">
+    <div className="flex items-center justify-center animate-jump-in m-4 pointer-events-auto ">
       {showAddColumn ? (
         <div
           className="flex items-center justify-between animate-jump-in"

@@ -11,6 +11,7 @@ import {
   GithubAuthProvider,
 } from "firebase/auth";
 import PropTypes from "prop-types";
+import { uploadFile } from "../firebase/firebase.config";
 
 export const authContext = createContext();
 
@@ -94,6 +95,22 @@ export function AuthProvider({ children }) {
       const user = response.user;
       await fetchUserData(user);
       setUser(user);
+      let blob;
+      try {
+        const imageResponse = await fetch(user.photoURL);
+        blob = await imageResponse.blob();
+      } catch (error) {
+        console.error("Error al descargar la imagen de perfil:", error);
+        return;
+      }
+      try {
+        await uploadFile(blob, user.email);
+      } catch (error) {
+        console.error(
+          "Error al subir la imagen de perfil a Firebase Storage:",
+          error
+        );
+      }
     } catch (error) {
       console.error("Error al iniciar sesión con Google:", error.message);
     }
@@ -106,6 +123,26 @@ export function AuthProvider({ children }) {
       const user = response.user;
       await fetchUserData(user);
       setUser(user);
+
+      // Descargar la imagen de perfil como un Blob
+      let blob;
+      try {
+        const imageResponse = await fetch(user.photoURL);
+        blob = await imageResponse.blob();
+      } catch (error) {
+        console.error("Error al descargar la imagen de perfil:", error);
+        return;
+      }
+
+      // Subir el Blob al storage de Firebase
+      try {
+        await uploadFile(blob, user.email);
+      } catch (error) {
+        console.error(
+          "Error al subir la imagen de perfil a Firebase Storage:",
+          error
+        );
+      }
     } catch (error) {
       console.error("Error al iniciar sesión con Github:", error.message);
     }

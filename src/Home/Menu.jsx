@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 export default function Menu() {
   return (
-    <div className="w-1/5 h-screen animate-fade-left bg-gray-200 flex flex-col justify-between">
+    <div className="w-1/5 h-screen animate-fade-left  bg-gradient-to-t from-gray-200 to-transparent flex flex-col justify-between">
       <div className="flex flex-col items-center justify-center space-y-16 py-40 text-sm">
         <button className="font-bold  uppercase p-3 rounded-md hover:bg-gradient-to-r from-red-500 to-pink-500 hover:text-white hover:animate-jump">
           <span className="flex">

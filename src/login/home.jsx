@@ -10,8 +10,9 @@ export default function Home() {
         <source src="Banner.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
+
       <div className="absolute w-full h-full bg-gradient-to-t from-gray-900 to-white opacity-50"></div>
-      <div className="relative z-10 flex items-center justify-center flex-col">
+      <div className="relative z-20 flex items-center justify-center flex-col">
         <div className="mb-4 flex items-center shadow-sm p-4 bg-amber-100 text-amber-700 rounded-full uppercase animate-jump-in">
           <div className="mr-2">
             <svg className="w-6 h-6" viewBox="0 0 24 24">

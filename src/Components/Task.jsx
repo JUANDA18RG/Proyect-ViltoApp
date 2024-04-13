@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import Picker from "emoji-picker-react";
 import io from "socket.io-client";
 import { useEffect } from "react";
+import { useAuth } from "../context/authContext";
 
 const Task = ({ columnId }) => {
   Task.propTypes = {
@@ -13,6 +14,7 @@ const Task = ({ columnId }) => {
   const [name, setName] = useState("");
   const [addingTask, setAddingTask] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     const socket = io("http://localhost:3000");
@@ -29,6 +31,7 @@ const Task = ({ columnId }) => {
     const newTask = {
       name,
       columnId,
+      userEmail: user.email,
     };
     const socket = io("http://localhost:3000");
     socket.emit("crearTarea", newTask);

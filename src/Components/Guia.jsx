@@ -103,7 +103,7 @@ export default function MyModal() {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-black/25" />
+            <div className="fixed inset-0 bg-black/50" />
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto animate-jump-in">
@@ -117,10 +117,10 @@ export default function MyModal() {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-gradient-to-t from-gray-300 to-white p-6 text-left align-middle shadow-xl transition-all">
                   <Dialog.Title
                     as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900  mb-4 text-center"
+                    className="text-lg font-bold leading-6 text-gray-900  mb-4 text-center"
                   >
                     Esta es la guia de uso para el sistema de uso de ViltoApp
                   </Dialog.Title>
@@ -175,7 +175,7 @@ export default function MyModal() {
                       className="rounded-md px-4 py-2 text-sm text-white bg-gradient-to-r from-red-500 to-pink-500"
                       onClick={closeModal}
                     >
-                      Close
+                      Entendido
                     </button>
                   </div>
                 </Dialog.Panel>
