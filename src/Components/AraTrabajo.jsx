@@ -27,7 +27,7 @@ export default function AraTrabajo() {
   }, [id]);
 
   return (
-    <div className="bg-gradient-to-b from-gray-200 to-white animate-fade-right h-screen overflow-x-hidden">
+    <div className="bg-gradient-to-t from-gray-300 to-white animate-fade-right h-screen overflow-x-hidden">
       <NavbarPage />
       {project && <SpaceWork projectId={id} project={project} />}
     </div>

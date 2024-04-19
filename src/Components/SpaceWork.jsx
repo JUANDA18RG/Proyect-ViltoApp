@@ -12,6 +12,7 @@ import io from "socket.io-client";
 import ButtonChat from "../Chat/ButtonChat";
 import { useAuth } from "../context/authContext";
 import PersonasActivas from "./PersonasActivas";
+import EditarTarea from "./EditarTarea";
 
 const SpaceWork = ({ projectId }) => {
   const [columns, setColumns] = useState([]);
@@ -266,7 +267,7 @@ const SpaceWork = ({ projectId }) => {
               </h1>
               <div className="flex items-center justify-center ml-7 space-x-5 animate-jump-in">
                 <ProyectosFavoritos projectId={projectId} />
-                <ButtonChat />
+                <ButtonChat projectId={projectId} projectName={project?.name} />
                 <PersonasActivas projectId={projectId} />
               </div>
             </div>
@@ -403,14 +404,24 @@ const SpaceWork = ({ projectId }) => {
                                       ...provided.draggableProps.style,
                                       opacity: snapshot.isDragging ? 0.8 : 1,
                                     }}
-                                    className={`bg-white p-2 m-2 rounded-md border-2 shadow-sm overflow-hidden break-words`}
+                                    className="flex justify-between items-center p-2 m-2 bg-white rounded-md border-2 shadow-sm overflow-visible group"
                                   >
-                                    {column.tasks.find(
-                                      (task) => task._id === taskId
-                                    ) &&
-                                      column.tasks.find(
+                                    {(() => {
+                                      const task = column.tasks.find(
                                         (task) => task._id === taskId
-                                      ).name}
+                                      );
+                                      return (
+                                        <>
+                                          <div className="flex-grow min-w-0 break-words">
+                                            <p>{task && task.name}</p>
+                                          </div>
+                                          <EditarTarea
+                                            task={task}
+                                            columnId={column.id}
+                                          />
+                                        </>
+                                      );
+                                    })()}
                                   </div>
                                 );
                               }}

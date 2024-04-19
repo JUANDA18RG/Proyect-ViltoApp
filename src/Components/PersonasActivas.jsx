@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import io from "socket.io-client";
 import PropTypes from "prop-types";
 import { obtenerUrlImagen } from "../firebase/firebase.config";
-import User from "../../public/user.png"
+import User from "../../public/user.png";
 
 export default function PersonasActivas({ projectId }) {
   const [imagenesUsuarios, setImagenesUsuarios] = useState({});

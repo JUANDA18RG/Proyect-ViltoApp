@@ -126,11 +126,14 @@ const Task = ({ columnId }) => {
             </div>
           </div>
           {showEmojiPicker && (
-            <div className="relative left-12 top-10">
+            <div className="absolute bottom-2 right-2">
               <Picker
                 onEmojiClick={handleEmojiSelect}
-                className="scale-75 origin-top-left z-50"
+                className="scale-75  z-50"
                 disableSearchBar={true}
+                emojiSize={20}
+                emojiButtonSize={28}
+                onEmojiSelect={handleEmojiSelect}
                 maxFrequentRows={0}
                 previewPosition={"none"}
                 theme={"light"}

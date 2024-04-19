@@ -9,6 +9,7 @@ import AreaTrabajo from "./Components/AraTrabajo";
 import { useState, useEffect } from "react";
 import Spinner from "./Perfil/Spinner";
 import socket from "./Sockets";
+import Pago from "./Pagos/Pago";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -27,6 +28,11 @@ function App() {
     });
     socket.on("disconnect", () => {
       console.log("Desconectado del servidor");
+      const lastToDisconnect = new socket.off("/").socket.size == 0;
+      if (lastToDisconnect) {
+        console.log("Reconectando al servidor");
+        socket.connect();
+      }
     });
   }, []);
 
@@ -44,6 +50,7 @@ function App() {
         <Route path="/AreaTrabajo/:id" element={<AreaTrabajo />} />
         <Route path="/Usuario" element={<Usuario />} />
         <Route path="*" element={<Portada />} />
+        <Route path="/Pago" element={<Pago />} />
       </Routes>
     </AuthProvider>
   );

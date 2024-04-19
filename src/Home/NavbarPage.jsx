@@ -71,14 +71,17 @@ export default function NavbarPage() {
 
       <div className=" items-center space-x-10 hidden md:flex ">
         {!auth.isPremium && (
-          <button className="relative flex items-center justify-center h-8 px-3 text-sm font-medium text-white rounded-lg bg-gradient-to-b from-purple-500 to-pink-500 animate-jump-in ">
+          <Link
+            to={"/Pago"}
+            className="relative flex items-center justify-center h-8 px-3 text-sm font-medium text-white rounded-lg bg-gradient-to-b from-purple-500 to-pink-500 animate-jump-in "
+          >
             <img
               src={Corona}
               alt="Corona"
               className="absolute top-0 left-0 transform -translate-x-1/2 -translate-y-1/2 w-10 h-8 -rotate-45 "
             />
             <span className="mr-2 ml-2 font-semibold">Obtener Premium</span>
-          </button>
+          </Link>
         )}
         <Menu as="nav" className="relative z-10">
           {({ open }) => (
