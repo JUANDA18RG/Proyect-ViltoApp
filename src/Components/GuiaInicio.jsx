@@ -71,11 +71,13 @@ export default function GuiaInicio() {
                     as="h3"
                     className="text-lg font-bold leading-6 text-gray-900 justify-center items-center flex m-2"
                   >
-                    <h1 className="uppercase text-xl mb-3">
-                      Bienvenido a ViltoApp
+                    <h1 className=" uppercase text-xl font-bold text-center p-2 rounded-lg shadow-md">
+                      <span className=" px-2 py-1 rounded-sm">
+                        Bienvenidos a ViltoApp
+                      </span>
                     </h1>
                   </Dialog.Title>
-                  <div className="mt-4">
+                  <div className="mt-6">
                     <p className="text-sm text-gray-500 text-justify">
                       Esta es tu area de trabajo, aqui podras ver tus proyectos
                       activos y tambien donde podras crear nuevos proyectos y

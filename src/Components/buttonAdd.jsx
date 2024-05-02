@@ -10,7 +10,8 @@ export default function ButtonAdd({ setWorks }) {
   let [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [isPremium, setIsPremium] = useState(false); // Nuevo estado para almacenar si el usuario es premium o no
+  const [isPremium, setIsPremium] = useState(false);
+  const [error, setError] = useState("");
 
   function closeModal() {
     setIsOpen(false);
@@ -39,6 +40,9 @@ export default function ButtonAdd({ setWorks }) {
           autoClose: 3000,
         }
       );
+      setName("");
+      setDescription("");
+      closeModal();
     });
 
     socket.on("estadoPremium", (estadoPremium) => {
@@ -52,6 +56,11 @@ export default function ButtonAdd({ setWorks }) {
   }, [auth.user]);
 
   const handleSubmit = async () => {
+    if (!name.trim() || !description.trim()) {
+      setError("Todos los campos son obligatorios");
+      return;
+    }
+
     const userEmail = auth.user.email;
 
     const socket = io("http://localhost:3000");
@@ -79,9 +88,6 @@ export default function ButtonAdd({ setWorks }) {
 
       socket.emit("crearProyecto", project);
     });
-
-    setName("");
-    setDescription("");
   };
 
   return (
@@ -144,49 +150,60 @@ export default function ButtonAdd({ setWorks }) {
                 <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-gradient-to-t from-gray-300 to-white p-6 text-left align-middle shadow-xl ">
                   <Dialog.Title
                     as="h3"
-                    className="text-lg font-bold leading-6 text-gray-900 justify-center items-center flex m-2"
+                    className="text-lg font-bold leading-6  justify-center items-center flex m-2 "
                   >
-                    <h1 className="uppercase text-lg font-bold text-center px-2 rounded-md">
-                      Crea tu proyecto
+                    <h1 className=" uppercase text-xl font-bold text-center p-2 rounded-lg shadow-md">
+                      <span className="bg-white px-3 py-1 rounded-sm text-gray-900">
+                        Crear Proyecto
+                      </span>
                     </h1>
                   </Dialog.Title>
-
-                  <div className="mt-6">
+                  <div className="mt-6 mb-5">
                     <p className="text-sm text-gray-500 text-justify">
                       aqui puedes crear un nuevo proyecto colaborativo, solo
                       necesitas un nombre y una descripcion de tu proyecto para
                       empezar a trabajar.
                     </p>
                   </div>
-                  <div className="mt-6 flex flex-col items-center justify-center text-center">
-                    <input
-                      id="projectTitle"
-                      type="text"
-                      className="p-2 w-full border-2 rounded-lg bg-gray-100 border-gray-400 focus:border-red-500 focus:ring-red-500 focus:ring-opacity-50 m-2"
-                      placeholder="Nombre del Proyecto"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      required
-                    />
+                  <div className="bg-white p-3 rounded-lg shadow-sm">
+                    <div className=" flex flex-col items-start justify-center text-left">
+                      <span className="text-sm text-gray-800 text-justify mb-4  ">
+                        Nombre del Proyecto:
+                      </span>
+                      <input
+                        id="projectTitle"
+                        type="text"
+                        className="p-2 w-full border-2 rounded-lg bg-gray-100 border-red-500 focus:ring-red-500 focus:ring-opacity-50 mr-2 shadow-md"
+                        placeholder="Nombre del Proyecto"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="mt-6 flex flex-col items-start justify-center text-left">
+                      <span className="text-sm text-gray-800 text-justify mb-4 ">
+                        Descripcion del Proyecto:
+                      </span>
+                      <input
+                        id="projectDescription"
+                        type="text"
+                        className="p-2 w-full border-2 rounded-lg bg-gray-100 border-red-500 focus:ring-red-500 focus:ring-opacity-50 mr-2 shadow-md"
+                        placeholder="Descripcion del Proyecto"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                      />
+                    </div>
                   </div>
-                  <div className="mt-6 flex flex-col items-center justify-center text-center">
-                    <input
-                      id="projectDescription"
-                      type="text"
-                      className="p-2 w-full border-2 rounded-lg bg-gray-100 border-gray-400 focus:border-red-500 focus:ring-red-500 focus:ring-opacity-50 m-2"
-                      placeholder="Descripcion del Proyecto"
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                    />
-                  </div>
+                  {error && (
+                    <div className="mt-6 items-center justify-center text-center text-red-500">
+                      {error}
+                    </div>
+                  )}
                   <div className="mt-6 items-center justify-center text-center ">
                     <button
                       type="button"
                       className="inline-flex justify-center bg-gradient-to-r from-red-500 to-pink-500 shadow-md text-white rounded-md p-2"
-                      onClick={async () => {
-                        await handleSubmit();
-                        closeModal();
-                      }}
+                      onClick={handleSubmit}
                     >
                       Crear Proyecto
                     </button>

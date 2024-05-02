@@ -31,12 +31,14 @@ export default function Usuario() {
             />
           </svg>
         </button>
-        <div className="text-center mb-6">
-          <img
-            src={auth.user.photoURL ? auth.user.photoURL : userImage}
-            alt={auth.user.displayName}
-            className="w-36 h-36 rounded-full mx-auto mb-4  shadow-md animate-jump-in"
-          />
+        <div className="text-center mb-6 ">
+          <div className="">
+            <img
+              src={auth.user.photoURL ? auth.user.photoURL : userImage}
+              alt={auth.user.displayName}
+              className="w-36 h-36 rounded-full mx-auto mb-4  shadow-md animate-jump-in p-1 border-2 border-red-500"
+            />
+          </div>
           <p className="text-xl font-semibold">{auth.user.displayName}</p>
           <p className="text-gray-500 text-sm">{auth.user.email}</p>
         </div>

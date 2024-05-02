@@ -47,7 +47,7 @@ export default function PersonasActivas({ projectId }) {
           <img
             src={urlImagen}
             alt={`Imagen de ${nombreUsuario}`}
-            className="rounded-full w-10 h-10 border-2 border-red-500 mt-1"
+            className="rounded-full w-10 h-10 border-2 border-red-500 mt-1 hover:scale-110 transition-transform duration-200"
           />
           <div className="absolute left-0 top-full mt-2 px-2 py-1 text-sm text-white bg-gradient-to-r from-red-500 to-pink-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             {nombreUsuario}

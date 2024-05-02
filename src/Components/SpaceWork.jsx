@@ -20,6 +20,7 @@ const SpaceWork = ({ projectId }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [project, setProject] = useState(null);
   const [forceUpdate, setForceUpdate] = useState(false);
+
   const { user } = useAuth();
 
   useEffect(() => {
@@ -266,9 +267,32 @@ const SpaceWork = ({ projectId }) => {
                 {project?.name}
               </h1>
               <div className="flex items-center justify-center ml-7 space-x-5 animate-jump-in">
-                <ProyectosFavoritos projectId={projectId} />
-                <ButtonChat projectId={projectId} projectName={project?.name} />
-                <PersonasActivas projectId={projectId} />
+                <div className="flex items-center space-x-4 mr-4">
+                  <ProyectosFavoritos projectId={projectId} />
+                  <ButtonChat
+                    projectId={projectId}
+                    projectName={project?.name}
+                  />
+                  <div className="bg-gradient-to-r from-red-500 to-pink-500 rounded-full p-2 text-white hover:animate-jump">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-5 h-5"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <div className="flex  items-center space-x-2 animate-jump-in">
+                  <PersonasActivas projectId={projectId} />
+                </div>
               </div>
             </div>
           </div>

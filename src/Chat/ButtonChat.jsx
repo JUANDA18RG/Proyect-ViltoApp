@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import { useAuth } from "../context/authContext";
 import { obtenerUrlImagen } from "../firebase/firebase.config";
 import User from "../../public/user.png";
+import { Link } from "react-router-dom";
 
 let socket;
 
@@ -19,7 +20,9 @@ export default function ButtonChat({ projectId, projectName }) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [imagenesUsuarios, setImagenesUsuarios] = useState({});
+  const [error, setError] = useState("");
   const messagesEndRef = useRef(null); // Referencia al elemento de mensajes
+  const [unreadMessages, setUnreadMessages] = useState(false);
 
   useEffect(() => {
     socket = io("http://localhost:3000");
@@ -28,6 +31,9 @@ export default function ButtonChat({ projectId, projectName }) {
 
     socket.on("mensajeEnviado", (msg) => {
       setMessages((prevMessages) => [...prevMessages, msg.message]);
+      if (!isOpen) {
+        setUnreadMessages(true);
+      }
     });
 
     socket.emit("obtenerMensajes", projectId);
@@ -65,16 +71,25 @@ export default function ButtonChat({ projectId, projectName }) {
 
   const openModal = () => {
     setIsOpen(true);
+    setUnreadMessages(false);
   };
 
   const sendMessage = (e) => {
     e.preventDefault();
+
+    if (!message.trim()) {
+      setError("El mensaje no puede estar vacío.");
+      return;
+    }
+
     socket.emit("enviarMensaje", {
       projectId,
       message,
       sender: user.email,
     });
+
     setMessage("");
+    setError("");
   };
 
   useEffect(() => {
@@ -108,9 +123,12 @@ export default function ButtonChat({ projectId, projectName }) {
   return (
     <>
       <button
-        className="bg-gradient-to-r from-red-500 to-pink-500 rounded-full p-2 text-white hover:animate-jump"
+        className="bg-gradient-to-r from-red-500 to-pink-500 rounded-full p-2 text-white relative"
         onClick={openModal}
       >
+        {unreadMessages && (
+          <span className="absolute top-0 right-0 h-3 w-3 bg-red-600 rounded-full"></span>
+        )}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -204,21 +222,46 @@ export default function ButtonChat({ projectId, projectName }) {
                 <div ref={messagesEndRef}></div>{" "}
                 {/* Referencia al final del contenedor de mensajes */}
               </div>
-              <form onSubmit={sendMessage} className="flex items-center">
+              <form onSubmit={sendMessage} className="flex items-center mt-8">
+                <Link
+                  to={`/Video/${projectId}`}
+                  className="mt-3 bg-gradient-to-r from-red-500 to-pink-500 mr-2 inline-flex justify-center p-1 border border-transparent shadow-sm text-sm font-medium rounded-full text-white items-center mb-4"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15.182 15.182a4.5 4.5 0 0 1-6.364 0M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z"
+                    />
+                  </svg>
+                </Link>
                 <input
                   type="text"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="flex-grow rounded-full border border-gray-300 focus:outline-none focus:border-red-500 p-3"
+                  className="flex-grow rounded-full border border-gray-300 focus:outline-none focus:border-red-500 p-2"
                   placeholder="Escribe tu mensaje..."
                 />
+
                 <button
                   type="submit"
-                  className="mt-8 bg-gradient-to-r from-red-500 to-pink-500 ml-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-full text-white items-center mb-8"
+                  className="mt-3 bg-gradient-to-r from-red-500 to-pink-500 ml-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-full text-white items-center mb-4"
                 >
                   Enviar
                 </button>
               </form>
+              {error && (
+                <p className="text-red-500 text-center mt-2 animate-jump-in">
+                  {error}
+                </p>
+              )}
             </div>
           </Transition.Child>
         </Dialog>
