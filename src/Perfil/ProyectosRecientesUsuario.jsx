@@ -15,6 +15,27 @@ import { useAuth } from "../context/authContext";
 export default function VisitasUsuario() {
   const [data, setData] = useState([]);
   const { user } = useAuth();
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("darkMode");
+    const isEnabled = JSON.parse(saved) || false;
+    setDarkMode(isEnabled);
+
+    const handleDarkModeChange = () => {
+      const saved = localStorage.getItem("darkMode");
+      const isEnabled = JSON.parse(saved) || false;
+      setDarkMode(isEnabled);
+    };
+
+    window.addEventListener("darkModeChange", handleDarkModeChange);
+
+    // Limpiar el evento al desmontar el componente
+    return () => {
+      window.removeEventListener("darkModeChange", handleDarkModeChange);
+    };
+  }, []);
+
   useEffect(() => {
     const socket = io("http://localhost:3000");
     socket.emit("obtenerAcciones", { userEmail: user.email });
@@ -33,9 +54,23 @@ export default function VisitasUsuario() {
   }, []);
 
   return (
-    <div className="bg-gray-100 flex justify-center items-center m-8">
-      <div className="w-full bg-white shadow-lg  p-8 rounded-lg border-2 border-gray-300">
-        <h2 className="text-lg font-bold mb-7 text-center items-center">
+    <div
+      className={`flex justify-center items-center m-8 ${
+        darkMode ? "bg-gray-800" : "bg-gray-100"
+      }`}
+    >
+      <div
+        className={`w-full p-8 shadow-lg rounded-lg ${
+          darkMode
+            ? "bg-gray-800 border-2 border-gray-700"
+            : "bg-white border-2 border-gray-300"
+        }`}
+      >
+        <h2
+          className={`text-lg font-bold mb-7 text-center items-center ${
+            darkMode ? "text-white" : "text-gray-900"
+          }`}
+        >
           Movimientos Generales del Usuario
         </h2>
         <ResponsiveContainer width="100%" height={300}>

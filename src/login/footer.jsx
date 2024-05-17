@@ -1,14 +1,42 @@
 export const Footer = () => {
   return (
     <div className="fixed bottom-0 w-full p-1 border-t bg-slate-100 flex items-center justify-center animate-fade-up">
-      <div className="space-x-10 flex items-center justify-center">
-        <button className="h-10 text-md text-neutral-400">
-          Privacy Polity
-        </button>
-        <p className="text-neutral-400 mx-2">|</p>
-        <button className="h-10 text-md text-neutral-400">
-          Terms of Service
-        </button>
+      <div className="flex items-center justify-center space-x-10">
+        <div className="flex flex-row items-center space-x-3">
+          <p className="text-sm sm:text-base font-semibold text-gray-600">
+            Frontend
+          </p>
+          <a
+            href="https://github.com/JUANDA18RG/Proyect-ViltoApp"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <button
+              className="w-8 h-8 rounded-full bg-no-repeat bg-center bg-cover"
+              style={{
+                backgroundImage: "url('../../assets/GitHub.png')",
+              }}
+            ></button>
+          </a>
+        </div>
+        <p className="font-semibold text-sm sm:text-base">|</p>
+        <div className="flex flex-row items-center space-x-3">
+          <a
+            href="https://github.com/JUANDA18RG/Proyect-ViltoApp-Backend"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <button
+              className="w-8 h-8 rounded-full bg-no-repeat bg-center bg-cover"
+              style={{
+                backgroundImage: "url('../../assets/GitHub.png')",
+              }}
+            ></button>
+          </a>
+          <p className="text-sm sm:text-base font-semibold text-gray-600">
+            Backend
+          </p>
+        </div>
       </div>
     </div>
   );

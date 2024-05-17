@@ -2,7 +2,10 @@ import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { useAuth } from "../context/authContext";
 import io from "socket.io-client";
 import { toast } from "react-toastify";
-import Corona from "/Corona.png";
+import Corona from "../../assets/Corona.png";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Spinner from "../Perfil/Spinner";
 
 const initialOptions = {
   clientId:
@@ -11,18 +14,46 @@ const initialOptions = {
 };
 
 export default function Pago() {
-  const auth = useAuth();
+  const { user, loading } = useAuth();
   const socket = io("http://localhost:3000");
+  const navigate = useNavigate();
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("darkMode");
+    const isEnabled = JSON.parse(saved) || false;
+    setDarkMode(isEnabled);
+
+    const handleDarkModeChange = () => {
+      const saved = localStorage.getItem("darkMode");
+      const isEnabled = JSON.parse(saved) || false;
+      setDarkMode(isEnabled);
+    };
+
+    window.addEventListener("darkModeChange", handleDarkModeChange);
+
+    // Limpiar el evento al desmontar el componente
+    return () => {
+      window.removeEventListener("darkModeChange", handleDarkModeChange);
+    };
+  }, []);
 
   const devolver = () => {
     window.history.back();
   };
 
+  useEffect(() => {
+    if (!loading && !user) {
+      // Solo redirigimos a /404 si la carga ha terminado y no hay usuario
+      navigate("/404");
+    }
+  }, [user, navigate, loading]);
+
   const handleApprove = async (data, actions) => {
     try {
       await actions.order.capture();
-      socket.emit("PagoParaPremium", { email: auth.email });
-      toast.success(`Pago exitoso, ${auth.name}. Ahora eres premium.`, {
+      socket.emit("PagoParaPremium", { email: user.email });
+      toast.success(`Pago exitoso, ${user.name}. Ahora eres premium.`, {
         autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
@@ -46,11 +77,19 @@ export default function Pago() {
     console.error("Error en el pago: ", err);
   };
 
+  if (loading) {
+    return <Spinner />;
+  }
+
   return (
     <div className="animate-fade-right">
       <div
-        className="fixed inset-0 bg-bottom bg-no-repeat bg-cover transform rotate-180 opacity-60"
-        style={{ backgroundImage: `url('../../wavesOpacity.svg')` }}
+        className={`fixed inset-0 bg-bottom bg-no-repeat bg-cover transform rotate-180 ${
+          darkMode
+            ? "bg-gray-800 opacity-90"
+            : "bg-gradient-to-t from-gray-200 to-transparent opacity-70"
+        }`}
+        style={{ backgroundImage: `url('../../assets/wavesOpacity.svg')` }}
       ></div>
       <button
         onClick={devolver}
@@ -71,9 +110,21 @@ export default function Pago() {
           />
         </svg>
       </button>
-      <div className="flex items-center justify-center h-screen bg-gray-100 z-10">
-        <div className="relative flex flex-col items-center justify-center p-6 bg-white rounded-lg shadow-xl text-center max-w-md w-full z-20">
-          <h2 className="text-2xl text-gray-500 mb-10">
+      <div
+        className={`flex items-center justify-center h-screen z-10 ${
+          darkMode ? "bg-gray-800" : "bg-gray-100"
+        }`}
+      >
+        <div
+          className={`relative flex flex-col items-center justify-center p-6 rounded-lg shadow-xl text-center max-w-md w-full z-20 ${
+            darkMode ? "bg-gray-700 border-2 border-gray-500" : "bg-white"
+          }`}
+        >
+          <h2
+            className={`text-2xl mb-10 ${
+              darkMode ? "text-white" : "text-gray-500"
+            }`}
+          >
             Realiza tu pago para pasarte a premium en{" "}
             <span className="text-white bg-gradient-to-r from-red-500 to-pink-500 p-1 text-xl rounded-lg">
               ViltoApp
@@ -82,7 +133,7 @@ export default function Pago() {
           <div className="flex  items-center justify-center mb-5">
             <div className="border-red-500 ">
               <img
-                src={auth.user.photoURL}
+                src={user ? user.photoURL : ""}
                 alt="User"
                 className="w-24 h-24 border-2  border-red-500 rounded-full mb-6 shadow-sm animate-jump-in p-1"
               />
@@ -104,7 +155,7 @@ export default function Pago() {
 
             <div className="relative w-24 h-24 mb-5 animate-jump-in ">
               <img
-                src={auth.user.photoURL}
+                src={user ? user.photoURL : ""}
                 alt="User"
                 className="w-full h-full border-2  rounded-full p-1 border-red-500"
               />

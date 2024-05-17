@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import io from "socket.io-client";
 import { obtenerUrlImagen } from "../firebase/firebase.config";
 import { toast } from "react-toastify";
-import User from "../../public/user.png";
+import User from "../../assets/user.png";
 
 export default function CompartirProyecto({ projectName, projectId }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,6 +15,26 @@ export default function CompartirProyecto({ projectName, projectId }) {
   const [imagenesUsuarios, setImagenesUsuarios] = useState({});
   const socket = useRef();
   const [numUsers, setNumUsers] = useState(0);
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("darkMode");
+    const isEnabled = JSON.parse(saved) || false;
+    setDarkMode(isEnabled);
+
+    const handleDarkModeChange = () => {
+      const saved = localStorage.getItem("darkMode");
+      const isEnabled = JSON.parse(saved) || false;
+      setDarkMode(isEnabled);
+    };
+
+    window.addEventListener("darkModeChange", handleDarkModeChange);
+
+    // Limpiar el evento al desmontar el componente
+    return () => {
+      window.removeEventListener("darkModeChange", handleDarkModeChange);
+    };
+  }, []);
 
   useEffect(() => {
     const filteredResults = allUsers.filter((user) =>
@@ -61,8 +81,8 @@ export default function CompartirProyecto({ projectName, projectId }) {
 
   // Función para manejar el clic en el botón "Agregar Usuario"
   const handleAddUserClick = () => {
-    closeModal();
     if (numUsers >= 4) {
+      closeModal();
       toast.warning(
         "El proyecto ya tiene 4 participantes. No puedes agregar más."
       );
@@ -71,12 +91,15 @@ export default function CompartirProyecto({ projectName, projectId }) {
         projectId,
         userEmail: selectedUserEmail,
       });
-      toast.success("Usuario agregado correctamente");
+      toast.success("Usuario agregado correctamente refresh para ver cambios.");
+      console.log(projectId, selectedUserEmail);
       closeModal();
     } else {
-      alert("Por favor, selecciona un usuario para agregar.");
+      closeModal();
+      toast.error("Debes seleccionar un usuario para agregarlo al proyecto.");
     }
   };
+
   useEffect(() => {
     console.log("Search results updated", searchResults);
   }, [searchResults]);
@@ -169,13 +192,28 @@ export default function CompartirProyecto({ projectName, projectId }) {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-gradient-to-t from-gray-300 to-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel
+                  className={`w-full max-w-md transform overflow-hidden rounded-2xl p-6 text-left align-middle shadow-xl transition-all ${
+                    darkMode
+                      ? "bg-gradient-to-t from-gray-800 to-gray-900"
+                      : "bg-gradient-to-t from-gray-300 to-white"
+                  }`}
+                >
+                  {" "}
                   <Dialog.Title
                     as="h3"
-                    className="text-lg font-bold leading-6 text-gray-900 justify-center items-center flex m-2"
+                    className="text-lg font-bold leading-6 text-gray-900 justify-center items-center flex "
                   >
-                    <h1 className="uppercase text-lg mb-3 text-center items-center">
-                      Compartir el proyecto {projectName} con mas personas
+                    <h1
+                      className={` text-xl font-bold text-center p-2 rounded-lg ${
+                        darkMode
+                          ? "text-white bg-gray-700"
+                          : "text-black bg-white"
+                      }`}
+                    >
+                      <span>
+                        Compartir el proyecto {projectName} con otros usuarios
+                      </span>
                     </h1>
                   </Dialog.Title>
                   <div className="mt-4">
@@ -188,7 +226,9 @@ export default function CompartirProyecto({ projectName, projectId }) {
                     />
                     {searchTerm && (
                       <div
-                        className={`relative bg-white border rounded mt-2 w-full ${
+                        className={`relative border rounded mt-2 w-full ${
+                          darkMode ? "bg-gray-600" : "bg-white"
+                        } ${
                           searchResults.length >= 2
                             ? "h-40 overflow-y-auto"
                             : "h-26"
@@ -198,7 +238,11 @@ export default function CompartirProyecto({ projectName, projectId }) {
                           searchResults.map((result) => (
                             <li
                               key={result.id}
-                              className="p-2 hover:bg-gray-200 cursor-pointer m-5 rounded-md"
+                              className={`p-2 m-5 rounded-md cursor-pointer ${
+                                darkMode
+                                  ? "hover:bg-gray-700"
+                                  : "hover:bg-gray-200"
+                              }`}
                               onClick={() => handleUserClick(result.email)}
                             >
                               <div className="flex items-start rounded-md animate-fade-up">
@@ -208,10 +252,20 @@ export default function CompartirProyecto({ projectName, projectId }) {
                                   className="rounded-full w-10 h-10 border-2 border-red-500 mt-1"
                                 />
                                 <div className="ml-2">
-                                  <div className="break-all">
+                                  <div
+                                    className={`break-all ${
+                                      darkMode ? "text-white" : "text-gray-800"
+                                    }`}
+                                  >
                                     {result.email}
                                   </div>
-                                  <div className="text-gray-500 text-xs">
+                                  <div
+                                    className={`text-xs ${
+                                      darkMode
+                                        ? "text-gray-400"
+                                        : "text-gray-500"
+                                    }`}
+                                  >
                                     {result.name}
                                   </div>
                                 </div>
@@ -233,7 +287,6 @@ export default function CompartirProyecto({ projectName, projectId }) {
                       proyecto
                     </p>
                   </div>
-
                   <div className="mt-6 items-center justify-center text-center">
                     <button
                       type="button"

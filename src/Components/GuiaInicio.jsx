@@ -1,8 +1,28 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 
 export default function GuiaInicio() {
   let [isOpen, setIsOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("darkMode");
+    const isEnabled = JSON.parse(saved) || false;
+    setDarkMode(isEnabled);
+
+    const handleDarkModeChange = () => {
+      const saved = localStorage.getItem("darkMode");
+      const isEnabled = JSON.parse(saved) || false;
+      setDarkMode(isEnabled);
+    };
+
+    window.addEventListener("darkModeChange", handleDarkModeChange);
+
+    // Limpiar el evento al desmontar el componente
+    return () => {
+      window.removeEventListener("darkModeChange", handleDarkModeChange);
+    };
+  }, []);
 
   function closeModal() {
     setIsOpen(false);
@@ -66,13 +86,27 @@ export default function GuiaInicio() {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-gradient-to-t from-gray-300 to-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel
+                  className={`w-full max-w-md transform overflow-hidden rounded-2xl p-6 text-left align-middle shadow-xl transition-all ${
+                    darkMode
+                      ? "bg-gradient-to-t from-gray-800 to-gray-900"
+                      : "bg-gradient-to-t from-gray-300 to-white"
+                  }`}
+                >
                   <Dialog.Title
                     as="h3"
                     className="text-lg font-bold leading-6 text-gray-900 justify-center items-center flex m-2"
                   >
-                    <h1 className=" uppercase text-xl font-bold text-center p-2 rounded-lg shadow-md">
-                      <span className=" px-2 py-1 rounded-sm">
+                    <h1
+                      className={`uppercase text-xl font-bold text-center p-2 rounded-lg shadow-md ${
+                        darkMode ? "text-white" : "text-black"
+                      }`}
+                    >
+                      <span
+                        className={`px-2 py-1 rounded-md ${
+                          darkMode ? "bg-gray-700" : "bg-white"
+                        }`}
+                      >
                         Bienvenidos a ViltoApp
                       </span>
                     </h1>

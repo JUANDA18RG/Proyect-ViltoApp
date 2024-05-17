@@ -67,13 +67,13 @@ export default function SignIn() {
             muted
             className="absolute w-full h-full object-cover"
           >
-            <source src="Login.mp4" type="video/mp4" />
+            <source src="../../assets/Login.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
           <div className="absolute w-full h-full bg-gradient-to-t from-gray-900 to-white opacity-50"></div>
           <Link className="z-10" to={"/"}>
             <img
-              src="Logo.png"
+              src="../../assets/Logo.png"
               alt="Logo"
               className="w-40 h-40 rounded-full mx-auto mt-2 mb-4 animate-jump-in"
             />
@@ -157,7 +157,7 @@ export default function SignIn() {
               <div className="flex items-center justify-center">
                 <img
                   className="w-8 h-8 rounded-md mr-2"
-                  src="Google.png"
+                  src="../../assets/Google.png"
                   alt="Workflow"
                 />
                 <span>Google</span>
@@ -170,7 +170,7 @@ export default function SignIn() {
               <div className="flex items-center justify-center">
                 <img
                   className="w-8 h-8 rounded-md mr-2"
-                  src="GitHub.png"
+                  src="../../assets/GitHub.png"
                   alt="Workflow"
                 />
                 <span>Github</span>

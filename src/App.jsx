@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 import Spinner from "./Perfil/Spinner";
 import socket from "./Sockets";
 import Pago from "./Pagos/Pago";
+import NotFound from "./Components/404";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -49,8 +50,8 @@ function App() {
         <Route path="/PageInit" element={<PageInit />} />
         <Route path="/AreaTrabajo/:id" element={<AreaTrabajo />} />
         <Route path="/Usuario" element={<Usuario />} />
-        <Route path="*" element={<Portada />} />
         <Route path="/Pago" element={<Pago />} />
+        <Route path="/404" element={<NotFound />} />
       </Routes>
     </AuthProvider>
   );

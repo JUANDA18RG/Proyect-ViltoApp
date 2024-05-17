@@ -10,6 +10,26 @@ const AddColumn = ({ projectId }) => {
   const [name, setNewColumnTitle] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const { user } = useAuth();
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("darkMode");
+    const isEnabled = JSON.parse(saved) || false;
+    setDarkMode(isEnabled);
+
+    const handleDarkModeChange = () => {
+      const saved = localStorage.getItem("darkMode");
+      const isEnabled = JSON.parse(saved) || false;
+      setDarkMode(isEnabled);
+    };
+
+    window.addEventListener("darkModeChange", handleDarkModeChange);
+
+    // Limpiar el evento al desmontar el componente
+    return () => {
+      window.removeEventListener("darkModeChange", handleDarkModeChange);
+    };
+  }, []);
 
   const handleShowAddColumn = () => {
     setShowAddColumn(true);
@@ -115,7 +135,7 @@ const AddColumn = ({ projectId }) => {
                 disableSearchBar={true}
                 maxFrequentRows={0}
                 previewPosition={"none"}
-                theme={"light"}
+                theme={darkMode ? "dark" : "light"}
               />
             </div>
           )}

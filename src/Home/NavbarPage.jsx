@@ -2,18 +2,31 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import { useNavigate } from "react-router-dom";
 import { Menu } from "@headlessui/react";
-import Corona from "/Corona.png";
+import Corona from "../../assets/Corona.png";
 import io from "socket.io-client";
-import logo from "/Logo.png";
+import logo from "../../assets/Logo.png";
 import { useEffect, useState } from "react";
-import userImage from "../../public/user.png";
+import userImage from "../../assets/user.png";
+import { Switch } from "@headlessui/react";
 
 export default function NavbarPage() {
   const auth = useAuth();
   const navigate = useNavigate();
   const [isPremium, setIsPremium] = useState(false);
   const socket = io("http://localhost:3000"); // Asegúrate de reemplazar esto con tu URL de servidor
+  const [enabled, setEnabled] = useState(false);
 
+  useEffect(() => {
+    const saved = localStorage.getItem("darkMode");
+    const isEnabled = JSON.parse(saved) || false;
+    setEnabled(isEnabled);
+  }, []);
+
+  const handleSwitchChange = (newEnabled) => {
+    setEnabled(newEnabled);
+    localStorage.setItem("darkMode", JSON.stringify(newEnabled));
+    window.dispatchEvent(new Event("darkModeChange"));
+  };
   useEffect(() => {
     if (auth.user) {
       socket.emit("obtenerEstadoPremium", auth.user.email);
@@ -35,6 +48,7 @@ export default function NavbarPage() {
   const handleLogout = async () => {
     try {
       await auth.logout();
+      localStorage.clear();
     } catch (error) {
       console.log(error);
     }
@@ -52,24 +66,35 @@ export default function NavbarPage() {
   }
 
   return (
-    <nav className="w-full h-16 px-4  bg-transparent flex items-center justify-between z-20 relative">
+    <nav
+      className={`w-full h-16 px-4 flex items-center justify-between z-20 relative ${
+        enabled ? "bg-gray-800" : "bg-transparent"
+      }`}
+    >
       <div className="flex items-center space-x-4 animate-jump-in ml-2">
         <Link to={"/PageInit"}>
           <img className=" w-10 h-10 rounded-lg" src={logo} alt="Workflow" />
         </Link>
         <div className="hidden sm:block">
           <Link to={"/PageInit"}>
-            <div className="sm:text-xl md:text-2xl lg:text-xl font-bold text-gray-900">
+            <div
+              className={`sm:text-xl md:text-2xl lg:text-xl font-bold ${
+                enabled ? "text-white" : "text-gray-900"
+              }`}
+            >
               ViltoApp
-              <span className="text-sm" style={{ verticalAlign: "super" }}>
-                &reg;
+              <span
+                className="text-red-500 text-sm"
+                style={{ verticalAlign: "super" }}
+              >
+                CO
               </span>
             </div>
           </Link>
         </div>
       </div>
 
-      <div className=" items-center space-x-10 hidden md:flex ">
+      <div className=" items-center space-x-14 hidden md:flex ">
         {!auth.isPremium && (
           <Link
             to={"/Pago"}
@@ -83,18 +108,72 @@ export default function NavbarPage() {
             <span className="mr-2 ml-2 font-semibold">Obtener Premium</span>
           </Link>
         )}
+        <Switch
+          checked={enabled}
+          onChange={handleSwitchChange}
+          className={`${
+            enabled ? "bg-gray-600" : "bg-gray-200"
+          } relative inline-flex items-center h-9 rounded-full w-20 transition-colors duration-200 ease-in-out m-4`}
+        >
+          <span
+            className={`${
+              enabled
+                ? "translate-x-11 bg-black text-white"
+                : "translate-x-1 bg-white text-black"
+            } w-8 h-8 transform rounded-full transition-transform flex items-center justify-center`}
+          >
+            {!enabled && (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
+                />
+              </svg>
+            )}
+            {enabled && (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"
+                />
+              </svg>
+            )}
+          </span>
+        </Switch>
         <Menu as="nav" className="relative z-10">
           {({ open }) => (
             <>
               <Menu.Button
-                className={`flex h-8 items-center rounded-3xl bg-white animate-jump-in pr-2`}
+                className={`flex h-8 items-center rounded-3xl animate-jump-in pr-2 ${
+                  enabled ? "bg-gray-600 text-white" : "bg-white text-gray-900"
+                }`}
               >
                 <img
                   src={photoURL ? photoURL : userImage}
                   alt={UDI}
-                  className={`w-12 h-12 rounded-full m-2 p-1 mr-1 border-2 border-red-400 `}
+                  className={`w-12 h-12 rounded-full m-2 p-1 mr-1 border-2 border-red-500 `}
                 />
-                <span className="sm:text-xl md:text-sm  font-bold text-gray-900 hidden md:block mr-1 ">
+                <span
+                  className={`sm:text-xl md:text-sm font-bold hidden md:block mr-1 ${
+                    enabled ? "text-white" : "text-gray-900"
+                  }`}
+                >
                   {displayName}
                 </span>
                 <svg
@@ -103,7 +182,9 @@ export default function NavbarPage() {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className={`w-4 h-4 text-black mr-2  transition duration-300 ease-in-out ml-1 ${
+                  className={`w-4 h-4 mr-2 transition duration-300 ease-in-out ml-1 ${
+                    enabled ? "text-white" : "text-black"
+                  } ${
                     open === true &&
                     "transform rotate-180 transition duration-300 ease-in-out"
                   }`}
@@ -116,9 +197,11 @@ export default function NavbarPage() {
                 </svg>
               </Menu.Button>
               <Menu.Items
-                className={
-                  "absolute p-1 top-16 right-5 w-48 bg-active rounded-md translate-y-5 border-2 border-gray-400 shadow-sm bg-white md:text-sm animate-jump-in z-50"
-                }
+                className={`absolute p-1 top-16 right-5 w-48 rounded-md translate-y-5 border-2 shadow-sm md:text-sm animate-jump-in z-50 ${
+                  enabled
+                    ? "bg-gray-600 text-white border-gray-800"
+                    : "bg-white text-gray-900 border-gray-400"
+                }`}
               >
                 <Menu.Item className="hover:bg-gradient-to-r from-red-500 to-pink-500 rounded-md transition duration-100 ease-in-out m-1">
                   {({ active }) => (

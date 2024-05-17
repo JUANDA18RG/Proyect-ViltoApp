@@ -6,15 +6,36 @@ import io from "socket.io-client";
 import { useEffect } from "react";
 import { useAuth } from "../context/authContext";
 
-const Task = ({ columnId }) => {
+const Task = ({ columnId, projectId }) => {
   Task.propTypes = {
     columnId: PropTypes.node.isRequired,
+    projectId: PropTypes.node.isRequired,
   };
 
   const [name, setName] = useState("");
   const [addingTask, setAddingTask] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const { user } = useAuth();
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("darkMode");
+    const isEnabled = JSON.parse(saved) || false;
+    setDarkMode(isEnabled);
+
+    const handleDarkModeChange = () => {
+      const saved = localStorage.getItem("darkMode");
+      const isEnabled = JSON.parse(saved) || false;
+      setDarkMode(isEnabled);
+    };
+
+    window.addEventListener("darkModeChange", handleDarkModeChange);
+
+    // Limpiar el evento al desmontar el componente
+    return () => {
+      window.removeEventListener("darkModeChange", handleDarkModeChange);
+    };
+  }, []);
 
   useEffect(() => {
     const socket = io("http://localhost:3000");
@@ -32,6 +53,7 @@ const Task = ({ columnId }) => {
       name,
       columnId,
       userEmail: user.email,
+      projectId,
     };
     const socket = io("http://localhost:3000");
     socket.emit("crearTarea", newTask);
@@ -126,7 +148,7 @@ const Task = ({ columnId }) => {
             </div>
           </div>
           {showEmojiPicker && (
-            <div className="absolute bottom-2 right-2">
+            <div className="relative bottom-5">
               <Picker
                 onEmojiClick={handleEmojiSelect}
                 className="scale-75  z-50"
@@ -136,7 +158,7 @@ const Task = ({ columnId }) => {
                 onEmojiSelect={handleEmojiSelect}
                 maxFrequentRows={0}
                 previewPosition={"none"}
-                theme={"light"}
+                theme={darkMode ? "dark" : "light"}
               />
             </div>
           )}

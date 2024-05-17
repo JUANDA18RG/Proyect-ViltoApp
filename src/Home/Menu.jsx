@@ -1,9 +1,40 @@
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 export default function Menu() {
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("darkMode");
+    const isEnabled = JSON.parse(saved) || false;
+    setDarkMode(isEnabled);
+
+    const handleDarkModeChange = () => {
+      const saved = localStorage.getItem("darkMode");
+      const isEnabled = JSON.parse(saved) || false;
+      setDarkMode(isEnabled);
+    };
+
+    window.addEventListener("darkModeChange", handleDarkModeChange);
+
+    // Limpiar el evento al desmontar el componente
+    return () => {
+      window.removeEventListener("darkModeChange", handleDarkModeChange);
+    };
+  }, []);
   return (
-    <div className="w-1/5 h-screen animate-fade-left  bg-gradient-to-t from-gray-200 to-transparent flex flex-col justify-between">
-      <div className="flex flex-col items-center justify-center space-y-16 py-40 text-sm">
+    <div
+      className={`w-1/5 h-screen animate-fade-left ${
+        darkMode
+          ? "bg-gray-700"
+          : "bg-gradient-to-t from-gray-200 to-transparent"
+      } flex flex-col justify-between`}
+    >
+      <div
+        className={`flex flex-col items-center justify-center space-y-16 py-40 text-sm ${
+          darkMode ? "text-white" : "text-black"
+        }`}
+      >
         <button className="font-bold  uppercase p-3 rounded-md hover:bg-gradient-to-r from-red-500 to-pink-500 hover:text-white hover:animate-jump">
           <span className="flex">
             Proyectos

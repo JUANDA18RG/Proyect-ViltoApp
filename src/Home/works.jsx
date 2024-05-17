@@ -7,6 +7,8 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import io from "socket.io-client";
 import { motion } from "framer-motion";
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 export default function Works() {
   const [works, setWorks] = useState([]);
@@ -15,6 +17,34 @@ export default function Works() {
   const [isLoading] = useState(false);
   const [hoveredCardId, setHoveredCardId] = useState(null);
   const [rotation, setRotation] = useState({ rotateX: 0, rotateY: 0 });
+  const [darkMode, setDarkMode] = useState(false);
+  const [CargaSkeleton, setCargaSkeleton] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCargaSkeleton(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("darkMode");
+    const isEnabled = JSON.parse(saved) || false;
+    setDarkMode(isEnabled);
+
+    const handleDarkModeChange = () => {
+      const saved = localStorage.getItem("darkMode");
+      const isEnabled = JSON.parse(saved) || false;
+      setDarkMode(isEnabled);
+    };
+
+    window.addEventListener("darkModeChange", handleDarkModeChange);
+
+    // Limpiar el evento al desmontar el componente
+    return () => {
+      window.removeEventListener("darkModeChange", handleDarkModeChange);
+    };
+  }, []);
 
   const handleHoverStart = (id) => {
     setHoveredCardId(id);
@@ -107,20 +137,55 @@ export default function Works() {
 
   return (
     <>
-      <div className="w-4/5 h-screen overflow-y-auto mt-2 relative animate-fade-right">
+      <div
+        className={`w-4/5 h-screen overflow-y-auto mt-2 relative animate-fade-right ${
+          darkMode
+            ? "bg-gray-500 "
+            : "bg-gradient-to-t from-gray-200 to-transparent"
+        }`}
+      >
         <div
           className="absolute inset-0 bg-bottom bg-no-repeat bg-cover transform rotate-180 opacity-60"
-          style={{ backgroundImage: `url('wavesOpacity.svg')` }}
+          style={{ backgroundImage: `url('../../assets/wavesOpacity.svg')` }}
         ></div>
         <div className="flex flex-col px-4 md:px-20 absolute inset-0 overflow-y-auto">
-          <div className="flex py-8 md:px-14 px-10 text-sm md:text-xl justify-between">
+          <div className="flex py-8 md:px-14 px-10 text-sm md:text-xl justify-between ml-1">
             <div className="flex m-2">
-              <ButtonAdd setWorks={setWorks} />
-              <p className="ml-5 text-gray-600 opacity-70 items-center text-center mt-1 text-base bg-gray-200 rounded-lg p-1 border-2 shadow-sm">
-                Cuenta gratis solo puedes crear 6 proyectos
-              </p>
+              {CargaSkeleton ? (
+                <SkeletonTheme
+                  baseColor={darkMode ? "#3D4451" : "#D0D0D0"}
+                  highlightColor={darkMode ? "#5A6270" : "#C0C0C0"}
+                >
+                  <div className="flex space-x-4">
+                    <Skeleton width={100} height={40} radius={25} />
+                    <Skeleton width={200} height={40} radius={25} />
+                  </div>
+                </SkeletonTheme>
+              ) : (
+                <>
+                  <ButtonAdd setWorks={setWorks} />
+                  <p
+                    className={`ml-5 text-center mt-1 text-base p-1 border-2 shadow-sm ${
+                      darkMode
+                        ? "text-white bg-gray-600"
+                        : "text-gray-600 bg-gray-200 border-gray-300 opacity-70"
+                    } items-center rounded-lg`}
+                  >
+                    Tu cuenta es gratuita solo puedes crear 6 proyectos
+                  </p>
+                </>
+              )}
             </div>
-            <GuiaInicio />
+            {CargaSkeleton ? (
+              <SkeletonTheme
+                baseColor={darkMode ? "#3D4451" : "#D0D0D0"}
+                highlightColor={darkMode ? "#5A6270" : "#C0C0C0"}
+              >
+                <Skeleton circle={true} height={40} width={40} />
+              </SkeletonTheme>
+            ) : (
+              <GuiaInicio />
+            )}
           </div>
           <div className="text-center ">
             <div className="text-center w-full">
@@ -155,161 +220,183 @@ export default function Works() {
                     </p>
                   </div>
                 )}
-
-                {[...works].reverse().map((work) => (
-                  <motion.div
-                    key={work._id}
-                    className={`relative flex flex-col items-center justify-center w-64 h-60 m-5 rounded-lg bg-gray-100 transform hover:shadow-xl mb-20 ${
-                      hoveredCardId === work._id ? "hovered-card" : ""
-                    }`}
-                    onMouseEnter={() => handleHoverStart(work._id)}
-                    onMouseLeave={handleHoverEnd}
-                    onMouseMove={calculateRotation}
-                    whileHover={{ scale: 1.1 }}
-                    style={{
-                      rotateX:
-                        hoveredCardId === work._id ? rotation.rotateX : 0,
-                      rotateY:
-                        hoveredCardId === work._id ? rotation.rotateY : 0,
-                    }}
-                  >
-                    <div className="absolute bottom-0 right-0 p-2 text-xs text-gray-500">
-                      Creado el: {new Date(work.createdAt).toLocaleDateString()}
-                    </div>
-                    <div className="absolute top-2 left-2 m-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-full p-1 text-white">
-                      <div className="flex items-center text-center">
-                        {work.isFavorite ? (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={1.5}
-                            stroke="currentColor"
-                            className="w-5 h-5 font-bold"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
-                              fill={"white"}
-                            />
-                          </svg>
-                        ) : (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={1.5}
-                            stroke="currentColor"
-                            className="w-5 h-5 font-bold"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
-                              fill={"none"}
-                            />
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-                    <div className="absolute top-2 right-2 m-2">
-                      <div className="flex items-center text-center">
+                {CargaSkeleton
+                  ? Array.from({ length: works.length }).map((_, index) => (
+                      <SkeletonTheme
+                        baseColor={darkMode ? "#3D4451" : "#D0D0D0"}
+                        highlightColor={darkMode ? "#5A6270" : "#C0C0C0"}
+                        key={index}
+                      >
+                        <Skeleton width={280} height={250} radius={25} />
+                      </SkeletonTheme>
+                    ))
+                  : [...works].reverse().map((work) => (
+                      <motion.div
+                        key={work._id}
+                        className={`relative flex flex-col items-center justify-center w-64 h-60 m-5 rounded-lg ${
+                          darkMode
+                            ? "bg-gray-400 border-white border-4"
+                            : "bg-gray-100 border-white border-4"
+                        } transform hover:shadow-xl mb-20 ${
+                          hoveredCardId === work._id ? "hovered-card" : ""
+                        }`}
+                        onMouseEnter={() => handleHoverStart(work._id)}
+                        onMouseLeave={handleHoverEnd}
+                        onMouseMove={calculateRotation}
+                        whileHover={{ scale: 1.1 }}
+                        style={{
+                          rotateX:
+                            hoveredCardId === work._id ? rotation.rotateX : 0,
+                          rotateY:
+                            hoveredCardId === work._id ? rotation.rotateY : 0,
+                        }}
+                      >
+                        <div
+                          className={`absolute bottom-0 right-0 p-2 text-xs ${
+                            darkMode ? "text-white" : "text-gray-500"
+                          }`}
+                        >
+                          Creado el:{" "}
+                          {new Date(work.createdAt).toLocaleDateString()}
+                        </div>
+                        <div className="absolute top-2 left-2 m-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-full p-1 text-white">
+                          <div className="flex items-center text-center">
+                            {work.isFavorite ? (
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.5}
+                                stroke="currentColor"
+                                className="w-5 h-5 font-bold"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
+                                  fill={"white"}
+                                />
+                              </svg>
+                            ) : (
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.5}
+                                stroke="currentColor"
+                                className="w-5 h-5 font-bold"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
+                                  fill={"none"}
+                                />
+                              </svg>
+                            )}
+                          </div>
+                        </div>
+                        <div className="absolute top-2 right-2 m-2">
+                          <div className="flex items-center text-center">
+                            {isOpen && openMenuId === work._id ? (
+                              <button
+                                className={`mb-2 animate-jump-in ${
+                                  darkMode ? "text-white" : "text-gray-400"
+                                }`}
+                                onClick={() => handleCloseMenu()}
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={1.5}
+                                  stroke="currentColor"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M6 18L18 6M6 6l12 12"
+                                  />
+                                </svg>
+                              </button>
+                            ) : (
+                              <button
+                                className={`mb-2 animate-jump-in ${
+                                  darkMode ? "text-white" : "text-gray-400"
+                                }`}
+                                onClick={() => handleMenuClick(work._id)}
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={1.5}
+                                  stroke="currentColor"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
+                                  />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
+                        </div>
                         {isOpen && openMenuId === work._id ? (
-                          <button
-                            className="text-gray-400 mb-2 animate-jump-in"
-                            onClick={() => handleCloseMenu()}
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={1.5}
-                              stroke="currentColor"
-                              className="w-6 h-6"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          </button>
+                          <div className="flex flex-col items-center space-y-2">
+                            <div className="flex flex-col items-center space-y-2">
+                              <button className="flex items-center p-2 m-1 bg-blue-500 rounded-md text-white animate-jump-in">
+                                <span className="text-sm">Edit</span>
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={1.5}
+                                  stroke="currentColor"
+                                  className="w-4 h-4 ml-2"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+                                  />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={() => deleteProject(work._id)}
+                                className="flex items-center  p-2 m-1 bg-red-500 rounded-md text-white animate-jump-in"
+                              >
+                                <span className="text-sm">Delete</span>
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={1.5}
+                                  stroke="currentColor"
+                                  className="w-4 h-4 ml-2"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
                         ) : (
-                          <button
-                            className="text-gray-400 mb-2 animate-jump-in"
-                            onClick={() => handleMenuClick(work._id)}
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={1.5}
-                              stroke="currentColor"
-                              className="w-6 h-6"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
-                              />
-                            </svg>
-                          </button>
+                          <Link to={`/AreaTrabajo/${work._id}`}>
+                            <div className="flex flex-col items-center justify-center w-full h-full">
+                              <h1 className="text-lg font-bold">{work.name}</h1>
+                              <p className="text-sm">{work.description}</p>
+                            </div>
+                          </Link>
                         )}
-                      </div>
-                    </div>
-                    {isOpen && openMenuId === work._id ? (
-                      <div className="flex flex-col items-center space-y-2">
-                        <div className="flex flex-col items-center space-y-2">
-                          <button className="flex items-center p-2 m-1 bg-blue-500 rounded-md text-white animate-jump-in">
-                            <span className="text-sm">Edit</span>
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={1.5}
-                              stroke="currentColor"
-                              className="w-4 h-4 ml-2"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
-                              />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => deleteProject(work._id)}
-                            className="flex items-center  p-2 m-1 bg-red-500 rounded-md text-white animate-jump-in"
-                          >
-                            <span className="text-sm">Delete</span>
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={1.5}
-                              stroke="currentColor"
-                              className="w-4 h-4 ml-2"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <Link to={`/AreaTrabajo/${work._id}`}>
-                        <div className="flex flex-col items-center justify-center w-full h-full">
-                          <h1 className="text-lg font-bold">{work.name}</h1>
-                          <p className="text-sm">{work.description}</p>
-                        </div>
-                      </Link>
-                    )}
-                  </motion.div>
-                ))}
+                      </motion.div>
+                    ))}
               </div>
             </div>
           </div>
@@ -329,6 +416,7 @@ export default function Works() {
           zIndex: 10, // Reducir el valor de zIndex
         }}
         toastClassName={"rounded-md shadow-md"}
+        theme={darkMode ? "dark" : "light"}
       />
     </>
   );

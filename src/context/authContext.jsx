@@ -26,10 +26,12 @@ export const useAuth = () => {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // Nuevo estado para manejar la carga
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      setLoading(false); // Cuando se obtiene el estado del usuario, se establece la carga en false
     });
 
     return () => unsubscribe();
@@ -158,6 +160,7 @@ export function AuthProvider({ children }) {
         logout,
         user,
         loginWithGithub,
+        loading,
       }}
     >
       {children}

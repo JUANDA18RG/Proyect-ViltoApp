@@ -12,6 +12,26 @@ export default function ButtonAdd({ setWorks }) {
   const [description, setDescription] = useState("");
   const [isPremium, setIsPremium] = useState(false);
   const [error, setError] = useState("");
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("darkMode");
+    const isEnabled = JSON.parse(saved) || false;
+    setDarkMode(isEnabled);
+
+    const handleDarkModeChange = () => {
+      const saved = localStorage.getItem("darkMode");
+      const isEnabled = JSON.parse(saved) || false;
+      setDarkMode(isEnabled);
+    };
+
+    window.addEventListener("darkModeChange", handleDarkModeChange);
+
+    // Limpiar el evento al desmontar el componente
+    return () => {
+      window.removeEventListener("darkModeChange", handleDarkModeChange);
+    };
+  }, []);
 
   function closeModal() {
     setIsOpen(false);
@@ -76,6 +96,11 @@ export default function ButtonAdd({ setWorks }) {
             autoClose: 5000,
           }
         );
+
+        setName("");
+        setDescription("");
+        closeModal();
+
         return;
       }
 
@@ -147,13 +172,26 @@ export default function ButtonAdd({ setWorks }) {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-gradient-to-t from-gray-300 to-white p-6 text-left align-middle shadow-xl ">
+                <Dialog.Panel
+                  className={`w-full max-w-md transform overflow-hidden rounded-2xl p-6 text-left align-middle shadow-xl ${
+                    darkMode
+                      ? "bg-gradient-to-t from-gray-800 to-gray-900"
+                      : "bg-gradient-to-t from-gray-300 to-white"
+                  }`}
+                >
+                  {" "}
                   <Dialog.Title
                     as="h3"
                     className="text-lg font-bold leading-6  justify-center items-center flex m-2 "
                   >
                     <h1 className=" uppercase text-xl font-bold text-center p-2 rounded-lg shadow-md">
-                      <span className="bg-white px-3 py-1 rounded-sm text-gray-900">
+                      <span
+                        className={`px-3 py-1 rounded-md ${
+                          darkMode
+                            ? "bg-gray-700 text-white"
+                            : "bg-white text-gray-900"
+                        }`}
+                      >
                         Crear Proyecto
                       </span>
                     </h1>
@@ -165,9 +203,17 @@ export default function ButtonAdd({ setWorks }) {
                       empezar a trabajar.
                     </p>
                   </div>
-                  <div className="bg-white p-3 rounded-lg shadow-sm">
+                  <div
+                    className={`p-3 rounded-lg shadow-sm ${
+                      darkMode ? "bg-gray-700" : "bg-white"
+                    }`}
+                  >
                     <div className=" flex flex-col items-start justify-center text-left">
-                      <span className="text-sm text-gray-800 text-justify mb-4  ">
+                      <span
+                        className={`text-sm text-justify mb-4 ${
+                          darkMode ? "text-white" : "text-gray-800"
+                        }`}
+                      >
                         Nombre del Proyecto:
                       </span>
                       <input
@@ -181,7 +227,11 @@ export default function ButtonAdd({ setWorks }) {
                       />
                     </div>
                     <div className="mt-6 flex flex-col items-start justify-center text-left">
-                      <span className="text-sm text-gray-800 text-justify mb-4 ">
+                      <span
+                        className={`text-sm text-justify mb-4 ${
+                          darkMode ? "text-white" : "text-gray-800"
+                        }`}
+                      >
                         Descripcion del Proyecto:
                       </span>
                       <input

@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 import PropTypes from "prop-types";
 import { useAuth } from "../context/authContext";
 import { obtenerUrlImagen } from "../firebase/firebase.config";
-import User from "../../public/user.png";
+import User from "../../assets/user.png";
 import { Link } from "react-router-dom";
 
 let socket;
@@ -23,6 +23,26 @@ export default function ButtonChat({ projectId, projectName }) {
   const [error, setError] = useState("");
   const messagesEndRef = useRef(null); // Referencia al elemento de mensajes
   const [unreadMessages, setUnreadMessages] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("darkMode");
+    const isEnabled = JSON.parse(saved) || false;
+    setDarkMode(isEnabled);
+
+    const handleDarkModeChange = () => {
+      const saved = localStorage.getItem("darkMode");
+      const isEnabled = JSON.parse(saved) || false;
+      setDarkMode(isEnabled);
+    };
+
+    window.addEventListener("darkModeChange", handleDarkModeChange);
+
+    // Limpiar el evento al desmontar el componente
+    return () => {
+      window.removeEventListener("darkModeChange", handleDarkModeChange);
+    };
+  }, []);
 
   useEffect(() => {
     socket = io("http://localhost:3000");
@@ -169,56 +189,86 @@ export default function ButtonChat({ projectId, projectName }) {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="w-1/2 h-full overflow-hidden bg-gray-100 p-6 text-left align-middle shadow-xl fixed right-0 top-0 animate-fade-right">
+            <div
+              className={`w-1/2 h-full overflow-hidden p-6 text-left align-middle shadow-xl fixed right-0 top-0 animate-fade-right ${
+                darkMode ? "bg-gray-800" : "bg-gray-100"
+              }`}
+            >
               <Dialog.Title
                 as="h3"
                 className="text-lg leading-6 text-gray-900 justify-center items-center mb-12 text-center"
               >
-                <h1 className="uppercase text-2xl  mb-4 font-bold">
-                  <span className="bg-gradient-to-r from-red-500 to-pink-500 rounded-md p-2 text-white">
+                <h1
+                  className={`uppercase text-2xl  mb-4 font-bold ${
+                    darkMode ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  <span
+                    className={`rounded-md p-2 ${
+                      darkMode
+                        ? "bg-gradient-to-r from-red-500 to-pink-500 text-white"
+                        : "bg-gradient-to-r from-red-500 to-pink-500 text-white"
+                    }`}
+                  >
                     {projectName}
                   </span>{" "}
                   - Chat del Proyecto
                 </h1>
-                <p className="text-sm text-gray-700 leading-relaxed mt-5">
+                <p className="text-sm text-gray-500 leading-relaxed mt-5">
                   Aquí puedes hablar con tus compañeros de proyecto. Esta
                   herramienta facilita la colaboración, haciendo el trabajo más
                   divertido y rápido.
                 </p>
               </Dialog.Title>
-              <div className="max-h-96 overflow-y-auto mb-4 bg-gray-200 rounded-lg">
-                {messages.map((msg, index) => (
-                  <div
-                    key={index}
-                    className={`flex mb-2 ${
-                      msg.sender === user.email
-                        ? "justify-end"
-                        : "justify-start"
-                    }`}
-                  >
-                    <div className="max-w-md mx-2">
-                      <div
-                        className={`bg-white rounded-lg p-3 shadow-md ${
-                          msg.sender === user.email
-                            ? "bg-gradient-to-r from-red-200 to-pink-200"
-                            : "bg-gray-100"
-                        }`}
-                      >
-                        <div className="flex items-center mb-2 ">
-                          <img
-                            className="w-8 h-8 rounded-full mr-2 border-2 border-red-500"
-                            src={imagenesUsuarios[msg.sender] || User}
-                            alt="Avatar"
-                          />
-                          <p className="text-sm font-medium text-gray-900 opacity-60">
-                            {msg.sender}
-                          </p>
+              <div
+                className={`max-h-96 overflow-y-auto mb-4 rounded-lg ${
+                  darkMode ? "bg-gray-600" : "bg-gray-200"
+                }`}
+              >
+                {messages.length === 0 ? (
+                  <div className="flex items-center justify-center h-full p-4 ">
+                    <p
+                      className={`text-center ${
+                        darkMode ? "text-white" : "text-black"
+                      }`}
+                    >
+                      No hay mensajes de los integrantes del proyecto por ahora
+                    </p>
+                  </div>
+                ) : (
+                  messages.map((msg, index) => (
+                    <div
+                      key={index}
+                      className={`flex mb-2 ${
+                        msg.sender === user.email
+                          ? "justify-end"
+                          : "justify-start"
+                      }`}
+                    >
+                      <div className="max-w-md mx-2">
+                        <div
+                          className={`bg-white rounded-lg p-3 shadow-md ${
+                            msg.sender === user.email
+                              ? "bg-gradient-to-r from-red-200 to-pink-200"
+                              : "bg-gray-100"
+                          }`}
+                        >
+                          <div className="flex items-center mb-2 ">
+                            <img
+                              className="w-8 h-8 rounded-full mr-2 border-2 border-red-500"
+                              src={imagenesUsuarios[msg.sender] || User}
+                              alt="Avatar"
+                            />
+                            <p className="text-sm font-medium text-gray-900 opacity-60">
+                              {msg.sender}
+                            </p>
+                          </div>
+                          <p className="text-sm text-gray-700">{msg.message}</p>
                         </div>
-                        <p className="text-sm text-gray-700">{msg.message}</p>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
                 <div ref={messagesEndRef}></div>{" "}
                 {/* Referencia al final del contenedor de mensajes */}
               </div>

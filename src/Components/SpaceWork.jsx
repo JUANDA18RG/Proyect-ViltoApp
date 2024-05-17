@@ -12,7 +12,8 @@ import io from "socket.io-client";
 import ButtonChat from "../Chat/ButtonChat";
 import { useAuth } from "../context/authContext";
 import PersonasActivas from "./PersonasActivas";
-import EditarTarea from "./EditarTarea";
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 const SpaceWork = ({ projectId }) => {
   const [columns, setColumns] = useState([]);
@@ -20,12 +21,40 @@ const SpaceWork = ({ projectId }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [project, setProject] = useState(null);
   const [forceUpdate, setForceUpdate] = useState(false);
+  const [CargaSkeleton, setCargaSkeleton] = useState(true);
+
+  const socket = io("http://localhost:3000");
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCargaSkeleton(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("darkMode");
+    const isEnabled = JSON.parse(saved) || false;
+    setDarkMode(isEnabled);
+
+    const handleDarkModeChange = () => {
+      const saved = localStorage.getItem("darkMode");
+      const isEnabled = JSON.parse(saved) || false;
+      setDarkMode(isEnabled);
+    };
+
+    window.addEventListener("darkModeChange", handleDarkModeChange);
+
+    // Limpiar el evento al desmontar el componente
+    return () => {
+      window.removeEventListener("darkModeChange", handleDarkModeChange);
+    };
+  }, []);
 
   const { user } = useAuth();
 
   useEffect(() => {
-    const socket = io("http://localhost:3000");
-
     const fetchProjectData = async () => {
       try {
         socket.emit("obtenerProyecto", projectId);
@@ -139,6 +168,30 @@ const SpaceWork = ({ projectId }) => {
         });
 
         socket.emit("esFavorito", projectId);
+
+        socket.on("tareaBorrada", (data) => {
+          // Actualizar el estado de las columnas de manera síncrona
+          setColumns((prevColumns) => {
+            const columnIndex = prevColumns.findIndex(
+              (column) => column.id === data.columnId
+            );
+
+            if (columnIndex !== -1) {
+              const newColumns = [...prevColumns];
+              newColumns[columnIndex].tasks = newColumns[
+                columnIndex
+              ].tasks.filter((task) => task._id !== data.taskId);
+              return newColumns;
+            }
+
+            return prevColumns;
+          });
+
+          // Mostrar una notificación de éxito
+          toast.success(`Tarea eliminada con éxito`, { autoClose: 3000 });
+
+          // Forzar un nuevo renderizado del componente
+        });
       } catch (error) {
         console.error("Error fetching project data:", error);
       }
@@ -151,6 +204,7 @@ const SpaceWork = ({ projectId }) => {
       socket.off("columnaEliminada");
       socket.off("tareaCreada");
       socket.off("tareaMovida");
+      socket.off("tareaBorrada");
     };
   }, [projectId, forceUpdate]);
 
@@ -165,10 +219,9 @@ const SpaceWork = ({ projectId }) => {
   };
 
   const handleDeleteColumn = async (id) => {
-    const socket = io("http://localhost:3000");
     socket.emit(
       "eliminarColumna",
-      { id, userEmail: user.email },
+      { id, userEmail: user.email, projectId },
       (response) => {
         if (!response.success) {
           toast.error("Error al eliminar la columna", { autoClose: 3000 });
@@ -177,7 +230,7 @@ const SpaceWork = ({ projectId }) => {
     );
   };
 
-  const onDragEnd = async (result) => {
+  const onDragEnd = (result) => {
     const { destination, source, draggableId } = result;
 
     if (!destination) {
@@ -200,56 +253,56 @@ const SpaceWork = ({ projectId }) => {
       return;
     }
 
-    if (start === finish) {
-      const newTaskIds = Array.from(start.taskIds);
-      newTaskIds.splice(source.index, 1);
-      newTaskIds.splice(destination.index, 0, draggableId);
+    setColumns((prevColumns) => {
+      let newColumns = [...prevColumns];
 
-      const newColumn = {
-        ...start,
-        taskIds: newTaskIds,
-      };
-      setColumns((prevColumns) =>
-        prevColumns.map((column) =>
+      if (start === finish) {
+        const newTaskIds = Array.from(start.taskIds);
+        newTaskIds.splice(source.index, 1);
+        newTaskIds.splice(destination.index, 0, draggableId);
+
+        const newColumn = {
+          ...start,
+          taskIds: newTaskIds,
+        };
+        newColumns = newColumns.map((column) =>
           column.id === newColumn.id ? newColumn : column
-        )
-      );
+        );
+      } else {
+        const startTaskIds = Array.from(start.taskIds);
+        startTaskIds.splice(source.index, 1);
+        const newStart = {
+          ...start,
+          taskIds: startTaskIds,
+        };
 
-      return;
-    }
+        const finishTaskIds = Array.from(finish.taskIds);
+        finishTaskIds.splice(destination.index, 0, draggableId);
+        const newFinish = {
+          ...finish,
+          taskIds: finishTaskIds,
+        };
 
-    const startTaskIds = Array.from(start.taskIds);
-    startTaskIds.splice(source.index, 1);
-    const newStart = {
-      ...start,
-      taskIds: startTaskIds,
-    };
+        newColumns = newColumns.map((column) =>
+          column.id === newStart.id
+            ? newStart
+            : column.id === newFinish.id
+            ? newFinish
+            : column
+        );
+      }
 
-    const finishTaskIds = Array.from(finish.taskIds);
-    finishTaskIds.splice(destination.index, 0, draggableId);
-    const newFinish = {
-      ...finish,
-      taskIds: finishTaskIds,
-    };
+      socket.emit("moverTarea", {
+        taskId: draggableId,
+        sourceColumnId: source.droppableId,
+        destinationColumnId: destination.droppableId,
+        sourceIndex: source.index,
+        destinationIndex: destination.index,
+        userEmail: user.email,
+        projectId,
+      });
 
-    setColumns((prevColumns) =>
-      prevColumns.map((column) =>
-        column.id === newStart.id
-          ? newStart
-          : column.id === newFinish.id
-          ? newFinish
-          : column
-      )
-    );
-
-    const socket = io("http://localhost:3000");
-    socket.emit("moverTarea", {
-      taskId: draggableId,
-      sourceColumnId: source.droppableId,
-      destinationColumnId: destination.droppableId,
-      sourceIndex: source.index,
-      destinationIndex: destination.index,
-      userEmail: user.email,
+      return newColumns;
     });
   };
 
@@ -257,230 +310,371 @@ const SpaceWork = ({ projectId }) => {
     <>
       <div
         className="fixed inset-0 bg-bottom bg-no-repeat bg-cover transform rotate-180 opacity-60"
-        style={{ backgroundImage: `url('../../wavesOpacity.svg')` }}
+        style={{ backgroundImage: `url('../../assets/wavesOpacity.svg')` }}
       ></div>
       <div className="relative">
         <div className="flex py-10 md:px-20 px-8 justify-between mt-5 ">
           <div className="flex rounded-md">
-            <div className="flex items-center justify-center m-2 ">
-              <h1 className=" text-xl text-center p-2 bg-white rounded-lg border-2 animate-jump-in shadow-sm">
-                {project?.name}
-              </h1>
+            <div className="flex items-center justify-center m-2">
+              {CargaSkeleton ? (
+                <SkeletonTheme
+                  baseColor={darkMode ? "#2D3748" : "#E0E0E0"}
+                  highlightColor={darkMode ? "#4A5568" : "#F5F5F5"}
+                >
+                  <Skeleton width={100} height={40} />
+                </SkeletonTheme>
+              ) : (
+                <h1
+                  className={`text-xl text-center p-2 rounded-lg border-2 animate-jump-in shadow-sm ${
+                    darkMode ? "text-white bg-gray-700" : "text-black bg-white"
+                  }`}
+                >
+                  {project?.name}
+                </h1>
+              )}
               <div className="flex items-center justify-center ml-7 space-x-5 animate-jump-in">
                 <div className="flex items-center space-x-4 mr-4">
-                  <ProyectosFavoritos projectId={projectId} />
-                  <ButtonChat
-                    projectId={projectId}
-                    projectName={project?.name}
-                  />
-                  <div className="bg-gradient-to-r from-red-500 to-pink-500 rounded-full p-2 text-white hover:animate-jump">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="w-5 h-5"
+                  {CargaSkeleton ? (
+                    <SkeletonTheme
+                      baseColor={darkMode ? "#2D3748" : "#E0E0E0"}
+                      highlightColor={darkMode ? "#4A5568" : "#F5F5F5"}
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"
-                      />
-                    </svg>
-                  </div>
+                      <Skeleton circle={true} height={30} width={30} />
+                    </SkeletonTheme>
+                  ) : (
+                    <ProyectosFavoritos projectId={projectId} />
+                  )}
+                  {CargaSkeleton ? (
+                    <SkeletonTheme
+                      baseColor={darkMode ? "#2D3748" : "#E0E0E0"}
+                      highlightColor={darkMode ? "#4A5568" : "#F5F5F5"}
+                    >
+                      <Skeleton circle={true} height={30} width={30} />
+                    </SkeletonTheme>
+                  ) : (
+                    <ButtonChat
+                      projectId={projectId}
+                      projectName={project?.name}
+                    />
+                  )}
+                  {CargaSkeleton ? (
+                    <SkeletonTheme
+                      baseColor={darkMode ? "#2D3748" : "#E0E0E0"}
+                      highlightColor={darkMode ? "#4A5568" : "#F5F5F5"}
+                    >
+                      <Skeleton circle={true} height={30} width={30} />
+                    </SkeletonTheme>
+                  ) : (
+                    <div className="bg-gradient-to-r from-red-500 to-pink-500 rounded-full p-2 text-white hover:animate-jump">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"
+                        />
+                      </svg>
+                    </div>
+                  )}
                 </div>
                 <div className="flex  items-center space-x-2 animate-jump-in">
-                  <PersonasActivas projectId={projectId} />
+                  {CargaSkeleton ? (
+                    <SkeletonTheme
+                      baseColor={darkMode ? "#2D3748" : "#E0E0E0"}
+                      highlightColor={darkMode ? "#4A5568" : "#F5F5F5"}
+                    >
+                      <Skeleton width={120} height={40} radius={50} />
+                    </SkeletonTheme>
+                  ) : (
+                    <PersonasActivas projectId={projectId} />
+                  )}
                 </div>
               </div>
             </div>
           </div>
           <div className="flex items-center justify-center m-2 space-x-7 animate-jump-in">
-            <CompartirProyecto
-              projectName={project?.name}
-              projectId={projectId}
-            />
-            <Guia />
+            {CargaSkeleton ? (
+              <SkeletonTheme
+                baseColor={darkMode ? "#2D3748" : "#E0E0E0"}
+                highlightColor={darkMode ? "#4A5568" : "#F5F5F5"}
+              >
+                <Skeleton width={80} height={30} radius={50} />
+              </SkeletonTheme>
+            ) : (
+              <CompartirProyecto projectId={projectId} />
+            )}
+            {CargaSkeleton ? (
+              <SkeletonTheme
+                baseColor={darkMode ? "#2D3748" : "#E0E0E0"}
+                highlightColor={darkMode ? "#4A5568" : "#F5F5F5"}
+              >
+                <Skeleton circle={true} height={40} width={40} />
+              </SkeletonTheme>
+            ) : (
+              <Guia />
+            )}
           </div>
         </div>
         <div className="flex justify-center items-center flex-wrap">
           <div className="overflow-y-auto max-h-[450px] overflow-x-hidden">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 p-8 mx-auto ">
               <DragDropContext onDragEnd={onDragEnd} enableDefaultBehaviour>
-                {Object.values(columns).map((column) => (
-                  <Droppable key={column.id} droppableId={column.id}>
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        className={`bg-gray-100 rounded-md border-2 p-5 w-80 h-full ${
-                          snapshot.isDraggingOver
-                            ? "bg-gradient-to-r from-red-400 to-pink-400"
-                            : ""
-                        }`}
-                      >
-                        <div className="flex justify-between">
-                          <h2 className="text-lg font-semibold mb-4 animate-fade-left">
-                            {column.title}
-                          </h2>
-                          <div className="flex items-center text-center">
-                            {isOpen && openMenuId === column ? (
-                              <button
-                                className="text-gray-400 mb-2 animate-jump-in"
-                                onClick={handleCloseMenu}
+                {CargaSkeleton
+                  ? Array.from({ length: Object.keys(columns).length }).map(
+                      (_, index) => (
+                        <SkeletonTheme
+                          baseColor={darkMode ? "#2D3748" : "#E0E0E0"}
+                          highlightColor={darkMode ? "#4A5568" : "#F5F5F5"}
+                          key={index}
+                        >
+                          <Skeleton width={320} height={300} radius={25} />
+                        </SkeletonTheme>
+                      )
+                    )
+                  : Object.values(columns).map((column) => (
+                      <Droppable key={column.id} droppableId={column.id}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                            className={`rounded-md border-2 p-5 w-80 h-full ${
+                              snapshot.isDraggingOver
+                                ? "bg-gradient-to-r from-red-400 to-pink-400"
+                                : darkMode
+                                ? "bg-gray-600"
+                                : "bg-gray-100"
+                            }`}
+                          >
+                            <div className="flex justify-between">
+                              <h2
+                                className={`text-lg font-semibold mb-4 animate-fade-left ${
+                                  darkMode ? "text-white" : "text-black"
+                                }`}
                               >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  strokeWidth={1.5}
-                                  stroke="currentColor"
-                                  className="w-6 h-6"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M6 18L18 6M6 6l12 12"
-                                  />
-                                </svg>
-                              </button>
-                            ) : (
-                              <button
-                                className="text-gray-400 mb-2 animate-jump-in"
-                                onClick={() => handleMenuClick(column)}
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  strokeWidth={1.5}
-                                  stroke="currentColor"
-                                  className="w-6 h-6"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
-                                  />
-                                </svg>
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                        {openMenuId === column ? (
-                          <div className="flex flex-col items-center space-y-2">
-                            <div className="flex flex-col items-center space-y-2">
-                              <button className="flex items-center p-2 m-1 bg-blue-500 rounded-md text-white animate-jump-in">
-                                <span className="text-sm">Edit</span>
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  strokeWidth={1.5}
-                                  stroke="currentColor"
-                                  className="w-4 h-4 ml-2"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
-                                  />
-                                </svg>
-                              </button>
-                              <button
-                                onClick={() => handleDeleteColumn(column.id)}
-                                className="flex items-center  p-2 m-1 bg-red-500 rounded-md text-white animate-jump-in"
-                              >
-                                <span className="text-sm">Delete</span>
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  strokeWidth={1.5}
-                                  stroke="currentColor"
-                                  className="w-4 h-4 ml-2"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                                  />
-                                </svg>
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          column.taskIds.map((taskId, index) => (
-                            <Draggable
-                              key={taskId}
-                              draggableId={taskId}
-                              index={index}
-                              isDragDisabled={openMenuId === column.id}
-                            >
-                              {(provided, snapshot) => {
-                                return (
-                                  <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                    style={{
-                                      ...provided.draggableProps.style,
-                                      opacity: snapshot.isDragging ? 0.8 : 1,
-                                    }}
-                                    className="flex justify-between items-center p-2 m-2 bg-white rounded-md border-2 shadow-sm overflow-visible group"
+                                {column.title}
+                              </h2>
+                              <div className="flex items-center text-center">
+                                {isOpen && openMenuId === column ? (
+                                  <button
+                                    className={`text-gray-400 mb-2 animate-jump-in ${
+                                      darkMode ? "text-white" : "text-gray-800"
+                                    }`}
+                                    onClick={handleCloseMenu}
                                   >
-                                    {(() => {
-                                      const task = column.tasks.find(
-                                        (task) => task._id === taskId
-                                      );
-                                      return (
-                                        <>
-                                          <div className="flex-grow min-w-0 break-words">
-                                            <p>{task && task.name}</p>
-                                          </div>
-                                          <EditarTarea
-                                            task={task}
-                                            columnId={column.id}
-                                          />
-                                        </>
-                                      );
-                                    })()}
-                                  </div>
-                                );
-                              }}
-                            </Draggable>
-                          ))
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      strokeWidth={1.5}
+                                      stroke="currentColor"
+                                      className="w-6 h-6"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M6 18L18 6M6 6l12 12"
+                                      />
+                                    </svg>
+                                  </button>
+                                ) : (
+                                  <button
+                                    className={`text-gray-400 mb-2 animate-jump-in ${
+                                      darkMode ? "text-white" : "text-gray-800"
+                                    }`}
+                                    onClick={() => handleMenuClick(column)}
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      strokeWidth={1.5}
+                                      stroke="currentColor"
+                                      className="w-6 h-6"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
+                                      />
+                                    </svg>
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                            {openMenuId === column ? (
+                              <div className="flex flex-col items-center space-y-2">
+                                <div className="flex flex-col items-center space-y-2">
+                                  <button className="flex items-center p-2 m-1 bg-blue-500 rounded-md text-white animate-jump-in">
+                                    <span className="text-sm">Edit</span>
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      strokeWidth={1.5}
+                                      stroke="currentColor"
+                                      className="w-4 h-4 ml-2"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+                                      />
+                                    </svg>
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      handleDeleteColumn(column.id)
+                                    }
+                                    className="flex items-center  p-2 m-1 bg-red-500 rounded-md text-white animate-jump-in"
+                                  >
+                                    <span className="text-sm">Delete</span>
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      strokeWidth={1.5}
+                                      stroke="currentColor"
+                                      className="w-4 h-4 ml-2"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                                      />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              column.taskIds.map((taskId, index) => (
+                                <Draggable
+                                  key={taskId}
+                                  draggableId={taskId}
+                                  index={index}
+                                  isDragDisabled={openMenuId === column.id}
+                                >
+                                  {(provided, snapshot) => {
+                                    return (
+                                      <div
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                        style={{
+                                          ...provided.draggableProps.style,
+                                          opacity: snapshot.isDragging
+                                            ? 0.8
+                                            : 1,
+                                        }}
+                                        className={`flex justify-between items-center p-2 m-2 rounded-md border-2 shadow-sm overflow-visible group ${
+                                          darkMode
+                                            ? "bg-gray-800 text-white"
+                                            : "bg-white text-black"
+                                        }`}
+                                      >
+                                        {CargaSkeleton ? (
+                                          <SkeletonTheme
+                                            baseColor={
+                                              darkMode ? "#3D4451" : "#D0D0D0"
+                                            }
+                                            highlightColor={
+                                              darkMode ? "#5A6270" : "#C0C0C0"
+                                            }
+                                          >
+                                            <Skeleton
+                                              width={50}
+                                              height={50}
+                                              radius={25}
+                                            />
+                                          </SkeletonTheme>
+                                        ) : (
+                                          (() => {
+                                            const task = column.tasks.find(
+                                              (task) => task._id === taskId
+                                            );
+                                            return (
+                                              <>
+                                                <div className="flex-grow min-w-0 break-words">
+                                                  <p>{task && task.name}</p>
+                                                </div>
+                                                <button className="opacity-0 group-hover:opacity-100 ml-8 bg-gradient-to-r from-red-500 to-pink-500 rounded-full p-1 text-white transition-all duration-500 ease-in-out">
+                                                  <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    strokeWidth={1.5}
+                                                    stroke="currentColor"
+                                                    className="w-4 h-4"
+                                                  >
+                                                    <path
+                                                      strokeLinecap="round"
+                                                      strokeLinejoin="round"
+                                                      d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                                                    />
+                                                  </svg>
+                                                </button>
+                                              </>
+                                            );
+                                          })()
+                                        )}
+                                      </div>
+                                    );
+                                  }}
+                                </Draggable>
+                              ))
+                            )}
+                            {provided.placeholder}
+                            <Task columnId={column.id} projectId={projectId} />
+                          </div>
                         )}
-                        {provided.placeholder}
-                        <Task columnId={column.id} />
-                      </div>
-                    )}
-                  </Droppable>
-                ))}
+                      </Droppable>
+                    ))}
                 {columns.length === 0 ? (
                   <div className="flex justify-center items-center w-screen mt-10">
                     <div className="relative inset-2 flex flex-col justify-center items-center pointer-events-none">
-                      <span className="text-gray-400 text-lg mb-1 pointer-events-auto flex">
-                        No hay columnas para mostrar en este proyecto
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="w-6 h-6 ml-2 items-center"
+                      {CargaSkeleton ? (
+                        <SkeletonTheme
+                          baseColor={darkMode ? "#3D4451" : "#D0D0D0"}
+                          highlightColor={darkMode ? "#5A6270" : "#C0C0C0"}
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M15.182 16.318A4.486 4.486 0 0 0 12.016 15a4.486 4.486 0 0 0-3.198 1.318M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z"
-                          />
-                        </svg>
-                      </span>
-                      <AddColumn projectId={projectId} />
+                          <Skeleton width={200} height={50} radius={25} />
+                        </SkeletonTheme>
+                      ) : (
+                        <>
+                          <span className="text-gray-400 text-lg mb-1 pointer-events-auto flex">
+                            No hay columnas para mostrar en este proyecto
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth={1.5}
+                              stroke="currentColor"
+                              className="w-6 h-6 ml-2 items-center"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M15.182 16.318A4.486 4.486 0 0 0 12.016 15a4.486 4.486 0 0 0-3.198 1.318M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z"
+                              />
+                            </svg>
+                          </span>
+                          <AddColumn projectId={projectId} />
+                        </>
+                      )}
                     </div>
                   </div>
+                ) : CargaSkeleton ? (
+                  <SkeletonTheme
+                    baseColor={darkMode ? "#3D4451" : "#D0D0D0"}
+                    highlightColor={darkMode ? "#5A6270" : "#C0C0C0"}
+                  >
+                    <Skeleton width={150} height={40} radius={25} />
+                  </SkeletonTheme>
                 ) : (
                   <AddColumn projectId={projectId} />
                 )}
@@ -498,6 +692,7 @@ const SpaceWork = ({ projectId }) => {
         draggablePercent={100}
         bodyClassName={"text-sm p-2 m-2 "}
         style={{ width: "300px" }}
+        theme={darkMode ? "dark" : "light"}
       />
     </>
   );

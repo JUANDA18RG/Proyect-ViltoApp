@@ -1,9 +1,29 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Tab } from "@headlessui/react";
 
 export default function MyModal() {
   let [isOpen, setIsOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("darkMode");
+    const isEnabled = JSON.parse(saved) || false;
+    setDarkMode(isEnabled);
+
+    const handleDarkModeChange = () => {
+      const saved = localStorage.getItem("darkMode");
+      const isEnabled = JSON.parse(saved) || false;
+      setDarkMode(isEnabled);
+    };
+
+    window.addEventListener("darkModeChange", handleDarkModeChange);
+
+    // Limpiar el evento al desmontar el componente
+    return () => {
+      window.removeEventListener("darkModeChange", handleDarkModeChange);
+    };
+  }, []);
 
   function closeModal() {
     setIsOpen(false);
@@ -117,12 +137,26 @@ export default function MyModal() {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-gradient-to-t from-gray-300 to-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel
+                  className={`w-full max-w-md transform overflow-hidden rounded-2xl p-6 text-left align-middle shadow-xl transition-all ${
+                    darkMode
+                      ? "bg-gradient-to-t from-gray-800 to-gray-900"
+                      : "bg-gradient-to-t from-gray-300 to-white"
+                  }`}
+                >
                   <Dialog.Title
                     as="h3"
-                    className="text-lg font-bold leading-6 text-gray-900  mb-4 text-center"
+                    className="text-lg font-bold leading-6 text-gray-900 justify-center items-center flex "
                   >
-                    Esta es la guia de uso para el sistema de uso de ViltoApp
+                    <h1
+                      className={` text-xl font-bold text-center p-2 rounded-lg ${
+                        darkMode
+                          ? "text-white bg-gray-700"
+                          : "text-black bg-white"
+                      }`}
+                    >
+                      <span>Guia de uso para el tablero de ViltoApp</span>
+                    </h1>
                   </Dialog.Title>
                   <div className="mt-2">
                     <Tab.Group>
@@ -145,19 +179,33 @@ export default function MyModal() {
                         {Object.values(Ayuda).map((posts, idx) => (
                           <Tab.Panel
                             key={idx}
-                            className={"rounded-xl bg-white p-3"}
+                            className={`rounded-xl p-3 ${
+                              darkMode
+                                ? "bg-gray-600 text-gray-200"
+                                : "bg-white"
+                            }`}
                           >
                             <ul>
                               {posts.map((post) => (
                                 <li
                                   key={post.id}
-                                  className="relative rounded-md p-3 hover:bg-gray-100"
+                                  className={`relative rounded-md p-3 ${
+                                    darkMode
+                                      ? "hover:bg-gray-700"
+                                      : "hover:bg-gray-100"
+                                  }`}
                                 >
                                   <h3 className="text-sm font-medium leading-5">
                                     {post.title}
                                   </h3>
 
-                                  <ul className="mt-1 flex space-x-1 text-xs font-normal leading-4 text-gray-500">
+                                  <ul
+                                    className={`mt-1 flex space-x-1 text-xs font-normal leading-4 ${
+                                      darkMode
+                                        ? "text-gray-300"
+                                        : "text-gray-500"
+                                    }`}
+                                  >
                                     <li>{post.date}</li>
                                     <li>{post.Descripcion}</li>
                                   </ul>
