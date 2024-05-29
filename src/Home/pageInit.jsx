@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NavbarPage from "./NavbarPage";
-import Work from "./works";
 import Menu from "./Menu";
+import Favorites from "./Favorites";
+import Miembros from "./Miembros";
+
 import { useAuth } from "../context/authContext";
 import Spinner from "../Perfil/Spinner";
+import Works from "./Works";
 
 export default function PageInit() {
   const navigate = useNavigate();
-  const { user, loading } = useAuth(); // Obtenemos el estado de carga del contexto de autenticación
+  const { user, loading } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
+  const [selectedMenuItem, setSelectedMenuItem] = useState("projects"); // Inicialmente, muestra los proyectos
 
   useEffect(() => {
     const saved = localStorage.getItem("darkMode");
@@ -42,6 +46,20 @@ export default function PageInit() {
     return <Spinner />;
   }
 
+  // Función para renderizar el componente correspondiente según la opción seleccionada
+  const renderSelectedComponent = () => {
+    switch (selectedMenuItem) {
+      case "projects":
+        return <Works />;
+      case "favorites":
+        return <Favorites />;
+      case "members":
+        return <Miembros />;
+      default:
+        return <Works />;
+    }
+  };
+
   return (
     <div
       className={`bg-gradient-to-t ${
@@ -51,8 +69,9 @@ export default function PageInit() {
       <div className="bg-transparent">
         <NavbarPage />
         <div className="flex">
-          <Menu />
-          <Work />
+          <Menu onMenuItemChange={setSelectedMenuItem} />
+
+          {renderSelectedComponent()}
         </div>
       </div>
     </div>

@@ -35,7 +35,30 @@ export default function PersonasActivas({ projectId }) {
         console.log("No hay usuarios en este proyecto.");
       }
     });
+
+    // Escucha el evento 'usuarioAgregado'
+    socket.on("usuarioAgregado", (data) => {
+      if (data.projectId === projectId) {
+        obtenerUrlImagen(data.user.email)
+          .then((url) => {
+            setImagenesUsuarios((prev) => ({
+              ...prev,
+              [data.user.email]: url,
+            }));
+          })
+          .catch((error) => {
+            console.error("Error obteniendo la imagen del usuario:", error);
+            setImagenesUsuarios((prev) => ({
+              ...prev,
+              [data.user.email]: User,
+            }));
+          });
+      }
+    });
+
     return () => {
+      socket.off("proyecto");
+      socket.off("usuarioAgregado");
       socket.disconnect();
     };
   }, [projectId]);

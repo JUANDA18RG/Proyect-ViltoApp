@@ -13,6 +13,7 @@ export default function ButtonAdd({ setWorks }) {
   const [isPremium, setIsPremium] = useState(false);
   const [error, setError] = useState("");
   const [darkMode, setDarkMode] = useState(false);
+  const auth = useAuth();
 
   useEffect(() => {
     const saved = localStorage.getItem("darkMode");
@@ -32,16 +33,6 @@ export default function ButtonAdd({ setWorks }) {
       window.removeEventListener("darkModeChange", handleDarkModeChange);
     };
   }, []);
-
-  function closeModal() {
-    setIsOpen(false);
-  }
-
-  function openModal() {
-    setIsOpen(true);
-  }
-
-  const auth = useAuth();
 
   useEffect(() => {
     const socket = io("http://localhost:3000");
@@ -73,7 +64,15 @@ export default function ButtonAdd({ setWorks }) {
     return () => {
       socket.disconnect();
     };
-  }, [auth.user]);
+  }, [auth.user, setWorks]);
+
+  const closeModal = () => {
+    setIsOpen(false);
+  };
+
+  const openModal = () => {
+    setIsOpen(true);
+  };
 
   const handleSubmit = async () => {
     if (!name.trim() || !description.trim()) {

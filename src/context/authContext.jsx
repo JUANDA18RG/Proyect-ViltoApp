@@ -26,16 +26,26 @@ export const useAuth = () => {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // Nuevo estado para manejar la carga
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setLoading(false); // Cuando se obtiene el estado del usuario, se establece la carga en false
+      setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
+
+  const socket = io("http://localhost:3000");
+
+  const fetchUserData = (user) => {
+    socket.emit("crearUsuario", {
+      name: user.displayName,
+      email: user.email,
+      uid: user.uid,
+    });
+  };
 
   const register = async (email, password, name) => {
     try {
@@ -50,6 +60,10 @@ export function AuthProvider({ children }) {
       );
       const user = userCredential.user;
       await updateProfile(user, { displayName: name });
+
+      // Llamada al socket para crear usuario
+      fetchUserData(user);
+
       setUser(user);
     } catch (error) {
       console.error("Error al registrar usuario:", error.message);
@@ -65,7 +79,7 @@ export function AuthProvider({ children }) {
       const response = await signInWithEmailAndPassword(auth, email, password);
       const user = response.user;
 
-      await fetchUserData(user);
+      fetchUserData(user);
 
       setUser(user);
     } catch (error) {
@@ -73,22 +87,14 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const socket = io("http://localhost:3000");
-  const fetchUserData = (user) => {
-    socket.emit("crearUsuario", {
-      name: user.displayName,
-      email: user.email,
-      uid: user.uid,
-    });
-  };
-
   const loginWithGoogle = async () => {
     try {
       const provider = new GoogleAuthProvider();
       const response = await signInWithPopup(auth, provider);
       const user = response.user;
-      await fetchUserData(user);
+      fetchUserData(user);
       setUser(user);
+
       let blob;
       try {
         const imageResponse = await fetch(user.photoURL);
@@ -115,10 +121,9 @@ export function AuthProvider({ children }) {
       const provider = new GithubAuthProvider();
       const response = await signInWithPopup(auth, provider);
       const user = response.user;
-      await fetchUserData(user);
+      fetchUserData(user);
       setUser(user);
 
-      // Descargar la imagen de perfil como un Blob
       let blob;
       try {
         const imageResponse = await fetch(user.photoURL);
@@ -127,8 +132,6 @@ export function AuthProvider({ children }) {
         console.error("Error al descargar la imagen de perfil:", error);
         return;
       }
-
-      // Subir el Blob al storage de Firebase
       try {
         await uploadFile(blob, user.email);
       } catch (error) {
@@ -157,9 +160,9 @@ export function AuthProvider({ children }) {
         register,
         login,
         loginWithGoogle,
+        loginWithGithub,
         logout,
         user,
-        loginWithGithub,
         loading,
       }}
     >

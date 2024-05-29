@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 
-export default function Menu() {
+export default function Menu({ onMenuItemChange }) {
   const [darkMode, setDarkMode] = useState(false);
+  const [selectedMenuItem, setSelectedMenuItem] = useState("projects");
 
   useEffect(() => {
     const saved = localStorage.getItem("darkMode");
@@ -22,20 +24,33 @@ export default function Menu() {
       window.removeEventListener("darkModeChange", handleDarkModeChange);
     };
   }, []);
+
+  const handleMenuItemClick = (menuItem) => {
+    onMenuItemChange(menuItem);
+    setSelectedMenuItem(menuItem);
+  };
+
   return (
     <div
-      className={`w-1/5 h-screen animate-fade-left ${
+      className={`w-1/5 h-screen animate-fade-right transform transition-all duration-500 ease-in-out ${
         darkMode
           ? "bg-gray-700"
           : "bg-gradient-to-t from-gray-200 to-transparent"
       } flex flex-col justify-between`}
     >
       <div
-        className={`flex flex-col items-center justify-center space-y-16 py-40 text-sm ${
+        className={`flex flex-col items-center justify-center space-y-16 py-40 text-sm  ${
           darkMode ? "text-white" : "text-black"
         }`}
       >
-        <button className="font-bold  uppercase p-3 rounded-md hover:bg-gradient-to-r from-red-500 to-pink-500 hover:text-white hover:animate-jump">
+        <button
+          onClick={() => handleMenuItemClick("projects")}
+          className={`font-bold  uppercase p-3 rounded-md hover:bg-gradient-to-r from-red-500 to-pink-500 hover:text-white hover:animate-jump ${
+            selectedMenuItem === "projects"
+              ? "bg-gradient-to-r from-red-500 to-pink-500 text-white"
+              : ""
+          }`}
+        >
           <span className="flex">
             Proyectos
             <svg
@@ -54,7 +69,14 @@ export default function Menu() {
             </svg>
           </span>
         </button>
-        <button className=" font-bold   uppercase p-3 rounded-md hover:bg-gradient-to-r from-red-500 to-pink-500 hover:text-white hover:animate-jump">
+        <button
+          onClick={() => handleMenuItemClick("favorites")}
+          className={`font-bold  uppercase p-3 rounded-md hover:bg-gradient-to-r from-red-500 to-pink-500 hover:text-white hover:animate-jump ${
+            selectedMenuItem === "favorites"
+              ? "bg-gradient-to-r from-red-500 to-pink-500 text-white"
+              : ""
+          }`}
+        >
           <span className="flex">
             destacados
             <svg
@@ -73,7 +95,14 @@ export default function Menu() {
             </svg>
           </span>
         </button>
-        <button className=" font-bold   uppercase p-3 rounded-md hover:bg-gradient-to-r from-red-500 to-pink-500 hover:text-white hover:animate-jump">
+        <button
+          onClick={() => handleMenuItemClick("members")}
+          className={`font-bold  uppercase p-3 rounded-md hover:bg-gradient-to-r from-red-500 to-pink-500 hover:text-white hover:animate-jump ${
+            selectedMenuItem === "members"
+              ? "bg-gradient-to-r from-red-500 to-pink-500 text-white"
+              : ""
+          }`}
+        >
           <span className="flex">
             Miembros{" "}
             <svg
@@ -99,3 +128,7 @@ export default function Menu() {
     </div>
   );
 }
+
+Menu.propTypes = {
+  onMenuItemChange: PropTypes.func.isRequired,
+};

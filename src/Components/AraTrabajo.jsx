@@ -3,7 +3,7 @@ import NavbarPage from "../Home/NavbarPage";
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import io from "socket.io-client";
-import { useAuth } from "../context/authContext"; // Asegúrate de importar el hook useAuth
+import { useAuth } from "../context/authContext";
 import Spinner from "../Perfil/Spinner";
 
 export default function AraTrabajo() {
@@ -27,7 +27,6 @@ export default function AraTrabajo() {
 
     window.addEventListener("darkModeChange", handleDarkModeChange);
 
-    // Limpiar el evento al desmontar el componente
     return () => {
       window.removeEventListener("darkModeChange", handleDarkModeChange);
     };
@@ -35,7 +34,6 @@ export default function AraTrabajo() {
 
   useEffect(() => {
     if (!loading && !user) {
-      // Solo redirigimos a /404 si la carga ha terminado y no hay usuario
       navigate("/404");
     }
   }, [user, navigate, loading]);
@@ -47,6 +45,7 @@ export default function AraTrabajo() {
 
     socket.on("proyecto", (project) => {
       setProject(project);
+      socket.emit("joinProject", id); // Unirse a la sala del proyecto después de obtener el proyecto
     });
 
     socket.on("error", (error) => {
@@ -54,6 +53,8 @@ export default function AraTrabajo() {
     });
 
     return () => {
+      socket.off("proyecto");
+      socket.off("error");
       socket.disconnect();
     };
   }, [id]);

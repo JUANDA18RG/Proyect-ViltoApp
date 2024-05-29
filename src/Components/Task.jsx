@@ -1,17 +1,12 @@
-// Task.js
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Picker from "emoji-picker-react";
 import io from "socket.io-client";
-import { useEffect } from "react";
 import { useAuth } from "../context/authContext";
 
-const Task = ({ columnId, projectId }) => {
-  Task.propTypes = {
-    columnId: PropTypes.node.isRequired,
-    projectId: PropTypes.node.isRequired,
-  };
+const socket = io("http://localhost:3000");
 
+const Task = ({ columnId, projectId }) => {
   const [name, setName] = useState("");
   const [addingTask, setAddingTask] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -37,17 +32,6 @@ const Task = ({ columnId, projectId }) => {
     };
   }, []);
 
-  useEffect(() => {
-    const socket = io("http://localhost:3000");
-    socket.on("tareaCreada", (Task) => {
-      console.log("Columna creada:", Task);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
   const handleAddTask = () => {
     const newTask = {
       name,
@@ -55,7 +39,7 @@ const Task = ({ columnId, projectId }) => {
       userEmail: user.email,
       projectId,
     };
-    const socket = io("http://localhost:3000");
+
     socket.emit("crearTarea", newTask);
     setName("");
     setAddingTask(false);
@@ -187,6 +171,11 @@ const Task = ({ columnId, projectId }) => {
       )}
     </div>
   );
+};
+
+Task.propTypes = {
+  columnId: PropTypes.string.isRequired,
+  projectId: PropTypes.string.isRequired,
 };
 
 export default Task;

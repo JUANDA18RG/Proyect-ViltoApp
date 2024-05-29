@@ -164,6 +164,22 @@ export default {
                     transform: 'rotate(360deg)',
                 },
             },
+
+            'bounce': { 
+                '0%, 20%, 50%, 80%, 100%': { 
+                    transform: 'translateY(0)',
+                    offset: '0',
+                },
+                '40%': { 
+                    transform: 'translateY(-15px)', // reducido de -30px a -15px
+                    offset: '0.4',
+                },
+                '60%': { 
+                    transform: 'translateY(-7.5px)', // reducido de -15px a -7.5px
+                    offset: '0.6',
+                },
+            }
+
       },
       animation: {
           'wiggle': 'wiggle 1s both',
@@ -182,6 +198,7 @@ export default {
           'flip-up': 'flip-up 1s both',
           'flip-down': 'flip-down 1s both',
             'spin': 'spin 1s infinite',
+            'bounce': 'bounce 1s infinite',
       },
       animationDelay: {
           none: '0ms',

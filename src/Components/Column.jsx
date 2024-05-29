@@ -11,6 +11,7 @@ const AddColumn = ({ projectId }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const { user } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
+  const socket = io("http://localhost:3000"); // Inicialización del socket dentro del componente
 
   useEffect(() => {
     const saved = localStorage.getItem("darkMode");
@@ -31,20 +32,15 @@ const AddColumn = ({ projectId }) => {
     };
   }, []);
 
+  useEffect(() => {
+    return () => {
+      socket.disconnect(); // Desconectar el socket al desmontar el componente
+    };
+  }, [socket]);
+
   const handleShowAddColumn = () => {
     setShowAddColumn(true);
   };
-
-  useEffect(() => {
-    const socket = io("http://localhost:3000");
-    socket.on("columnaCreada", (column) => {
-      console.log("Columna creada:", column);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
 
   const handleConfirmAddColumn = () => {
     const column = {
@@ -52,7 +48,7 @@ const AddColumn = ({ projectId }) => {
       projectId,
       userEmail: user.email,
     };
-    const socket = io("http://localhost:3000");
+
     socket.emit("crearColumna", column);
 
     setNewColumnTitle("");

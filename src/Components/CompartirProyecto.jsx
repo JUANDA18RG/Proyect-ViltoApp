@@ -91,7 +91,7 @@ export default function CompartirProyecto({ projectName, projectId }) {
         projectId,
         userEmail: selectedUserEmail,
       });
-      toast.success("Usuario agregado correctamente refresh para ver cambios.");
+      toast.success("Usuario agregado correctamente al proyecto.");
       console.log(projectId, selectedUserEmail);
       closeModal();
     } else {

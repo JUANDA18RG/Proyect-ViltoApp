@@ -9,6 +9,7 @@ import io from "socket.io-client";
 import { motion } from "framer-motion";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import EditarProyecto from "../Components/EditarProyecto";
 
 export default function Works() {
   const [works, setWorks] = useState([]);
@@ -18,18 +19,19 @@ export default function Works() {
   const [hoveredCardId, setHoveredCardId] = useState(null);
   const [rotation, setRotation] = useState({ rotateX: 0, rotateY: 0 });
   const [darkMode, setDarkMode] = useState(false);
-  const [CargaSkeleton, setCargaSkeleton] = useState(true);
+  const [loadingSkeleton, setLoadingSkeleton] = useState(true);
+  const [EditMode, setEditMode] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setCargaSkeleton(false);
+      setLoadingSkeleton(false);
     }, 3000);
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    const saved = localStorage.getItem("darkMode");
-    const isEnabled = JSON.parse(saved) || false;
+    const savedDarkMode = localStorage.getItem("darkMode");
+    const isEnabled = JSON.parse(savedDarkMode) || false;
     setDarkMode(isEnabled);
 
     const handleDarkModeChange = () => {
@@ -40,7 +42,7 @@ export default function Works() {
 
     window.addEventListener("darkModeChange", handleDarkModeChange);
 
-    // Limpiar el evento al desmontar el componente
+    // Cleanup event listener
     return () => {
       window.removeEventListener("darkModeChange", handleDarkModeChange);
     };
@@ -75,6 +77,7 @@ export default function Works() {
   const handleCloseMenu = () => {
     setOpenMenuId(null);
     setIsOpen(false);
+    setEditMode(false);
   };
 
   const auth = useAuth();
@@ -130,15 +133,33 @@ export default function Works() {
     socket.emit("eliminarProyecto", id);
 
     setWorks((prevWorks) => prevWorks.filter((work) => work._id !== id));
-    toast.success("Proyecto eliminado con exito.", {
+    toast.success("Proyecto eliminado con éxito.", {
       autoClose: 3000,
     });
+  };
+
+  const updateProject = (updatedProject) => {
+    setWorks((prevWorks) =>
+      prevWorks.map((work) =>
+        work._id === updatedProject._id ? updatedProject : work
+      )
+    );
+    setIsOpen(false);
+  };
+
+  const AbrimodoEdit = () => {
+    setEditMode(true);
+    console.log("EditMode is now", EditMode);
+  };
+
+  const CerrarModoEdit = () => {
+    setEditMode(false);
   };
 
   return (
     <>
       <div
-        className={`w-4/5 h-screen overflow-y-auto mt-2 relative animate-fade-right ${
+        className={`w-4/5 h-screen overflow-y-auto mt-2 relative animate-fade-up ${
           darkMode
             ? "bg-gray-500 "
             : "bg-gradient-to-t from-gray-200 to-transparent"
@@ -151,7 +172,7 @@ export default function Works() {
         <div className="flex flex-col px-4 md:px-20 absolute inset-0 overflow-y-auto">
           <div className="flex py-8 md:px-14 px-10 text-sm md:text-xl justify-between ml-1">
             <div className="flex m-2">
-              {CargaSkeleton ? (
+              {loadingSkeleton ? (
                 <SkeletonTheme
                   baseColor={darkMode ? "#3D4451" : "#D0D0D0"}
                   highlightColor={darkMode ? "#5A6270" : "#C0C0C0"}
@@ -171,12 +192,12 @@ export default function Works() {
                         : "text-gray-600 bg-gray-200 border-gray-300 opacity-70"
                     } items-center rounded-lg`}
                   >
-                    Tu cuenta es gratuita solo puedes crear 6 proyectos
+                    Tu cuenta es gratuita, solo puedes crear 6 proyectos.
                   </p>
                 </>
               )}
             </div>
-            {CargaSkeleton ? (
+            {loadingSkeleton ? (
               <SkeletonTheme
                 baseColor={darkMode ? "#3D4451" : "#D0D0D0"}
                 highlightColor={darkMode ? "#5A6270" : "#C0C0C0"}
@@ -187,9 +208,9 @@ export default function Works() {
               <GuiaInicio />
             )}
           </div>
-          <div className="text-center ">
+          <div className="text-center">
             <div className="text-center w-full">
-              <div className="flex flex-wrap justify-center  items-center m-5 gap-x-10">
+              <div className="flex flex-wrap justify-center items-center m-5 gap-x-10">
                 {isLoading && (
                   <div className="flex justify-center items-center w-full h-full mt-32">
                     <div role="status">
@@ -220,20 +241,25 @@ export default function Works() {
                     </p>
                   </div>
                 )}
-                {CargaSkeleton
+                {loadingSkeleton
                   ? Array.from({ length: works.length }).map((_, index) => (
                       <SkeletonTheme
                         baseColor={darkMode ? "#3D4451" : "#D0D0D0"}
                         highlightColor={darkMode ? "#5A6270" : "#C0C0C0"}
                         key={index}
                       >
-                        <Skeleton width={280} height={250} radius={25} />
+                        <Skeleton
+                          width={280}
+                          height={250}
+                          radius={25}
+                          className="m-3"
+                        />
                       </SkeletonTheme>
                     ))
                   : [...works].reverse().map((work) => (
                       <motion.div
                         key={work._id}
-                        className={`relative flex flex-col items-center justify-center w-64 h-60 m-5 rounded-lg ${
+                        className={`relative flex flex-col items-center justify-center w-64 h-60 m-5 rounded-lg transform transition-all duration-200 ease-in ${
                           darkMode
                             ? "bg-gray-400 border-white border-4"
                             : "bg-gray-100 border-white border-4"
@@ -347,24 +373,18 @@ export default function Works() {
                         </div>
                         {isOpen && openMenuId === work._id ? (
                           <div className="flex flex-col items-center space-y-2">
-                            <div className="flex flex-col items-center space-y-2">
-                              <button className="flex items-center p-2 m-1 bg-blue-500 rounded-md text-white animate-jump-in">
-                                <span className="text-sm">Edit</span>
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  strokeWidth={1.5}
-                                  stroke="currentColor"
-                                  className="w-4 h-4 ml-2"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
-                                  />
-                                </svg>
-                              </button>
+                            <button onClick={AbrimodoEdit}>
+                              <EditarProyecto
+                                project={work}
+                                onUpdate={(updatedProject) => {
+                                  updateProject(updatedProject);
+                                  CerrarModoEdit();
+                                }}
+                                onCancel={CerrarModoEdit}
+                              />
+                            </button>
+
+                            {!EditMode && (
                               <button
                                 onClick={() => deleteProject(work._id)}
                                 className="flex items-center  p-2 m-1 bg-red-500 rounded-md text-white animate-jump-in"
@@ -385,7 +405,7 @@ export default function Works() {
                                   />
                                 </svg>
                               </button>
-                            </div>
+                            )}
                           </div>
                         ) : (
                           <Link to={`/AreaTrabajo/${work._id}`}>

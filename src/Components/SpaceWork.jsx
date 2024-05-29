@@ -14,6 +14,7 @@ import { useAuth } from "../context/authContext";
 import PersonasActivas from "./PersonasActivas";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import LinksProyect from "./LinksProyect";
 
 const SpaceWork = ({ projectId }) => {
   const [columns, setColumns] = useState([]);
@@ -22,16 +23,31 @@ const SpaceWork = ({ projectId }) => {
   const [project, setProject] = useState(null);
   const [forceUpdate, setForceUpdate] = useState(false);
   const [CargaSkeleton, setCargaSkeleton] = useState(true);
+  const [respuestaIA, setRespuestaIA] = useState(null);
+  const [showDialog, setShowDialog] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const [dialogContent, setDialogContent] = useState(null);
+  const [taskCreated, setTaskCreated] = useState(false);
+  const [taskData, setTaskData] = useState(null);
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [socket, setSocket] = useState(null);
 
-  const socket = io("http://localhost:3000");
+  useEffect(() => {
+    const newSocket = io("http://localhost:3000");
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setCargaSkeleton(false);
     }, 3000);
     return () => clearTimeout(timer);
   }, []);
-
-  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("darkMode");
@@ -52,161 +68,219 @@ const SpaceWork = ({ projectId }) => {
     };
   }, []);
 
-  const { user } = useAuth();
-
   useEffect(() => {
-    const fetchProjectData = async () => {
-      try {
-        socket.emit("obtenerProyecto", projectId);
+    if (socket) {
+      const handleRespuestaIA = (data) => {
+        console.log("respuesta de la IA", data);
+        setTimeout(() => {
+          setRespuestaIA(data);
+          setDialogContent(data);
+          setLoading(false);
+          setShowDialog(true);
+        }, 200);
+      };
 
-        socket.on("proyecto", async (projectData) => {
-          setProject(projectData);
+      const handleProyecto = async (projectData) => {
+        setProject(projectData);
 
-          const columnsData = await new Promise((resolve, reject) => {
-            socket.emit("obtenerColumnas", projectId, (data) => {
-              if (data.success) {
-                resolve(data.data);
-              } else {
-                reject(data.error);
-              }
-            });
+        const columnsData = await new Promise((resolve, reject) => {
+          socket.emit("obtenerColumnas", projectId, (data) => {
+            if (data.success) {
+              resolve(data.data);
+            } else {
+              reject(data.error);
+            }
           });
-          const updatedColumns = columnsData.map((column) => ({
+        });
+        const updatedColumns = columnsData.map((column) => ({
+          id: column._id,
+          title: column.name,
+          taskIds: column.tasks.map((task) => task._id),
+          tasks: column.tasks,
+        }));
+
+        setColumns(updatedColumns);
+      };
+
+      const handleColumnaCreada = (column) => {
+        setColumns((prevColumns) => [
+          ...prevColumns,
+          {
             id: column._id,
             title: column.name,
             taskIds: column.tasks.map((task) => task._id),
             tasks: column.tasks,
-          }));
-
-          setColumns(updatedColumns);
+          },
+        ]);
+        toast.success(`Columna ${column.name} creada con éxito`, {
+          autoClose: 3000,
         });
+        const data = {
+          metodo: "columnaCreada",
+          task: "",
+          column: column.name,
+          projectName: project?.name,
+          projectDescription: project?.description,
+        };
+        setLoading(true);
+        console.log("informacion enviada a la IA", data);
+        socket.emit("obtenerRespuestaIA", data);
+      };
 
-        socket.on("columnaCreada", (column) => {
-          setColumns((prevColumns) => [
-            ...prevColumns,
-            {
-              id: column._id,
-              title: column.name,
-              taskIds: column.tasks.map((task) => task._id),
-              tasks: column.tasks,
-            },
-          ]);
-          toast.success(`Columna ${column.name} creada con éxito`, {
-            autoClose: 3000,
-          });
-        });
+      const handleColumnaEliminada = (id) => {
+        setColumns((prevColumns) =>
+          prevColumns.filter((column) => column.id !== id)
+        );
+        toast.success(`Columna eliminada con éxito`, { autoClose: 3000 });
+      };
 
-        socket.on("columnaEliminada", (id) => {
-          setColumns((prevColumns) =>
-            prevColumns.filter((column) => column.id !== id)
+      const handleTareaCreada = (newTask) => {
+        setColumns((prevColumns) => {
+          const data = {
+            metodo: "tareaCreada",
+            task: newTask.task.name,
+            column: newTask.column.name,
+            projectName: project?.name,
+            projectDescription: project?.description,
+          };
+
+          setTaskData(data);
+          setTaskCreated(true);
+          const columnIndex = prevColumns.findIndex(
+            (column) => column.id === newTask.columnId
           );
-          toast.success(`Columna eliminada con éxito`, { autoClose: 3000 });
+
+          if (columnIndex !== -1) {
+            const newColumns = [...prevColumns];
+            newColumns[columnIndex].tasks.push(newTask);
+            return newColumns;
+          }
+
+          return prevColumns;
         });
 
-        // Dentro de tu componente SpaceWork
-        socket.on("tareaCreada", (newTask) => {
-          // Actualizar el estado de las columnas de manera síncrona
-          setColumns((prevColumns) => {
-            const columnIndex = prevColumns.findIndex(
-              (column) => column.id === newTask.columnId
-            );
-
-            if (columnIndex !== -1) {
-              const newColumns = [...prevColumns];
-              newColumns[columnIndex].tasks.push(newTask);
-              return newColumns;
-            }
-
-            return prevColumns;
-          });
-
-          // Mostrar una notificación de éxito
+        // Añadir un flag para prevenir múltiples notificaciones
+        if (!newTask.notificationShown) {
           toast.success(`Tarea Creada con éxito`, { autoClose: 3000 });
+          newTask.notificationShown = true;
+        }
+        setShowDialog(true);
+        setForceUpdate((prev) => !prev);
+      };
 
-          // Forzar un nuevo renderizado del componente
-          setForceUpdate((prev) => !prev);
-        });
+      const handleTareaMovida = (data) => {
+        setColumns((prevColumns) => {
+          const sourceColumnIndex = prevColumns.findIndex(
+            (column) => column.id === data.sourceColumnId
+          );
+          const destinationColumnIndex = prevColumns.findIndex(
+            (column) => column.id === data.destinationColumnId
+          );
 
-        socket.on("tareaMovida", (data) => {
-          // Actualizar el estado de las columnas de manera síncrona
-          setColumns((prevColumns) => {
-            const sourceColumnIndex = prevColumns.findIndex(
-              (column) => column.id === data.sourceColumnId
-            );
-            const destinationColumnIndex = prevColumns.findIndex(
-              (column) => column.id === data.destinationColumnId
-            );
-
-            if (sourceColumnIndex !== -1 && destinationColumnIndex !== -1) {
-              const newColumns = [...prevColumns];
-              const movedTask = newColumns[sourceColumnIndex].tasks.find(
-                (task) => task._id === data.taskId
-              );
-
-              if (movedTask) {
-                newColumns[sourceColumnIndex].tasks = newColumns[
-                  sourceColumnIndex
-                ].tasks.filter((task) => task._id !== data.taskId);
-                newColumns[destinationColumnIndex].tasks.splice(
-                  data.destinationIndex,
-                  0,
-                  movedTask
-                );
-              }
-
-              return newColumns;
-            }
-
-            return prevColumns;
-          });
-
-          // Mostrar una notificación de éxito
-          toast.success(`Tarea Movida con éxito`, { autoClose: 3000 });
-
-          // Forzar un nuevo renderizado del componente
-          setForceUpdate((prev) => !prev);
-        });
-
-        socket.emit("esFavorito", projectId);
-
-        socket.on("tareaBorrada", (data) => {
-          // Actualizar el estado de las columnas de manera síncrona
-          setColumns((prevColumns) => {
-            const columnIndex = prevColumns.findIndex(
-              (column) => column.id === data.columnId
+          if (sourceColumnIndex !== -1 && destinationColumnIndex !== -1) {
+            const newColumns = [...prevColumns];
+            const movedTask = newColumns[sourceColumnIndex].tasks.find(
+              (task) => task._id === data.taskId
             );
 
-            if (columnIndex !== -1) {
-              const newColumns = [...prevColumns];
-              newColumns[columnIndex].tasks = newColumns[
-                columnIndex
+            if (movedTask) {
+              newColumns[sourceColumnIndex].tasks = newColumns[
+                sourceColumnIndex
               ].tasks.filter((task) => task._id !== data.taskId);
-              return newColumns;
+              newColumns[destinationColumnIndex].tasks.splice(
+                data.destinationIndex,
+                0,
+                movedTask
+              );
             }
 
-            return prevColumns;
-          });
+            return newColumns;
+          }
 
-          // Mostrar una notificación de éxito
-          toast.success(`Tarea eliminada con éxito`, { autoClose: 3000 });
-
-          // Forzar un nuevo renderizado del componente
+          return prevColumns;
         });
-      } catch (error) {
-        console.error("Error fetching project data:", error);
-      }
-    };
 
-    fetchProjectData();
-    return () => {
-      socket.off("proyecto");
-      socket.off("columnaCreada");
-      socket.off("columnaEliminada");
-      socket.off("tareaCreada");
-      socket.off("tareaMovida");
-      socket.off("tareaBorrada");
-    };
-  }, [projectId, forceUpdate]);
+        toast.success(`Tarea Movida con éxito`, { autoClose: 3000 });
+        setForceUpdate((prev) => !prev);
+      };
+
+      const handleTareaEliminada = (data) => {
+        setColumns((prevColumns) => {
+          return prevColumns.map((column) => {
+            if (column.id === data.columnId) {
+              return {
+                ...column,
+                taskIds: column.taskIds.filter((id) => id !== data.taskId),
+                tasks: column.tasks.filter((task) => task._id !== data.taskId),
+              };
+            } else {
+              return column;
+            }
+          });
+        });
+
+        toast.success(`Tarea eliminada con éxito`, { autoClose: 3000 });
+      };
+
+      socket.on("respuestaIA", handleRespuestaIA);
+      socket.emit("obtenerProyecto", projectId);
+      socket.on("proyecto", handleProyecto);
+      socket.on("columnaCreada", handleColumnaCreada);
+      socket.on("columnaEliminada", handleColumnaEliminada);
+      socket.on("tareaCreada", handleTareaCreada);
+      socket.on("tareaMovida", handleTareaMovida);
+      socket.emit("esFavorito", projectId);
+      socket.on("tareaEliminada", handleTareaEliminada);
+
+      return () => {
+        socket.off("respuestaIA", handleRespuestaIA);
+        socket.off("proyecto", handleProyecto);
+        socket.off("columnaCreada", handleColumnaCreada);
+        socket.off("columnaEliminada", handleColumnaEliminada);
+        socket.off("tareaCreada", handleTareaCreada);
+        socket.off("tareaMovida", handleTareaMovida);
+        socket.off("tareaEliminada", handleTareaEliminada);
+        socket.off("esFavorito");
+      };
+    }
+  }, [projectId, forceUpdate, project?.name, project?.description, socket]);
+
+  useEffect(() => {
+    if (socket && taskCreated) {
+      console.log("información enviada a la IA", taskData);
+      setLoading(true);
+      socket.emit("obtenerRespuestaIA", taskData);
+      setTaskCreated(false);
+    }
+  }, [socket, taskCreated, taskData]);
+
+  const handleDeleteTask = async (taskId, columnId) => {
+    const socket = io("http://localhost:3000");
+    socket.emit(
+      "eliminarTarea",
+      { taskId, columnId, userEmail: user.email, projectId },
+      (response) => {
+        if (!response.success) {
+          toast.error("Error al eliminar la tarea", { autoClose: 3000 });
+        } else {
+          // Actualizar el estado de la columna después de eliminar la tarea
+          setColumns((prevColumns) => {
+            return prevColumns.map((column) => {
+              if (column.id === columnId) {
+                // Filtra los taskIds para eliminar el taskId dado
+                return {
+                  ...column,
+                  taskIds: column.taskIds.filter((id) => id !== taskId),
+                };
+              } else {
+                return column;
+              }
+            });
+          });
+        }
+      }
+    );
+  };
 
   const handleMenuClick = (id) => {
     setOpenMenuId(id);
@@ -219,6 +293,7 @@ const SpaceWork = ({ projectId }) => {
   };
 
   const handleDeleteColumn = async (id) => {
+    const socket = io("http://localhost:3000");
     socket.emit(
       "eliminarColumna",
       { id, userEmail: user.email, projectId },
@@ -231,6 +306,7 @@ const SpaceWork = ({ projectId }) => {
   };
 
   const onDragEnd = (result) => {
+    const socket = io("http://localhost:3000");
     const { destination, source, draggableId } = result;
 
     if (!destination) {
@@ -325,7 +401,7 @@ const SpaceWork = ({ projectId }) => {
                 </SkeletonTheme>
               ) : (
                 <h1
-                  className={`text-xl text-center p-2 rounded-lg border-2 animate-jump-in shadow-sm ${
+                  className={`text-xl text-center p-2 rounded-lg border-2 animate-jump-in shadow-sm transform transition-all duration-500 ease-in-out ${
                     darkMode ? "text-white bg-gray-700" : "text-black bg-white"
                   }`}
                 >
@@ -365,24 +441,10 @@ const SpaceWork = ({ projectId }) => {
                       <Skeleton circle={true} height={30} width={30} />
                     </SkeletonTheme>
                   ) : (
-                    <div className="bg-gradient-to-r from-red-500 to-pink-500 rounded-full p-2 text-white hover:animate-jump">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"
-                        />
-                      </svg>
-                    </div>
+                    <LinksProyect projectId={projectId} />
                   )}
                 </div>
+
                 <div className="flex  items-center space-x-2 animate-jump-in">
                   {CargaSkeleton ? (
                     <SkeletonTheme
@@ -443,7 +505,7 @@ const SpaceWork = ({ projectId }) => {
                           <div
                             ref={provided.innerRef}
                             {...provided.droppableProps}
-                            className={`rounded-md border-2 p-5 w-80 h-full ${
+                            className={`rounded-md border-2 p-5 w-80 h-full transform transition-all duration-500 ease-in-out ${
                               snapshot.isDraggingOver
                                 ? "bg-gradient-to-r from-red-400 to-pink-400"
                                 : darkMode
@@ -453,7 +515,7 @@ const SpaceWork = ({ projectId }) => {
                           >
                             <div className="flex justify-between">
                               <h2
-                                className={`text-lg font-semibold mb-4 animate-fade-left ${
+                                className={`text-lg font-semibold mb-4 animate-fade-left transform transition-all duration-500 ease-in-out ${
                                   darkMode ? "text-white" : "text-black"
                                 }`}
                               >
@@ -484,7 +546,7 @@ const SpaceWork = ({ projectId }) => {
                                   </button>
                                 ) : (
                                   <button
-                                    className={`text-gray-400 mb-2 animate-jump-in ${
+                                    className={`text-gray-400 mb-2 animate-jump-in transform transition-all duration-500 ease-in-out ${
                                       darkMode ? "text-white" : "text-gray-800"
                                     }`}
                                     onClick={() => handleMenuClick(column)}
@@ -602,7 +664,15 @@ const SpaceWork = ({ projectId }) => {
                                                 <div className="flex-grow min-w-0 break-words">
                                                   <p>{task && task.name}</p>
                                                 </div>
-                                                <button className="opacity-0 group-hover:opacity-100 ml-8 bg-gradient-to-r from-red-500 to-pink-500 rounded-full p-1 text-white transition-all duration-500 ease-in-out">
+                                                <button
+                                                  onClick={() =>
+                                                    handleDeleteTask(
+                                                      taskId,
+                                                      column.id
+                                                    )
+                                                  }
+                                                  className="opacity-0 group-hover:opacity-100 ml-8 bg-gradient-to-r from-red-500 to-pink-500 rounded-full p-1 text-white transition-all duration-500 ease-in-out"
+                                                >
                                                   <svg
                                                     xmlns="http://www.w3.org/2000/svg"
                                                     fill="none"
@@ -694,6 +764,45 @@ const SpaceWork = ({ projectId }) => {
         style={{ width: "300px" }}
         theme={darkMode ? "dark" : "light"}
       />
+      <div
+        className="fixed bottom-5 left-10"
+        onMouseEnter={() => respuestaIA && setShowDialog(true)}
+      >
+        {CargaSkeleton ? (
+          <SkeletonTheme
+            baseColor={darkMode ? "#2D3748" : "#E0E0E0"}
+            highlightColor={darkMode ? "#4A5568" : "#F5F5F5"}
+          >
+            <Skeleton circle={true} height={70} width={70} />
+          </SkeletonTheme>
+        ) : (
+          <div
+            className={`w-20 h-20 overflow-hidden rounded-full flex items-center justify-center border-2 ${
+              darkMode ? "border-gray-800 border-4" : "border-gray-400 border-4"
+            }`}
+          >
+            <img
+              src="../../assets/Robot.gif"
+              className="w-full h-full"
+              alt="Ayudante robot"
+            />
+          </div>
+        )}
+      </div>
+      {showDialog && (
+        <div
+          className={`fixed bottom-24 left-24 p-2 ml-4 overflow-y-auto rounded-md shadow-lg text-justify  transform transition-all duration-500 ease-in-out ${
+            loading ? "w-12 h-12 " : "w-60 h-40"
+          } ${
+            darkMode
+              ? "text-white bg-gray-600 border-4 border-gray-800"
+              : "text-gray-600 bg-gray-100 border-4 border-gray-400"
+          }`}
+          onMouseLeave={() => setShowDialog(false)}
+        >
+          <p className="text-center">{loading ? "..." : dialogContent}</p>
+        </div>
+      )}
     </>
   );
 };

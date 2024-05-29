@@ -67,7 +67,7 @@ export default function NavbarPage() {
 
   return (
     <nav
-      className={`w-full h-16 px-4 flex items-center justify-between z-20 relative ${
+      className={`w-full h-16 px-4 flex items-center justify-between z-20 relative  transform transition-all duration-500 ease-in-out ${
         enabled ? "bg-gray-800" : "bg-transparent"
       }`}
     >

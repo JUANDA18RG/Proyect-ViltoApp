@@ -8,9 +8,12 @@ import Usuario from "./Perfil/Usuario";
 import AreaTrabajo from "./Components/AraTrabajo";
 import { useState, useEffect } from "react";
 import Spinner from "./Perfil/Spinner";
-import socket from "./Sockets";
 import Pago from "./Pagos/Pago";
 import NotFound from "./Components/404";
+import io from "socket.io-client";
+
+// Mover la creación de la conexión de Socket.IO a un nivel superior
+const socket = io("http://localhost:3000", { autoConnect: false });
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -24,17 +27,19 @@ function App() {
   }, []);
 
   useEffect(() => {
+    socket.connect();
+
     socket.on("connect", () => {
       console.log("Conectado al servidor");
     });
+
     socket.on("disconnect", () => {
       console.log("Desconectado del servidor");
-      const lastToDisconnect = new socket.off("/").socket.size == 0;
-      if (lastToDisconnect) {
-        console.log("Reconectando al servidor");
-        socket.connect();
-      }
     });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   return loading ? (

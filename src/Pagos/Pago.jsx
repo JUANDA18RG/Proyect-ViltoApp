@@ -52,6 +52,7 @@ export default function Pago() {
   const handleApprove = async (data, actions) => {
     try {
       await actions.order.capture();
+      // Emitir evento al servidor para actualizar el estado del usuario a premium
       socket.emit("PagoParaPremium", { email: user.email });
       toast.success(`Pago exitoso, ${user.name}. Ahora eres premium.`, {
         autoClose: 5000,
@@ -62,6 +63,7 @@ export default function Pago() {
         progress: undefined,
       });
     } catch (error) {
+      console.error("Error al capturar el pago: ", error);
       toast.error(`Hubo un error al procesar el pago: ${error.message}`, {
         autoClose: 5000,
         hideProgressBar: false,
