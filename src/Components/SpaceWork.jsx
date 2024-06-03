@@ -34,7 +34,7 @@ const SpaceWork = ({ projectId }) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:3000");
+    const newSocket = io(import.meta.env.VITE_BACKEND_URL);
     setSocket(newSocket);
 
     return () => {

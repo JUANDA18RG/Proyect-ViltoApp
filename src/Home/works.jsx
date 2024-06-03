@@ -83,7 +83,7 @@ export default function Works() {
   const auth = useAuth();
 
   useEffect(() => {
-    const socket = io("http://localhost:3000");
+    const socket = io(import.meta.env.VITE_BACKEND_URL);
 
     if (auth.user) {
       const email = auth.user.email;
@@ -101,7 +101,7 @@ export default function Works() {
   }, [auth.user]);
 
   useEffect(() => {
-    const socket = io("http://localhost:3000");
+    const socket = io(import.meta.env.VITE_BACKEND_URL);
 
     if (auth.user) {
       const email = auth.user.email;
@@ -129,7 +129,7 @@ export default function Works() {
   }, [auth.user, works]);
 
   const deleteProject = async (id) => {
-    const socket = io("http://localhost:3000");
+    const socket = io(import.meta.env.VITE_BACKEND_URL);
     socket.emit("eliminarProyecto", id);
 
     setWorks((prevWorks) => prevWorks.filter((work) => work._id !== id));
