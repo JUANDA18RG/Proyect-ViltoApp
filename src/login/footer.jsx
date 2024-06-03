@@ -14,7 +14,7 @@ export const Footer = () => {
             <button
               className="w-8 h-8 rounded-full bg-no-repeat bg-center bg-cover"
               style={{
-                backgroundImage: "url('../../assets/GitHub.png')",
+                backgroundImage: "url('/assets/GitHub.png')",
               }}
             ></button>
           </a>
@@ -29,7 +29,7 @@ export const Footer = () => {
             <button
               className="w-8 h-8 rounded-full bg-no-repeat bg-center bg-cover"
               style={{
-                backgroundImage: "url('../../assets/GitHub.png')",
+                backgroundImage: "url('/assets/GitHub.png')",
               }}
             ></button>
           </a>

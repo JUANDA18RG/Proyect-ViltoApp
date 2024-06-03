@@ -167,7 +167,7 @@ export default function Works() {
       >
         <div
           className="absolute inset-0 bg-bottom bg-no-repeat bg-cover transform rotate-180 opacity-60"
-          style={{ backgroundImage: `url('../../assets/wavesOpacity.svg')` }}
+          style={{ backgroundImage: `url('/assets/wavesOpacity.svg')` }}
         ></div>
         <div className="flex flex-col px-4 md:px-20 absolute inset-0 overflow-y-auto">
           <div className="flex py-8 md:px-14 px-10 text-sm md:text-xl justify-between ml-1">

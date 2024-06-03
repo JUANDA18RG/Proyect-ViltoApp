@@ -2,7 +2,7 @@ import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { useAuth } from "../context/authContext";
 import io from "socket.io-client";
 import { toast } from "react-toastify";
-import Corona from "../../assets/Corona.png";
+import Corona from "/assets/Corona.png";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Spinner from "../Perfil/Spinner";
@@ -91,7 +91,7 @@ export default function Pago() {
             ? "bg-gray-800 opacity-90"
             : "bg-gradient-to-t from-gray-200 to-transparent opacity-70"
         }`}
-        style={{ backgroundImage: `url('../../assets/wavesOpacity.svg')` }}
+        style={{ backgroundImage: `url('/assets/wavesOpacity.svg')` }}
       ></div>
       <button
         onClick={devolver}

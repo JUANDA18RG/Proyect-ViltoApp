@@ -7,7 +7,7 @@ export default function Navbar() {
         <Link to="/">
           <img
             className="w-10 h-10 rounded-md"
-            src="../../assets/Logo.png"
+            src="/assets/Logo.png"
             alt="Workflow"
           />
         </Link>

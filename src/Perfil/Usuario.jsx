@@ -1,7 +1,7 @@
 import { useAuth } from "../context/authContext";
 import ActividadUsuario from "./ActividadUsuario";
 import ProyectosRecientesUsuario from "./ProyectosRecientesUsuario";
-import userImage from "../../assets/user.png";
+import userImage from "/assets/user.png";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Spinner from "../Perfil/Spinner";

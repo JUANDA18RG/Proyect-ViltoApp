@@ -386,7 +386,7 @@ const SpaceWork = ({ projectId }) => {
     <>
       <div
         className="fixed inset-0 bg-bottom bg-no-repeat bg-cover transform rotate-180 opacity-60"
-        style={{ backgroundImage: `url('../../assets/wavesOpacity.svg')` }}
+        style={{ backgroundImage: `url('/assets/wavesOpacity.svg')` }}
       ></div>
       <div className="relative">
         <div className="flex py-10 md:px-20 px-8 justify-between mt-5 ">
@@ -782,7 +782,7 @@ const SpaceWork = ({ projectId }) => {
             }`}
           >
             <img
-              src="../../assets/Robot.gif"
+              src="/assets/Robot.gif"
               className="w-full h-full"
               alt="Ayudante robot"
             />

@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import io from "socket.io-client";
 import { obtenerUrlImagen } from "../firebase/firebase.config";
 import { toast } from "react-toastify";
-import User from "../../assets/user.png";
+import User from "/assets/user.png";
 
 export default function CompartirProyecto({ projectName, projectId }) {
   const [isOpen, setIsOpen] = useState(false);

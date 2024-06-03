@@ -2,11 +2,11 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import { useNavigate } from "react-router-dom";
 import { Menu } from "@headlessui/react";
-import Corona from "../../assets/Corona.png";
+import Corona from "/assets/Corona.png";
 import io from "socket.io-client";
-import logo from "../../assets/Logo.png";
+import logo from "/assets/Logo.png";
 import { useEffect, useState } from "react";
-import userImage from "../../assets/user.png";
+import userImage from "/assets/user.png";
 import { Switch } from "@headlessui/react";
 
 export default function NavbarPage() {

@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 import PropTypes from "prop-types";
 import { useAuth } from "../context/authContext";
 import { obtenerUrlImagen } from "../firebase/firebase.config";
-import User from "../../assets/user.png";
+import User from "/assets/user.png";
 import { Link } from "react-router-dom";
 
 let socket;

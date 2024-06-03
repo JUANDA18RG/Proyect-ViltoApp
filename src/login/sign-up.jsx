@@ -245,13 +245,13 @@ export default function SignUp() {
             muted
             className="absolute w-full h-full object-cover"
           >
-            <source src="../../assets/Register.mp4" type="video/mp4" />
+            <source src="/assets/Register.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
           <div className="absolute w-full h-full bg-gradient-to-t from-gray-900 to-white opacity-50"></div>
           <Link className="z-10" to={"/"}>
             <img
-              src="../../assets/Logo.png"
+              src="/assets/Logo.png"
               alt="Logo"
               className="w-40 h-40 rounded-full mx-auto mt-2 mb-4 animate-jump-in"
             />

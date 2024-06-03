@@ -1,4 +1,4 @@
-import logo from "../../assets/Logo.png";
+import logo from "/assets/Logo.png";
 
 export default function Spinner() {
   return (

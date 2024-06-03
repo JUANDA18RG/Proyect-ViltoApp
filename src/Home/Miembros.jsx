@@ -3,7 +3,7 @@ import io from "socket.io-client";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import { obtenerUrlImagen } from "../firebase/firebase.config";
 import "react-loading-skeleton/dist/skeleton.css";
-import userImage from "../../assets/user.png";
+import userImage from "/assets/user.png";
 
 export default function Miembros() {
   const [darkMode, setDarkMode] = useState(false);
@@ -75,7 +75,7 @@ export default function Miembros() {
     >
       <div
         className="absolute inset-0 bg-bottom bg-no-repeat bg-cover transform rotate-180 opacity-60"
-        style={{ backgroundImage: `url('../../assets/wavesOpacity.svg')` }}
+        style={{ backgroundImage: `url('/assets/wavesOpacity.svg')` }}
       ></div>
       <div className="flex flex-wrap justify-center z-50 mt-10">
         {users.map((user) => (
