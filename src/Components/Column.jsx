@@ -11,7 +11,7 @@ const AddColumn = ({ projectId }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const { user } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
-  const socket = io("http://localhost:3000"); // Inicialización del socket dentro del componente
+  const socket = io(import.meta.env.VITE_BACKEND_URL); // Inicialización del socket dentro del componente
 
   useEffect(() => {
     const saved = localStorage.getItem("darkMode");

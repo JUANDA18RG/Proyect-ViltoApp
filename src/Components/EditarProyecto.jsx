@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import PropTypes from "prop-types";
 
 // Conecta el cliente de socket.io al servidor
-const socket = io("http://localhost:3000");
+const socket = io(import.meta.env.VITE_BACKEND_URL);
 
 export default function EditarProyecto({ project, onUpdate }) {
   const [isEditing, setIsEditing] = useState(false);

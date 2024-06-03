@@ -39,7 +39,7 @@ export default function AraTrabajo() {
   }, [user, navigate, loading]);
 
   useEffect(() => {
-    const socket = io("http://localhost:3000");
+    const socket = io(import.meta.env.VITE_BACKEND_URL);
 
     socket.emit("obtenerProyecto", id);
 

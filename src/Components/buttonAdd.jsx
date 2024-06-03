@@ -35,7 +35,7 @@ export default function ButtonAdd({ setWorks }) {
   }, []);
 
   useEffect(() => {
-    const socket = io("http://localhost:3000");
+    const socket = io(import.meta.env.VITE_BACKEND_URL);
 
     if (auth.user) {
       const email = auth.user.email;

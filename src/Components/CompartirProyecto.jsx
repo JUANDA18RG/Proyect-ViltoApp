@@ -55,7 +55,7 @@ export default function CompartirProyecto({ projectName, projectId }) {
   function openModal() {
     setSearchTerm("");
     setIsOpen(true);
-    socket.current = io("http://localhost:3000");
+    socket.current = io(import.meta.env.VITE_BACKEND_URL);
     socket.current.on("connect", () => {
       console.log("Connected to server");
     });
@@ -105,7 +105,7 @@ export default function CompartirProyecto({ projectName, projectId }) {
   }, [searchResults]);
 
   useEffect(() => {
-    const socket = io.connect("http://localhost:3000");
+    const socket = io.connect(import.meta.env.VITE_BACKEND_URL);
     socket.emit("obtenerProyecto", projectId);
     socket.on("proyecto", (proyecto) => {
       console.log(`Proyecto: ${proyecto.name}`);

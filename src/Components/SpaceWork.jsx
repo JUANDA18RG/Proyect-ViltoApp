@@ -255,7 +255,7 @@ const SpaceWork = ({ projectId }) => {
   }, [socket, taskCreated, taskData]);
 
   const handleDeleteTask = async (taskId, columnId) => {
-    const socket = io("http://localhost:3000");
+    const socket = io(import.meta.env.VITE_BACKEND_URL);
     socket.emit(
       "eliminarTarea",
       { taskId, columnId, userEmail: user.email, projectId },
@@ -293,7 +293,7 @@ const SpaceWork = ({ projectId }) => {
   };
 
   const handleDeleteColumn = async (id) => {
-    const socket = io("http://localhost:3000");
+    const socket = io(import.meta.env.VITE_BACKEND_URL);
     socket.emit(
       "eliminarColumna",
       { id, userEmail: user.email, projectId },
@@ -306,7 +306,7 @@ const SpaceWork = ({ projectId }) => {
   };
 
   const onDragEnd = (result) => {
-    const socket = io("http://localhost:3000");
+    const socket = io(import.meta.env.VITE_BACKEND_URL);
     const { destination, source, draggableId } = result;
 
     if (!destination) {

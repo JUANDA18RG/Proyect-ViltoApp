@@ -27,7 +27,7 @@ export default function ActividadUsuario() {
   }, []);
 
   useEffect(() => {
-    const socket = io("http://localhost:3000"); // Conecta al servidor de socket
+    const socket = io(import.meta.env.VITE_BACKEND_URL); // Conecta al servidor de socket
     socket.emit("obtenerAcciones", { userEmail: user.email }); // Emite el evento 'obtenerAcciones' con el correo electrónico del usuario
 
     socket.on("acciones", (acciones) => {

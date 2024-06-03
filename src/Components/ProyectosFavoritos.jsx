@@ -6,7 +6,7 @@ import { useAuth } from "../context/authContext";
 
 export default function ProyectosFavoritos({ projectId }) {
   const [isFavorite, setIsFavorite] = useState(false);
-  const socket = io("http://localhost:3000");
+  const socket = io(import.meta.env.VITE_BACKEND_URL);
   const { user } = useAuth();
 
   // obtener el correo del usuario

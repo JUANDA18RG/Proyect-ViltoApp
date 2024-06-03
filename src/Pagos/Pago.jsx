@@ -15,7 +15,7 @@ const initialOptions = {
 
 export default function Pago() {
   const { user, loading } = useAuth();
-  const socket = io("http://localhost:3000");
+  const socket = io(import.meta.env.VITE_BACKEND_URL);
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
 

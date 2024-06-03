@@ -4,7 +4,7 @@ import Picker from "emoji-picker-react";
 import io from "socket.io-client";
 import { useAuth } from "../context/authContext";
 
-const socket = io("http://localhost:3000");
+const socket = io(import.meta.env.VITE_BACKEND_URL);
 
 const Task = ({ columnId, projectId }) => {
   const [name, setName] = useState("");

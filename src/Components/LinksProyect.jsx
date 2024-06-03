@@ -29,7 +29,7 @@ export default function LinksProyect({ projectId }) {
   }, []);
 
   useEffect(() => {
-    const socket = io("http://localhost:3000");
+    const socket = io(import.meta.env.VITE_BACKEND_URL);
     socketRef.current = socket;
 
     socket.emit("joinProject", projectId);

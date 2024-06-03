@@ -8,7 +8,7 @@ export default function PersonasActivas({ projectId }) {
   const [imagenesUsuarios, setImagenesUsuarios] = useState({});
 
   useEffect(() => {
-    const socket = io.connect("http://localhost:3000");
+    const socket = io.connect(import.meta.env.VITE_BACKEND_URL);
     socket.emit("obtenerProyecto", projectId);
     socket.on("proyecto", (proyecto) => {
       console.log(`Proyecto: ${proyecto.name}`);

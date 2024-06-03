@@ -4,7 +4,6 @@ import NavbarPage from "./NavbarPage";
 import Menu from "./Menu";
 import Favorites from "./Favorites";
 import Miembros from "./Miembros";
-
 import { useAuth } from "../context/authContext";
 import Spinner from "../Perfil/Spinner";
 import Works from "./works";

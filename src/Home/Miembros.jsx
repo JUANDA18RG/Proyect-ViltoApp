@@ -37,7 +37,7 @@ export default function Miembros() {
   }, []);
 
   useEffect(() => {
-    const socket = io("http://localhost:3000");
+    const socket = io(import.meta.env.VITE_BACKEND_URL);
     socket.emit("obtenerUsuarios");
 
     socket.on("usuarios", async (data) => {

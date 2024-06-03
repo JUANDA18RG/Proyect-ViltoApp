@@ -13,7 +13,7 @@ export default function NavbarPage() {
   const auth = useAuth();
   const navigate = useNavigate();
   const [isPremium, setIsPremium] = useState(false);
-  const socket = io("http://localhost:3000"); // Asegúrate de reemplazar esto con tu URL de servidor
+  const socket = io(import.meta.env.VITE_BACKEND_URL); // Asegúrate de reemplazar esto con tu URL de servidor
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
