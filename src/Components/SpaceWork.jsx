@@ -505,7 +505,7 @@ const SpaceWork = ({ projectId }) => {
                           <div
                             ref={provided.innerRef}
                             {...provided.droppableProps}
-                            className={`rounded-md border-2 p-5 w-80 h-full transform transition-all duration-500 ease-in-out ${
+                            className={`rounded-md border-2 p-5 w-80 h-full  ${
                               snapshot.isDraggingOver
                                 ? "bg-gradient-to-r from-red-400 to-pink-400"
                                 : darkMode
