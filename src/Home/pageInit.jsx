@@ -7,7 +7,7 @@ import Miembros from "./Miembros";
 
 import { useAuth } from "../context/authContext";
 import Spinner from "../Perfil/Spinner";
-import Works from "./Works";
+import Works from "./works";
 
 export default function PageInit() {
   const navigate = useNavigate();

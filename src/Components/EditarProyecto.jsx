@@ -58,13 +58,13 @@ export default function EditarProyecto({ project, onUpdate }) {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="h-8 p-2 mb-2 border-2 border-red-500 rounded"
+            className="h-8 p-2 mb-2 border-2 border-red-500 rounded bg-gray-200 items-center justify-center text-gray-800"
             placeholder="Nombre del proyecto"
           />
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="h-14 p-2 mb-2 border-2 border-red-500 rounded resize-none"
+            className="h-14 p-2 mb-2 border-2 border-red-500 rounded resize-none bg-gray-200 items-center justify-center text-gray-800"
             placeholder="Descripción del proyecto"
           />
           <button

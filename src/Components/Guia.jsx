@@ -37,48 +37,55 @@ export default function MyModal() {
     Uso: [
       {
         id: 1,
-        title: "Does drinking coffee make you smarter?",
-        date: "5h ago",
-        commentCount: 5,
-        shareCount: 2,
+        title: "Crear Columnas",
+        Descripcion:
+          " Para crear una columna, haga clic en el botón 'Añadir columna' en la parte derecha de la pantalla. Luego, escriba el nombre de la columna y presione Enter.",
       },
       {
         id: 2,
-        title: "So you've bought coffee... now what?",
-        date: "2h ago",
-        commentCount: 3,
-        shareCount: 2,
+        title: "Crear Tareas",
+        Descripcion:
+          "Para crear una tarea, haga clic en el botón 'Añadir tarea' en la parte inferior de la columna. Luego, escriba el nombre de la tarea y presione Enter.",
+      },
+      {
+        id: 3,
+        title: "Mover Tareas",
+        Descripcion:
+          "Para mover una tarea, haga clic en la tarea y arrástrela a la columna deseada.",
       },
     ],
     Opciones: [
       {
         id: 1,
-        title: "Las opciones de  ViltoApp",
+        title: "Agregar miembros al tablero",
         Descripcion:
-          "1. Crear Tareas  2. Crear Columnas de eventos 3. poder mover las tareas 4. poedr eliminar columnas o tareas 5. poder hacer todo esto con tu grupo de trabajp",
+          "Para agregar miembros al tablero, haga clic en el botón 'Agregar miembros' en la parte superior derecha de la pantalla. Luego, escriba el correo electrónico del miembro y presione Enter.",
       },
       {
         id: 2,
-        title: "The most innovative things happening in coffee",
-        date: "Mar 19",
-        commentCount: 24,
-        shareCount: 12,
+        title: "Poder Eliminar Tareas y Columnas",
+        Descripcion:
+          "Para eliminar una tarea o columna, haga clic en el icono de la papelera en la parte superior derecha de la tarea o columna.",
       },
     ],
-    Ajustes: [
+    Mensajes: [
       {
         id: 1,
-        title: "Ask Me Anything: 10 answers to your questions about coffee",
-        date: "2d ago",
-        commentCount: 9,
-        shareCount: 5,
+        title: "Chat en tiempo real",
+        Descripcion:
+          "Para chatear en tiempo real con los miembros del tablero, haga clic en el botón 'Chat' en la parte inferior derecha de la pantalla.",
       },
       {
         id: 2,
-        title: "The worst advice we've ever heard about coffee",
-        date: "4d ago",
-        commentCount: 1,
-        shareCount: 2,
+        title: "Notificaciones en tiempo real",
+        Descripcion:
+          "Para recibir notificaciones en tiempo real, haga clic en el botón 'Notificaciones' en la parte inferior derecha de la pantalla.",
+      },
+      {
+        id: 3,
+        title: "Comentarios IA",
+        Descripcion:
+          "Cuando se crea una tarea o columna nueva, la IA de ViltoApp generará automáticamente comentarios con sugerencias y consejos para mejorar la productividad.",
       },
     ],
   });

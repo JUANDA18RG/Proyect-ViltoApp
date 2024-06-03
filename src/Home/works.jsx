@@ -161,7 +161,7 @@ export default function Works() {
       <div
         className={`w-4/5 h-screen overflow-y-auto mt-2 relative animate-fade-up ${
           darkMode
-            ? "bg-gray-500 "
+            ? "bg-gray-900 text-white"
             : "bg-gradient-to-t from-gray-200 to-transparent"
         }`}
       >
@@ -261,7 +261,7 @@ export default function Works() {
                         key={work._id}
                         className={`relative flex flex-col items-center justify-center w-64 h-60 m-5 rounded-lg transform transition-all duration-200 ease-in ${
                           darkMode
-                            ? "bg-gray-400 border-white border-4"
+                            ? "bg-gray-500 border-white border-4"
                             : "bg-gray-100 border-white border-4"
                         } transform hover:shadow-xl mb-20 ${
                           hoveredCardId === work._id ? "hovered-card" : ""
@@ -411,7 +411,9 @@ export default function Works() {
                           <Link to={`/AreaTrabajo/${work._id}`}>
                             <div className="flex flex-col items-center justify-center w-full h-full">
                               <h1 className="text-lg font-bold">{work.name}</h1>
-                              <p className="text-sm">{work.description}</p>
+                              <p className="text-sm text-gray-400">
+                                {work.description}
+                              </p>
                             </div>
                           </Link>
                         )}

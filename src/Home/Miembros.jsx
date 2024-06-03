@@ -83,7 +83,7 @@ export default function Miembros() {
             key={user._id}
             className={`m-6 w-64 shadow-lg rounded-lg overflow-hidden transform transition-all duration-500 ease-in-out ${
               darkMode
-                ? "bg-gray-700 text-white border-2"
+                ? "bg-gray-600 text-white border-2"
                 : "bg-white text-black border-2"
             } hover:scale-105`}
           >
@@ -108,7 +108,7 @@ export default function Miembros() {
                   <h3 className="text-lg font-semibold truncate">
                     {user.name}
                   </h3>
-                  <p className="mt-2 text-sm text-gray-500 truncate">
+                  <p className="mt-2 text-sm text-gray-400 truncate">
                     {user.email}
                   </p>
                 </div>
