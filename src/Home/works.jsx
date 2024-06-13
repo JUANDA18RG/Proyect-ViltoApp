@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import EditarProyecto from "../Components/EditarProyecto";
+import CrearProyectIA from "../Components/CrearProyectIA";
 
 export default function Works() {
   const [works, setWorks] = useState([]);
@@ -170,8 +171,8 @@ export default function Works() {
           style={{ backgroundImage: `url('/assets/wavesOpacity.svg')` }}
         ></div>
         <div className="flex flex-col px-4 md:px-20 absolute inset-0 overflow-y-auto">
-          <div className="flex py-8 md:px-14 px-10 text-sm md:text-xl justify-between ml-1">
-            <div className="flex m-2">
+          <div className="flex py-8 md:px-14 px-10 text-sm md:text-xl justify-between m-2">
+            <div className="flex justify-between space-x-8">
               {loadingSkeleton ? (
                 <SkeletonTheme
                   baseColor={darkMode ? "#3D4451" : "#D0D0D0"}
@@ -179,17 +180,19 @@ export default function Works() {
                 >
                   <div className="flex space-x-4">
                     <Skeleton width={100} height={40} radius={25} />
+                    <Skeleton width={100} height={40} radius={25} />
                     <Skeleton width={200} height={40} radius={25} />
                   </div>
                 </SkeletonTheme>
               ) : (
                 <>
                   <ButtonAdd setWorks={setWorks} />
+                  <CrearProyectIA setWorks={setWorks} />
                   <p
-                    className={`ml-5 text-center mt-1 text-base p-1 border-2 shadow-sm ${
+                    className={`ml-5 text-center mt-1 text-sm p-1 border-2 shadow-sm transition-all duration-200 ease-in ${
                       darkMode
-                        ? "text-white bg-gray-600"
-                        : "text-gray-600 bg-gray-200 border-gray-300 opacity-70"
+                        ? "text-white bg-gray-700 bg-opacity-70"
+                        : "text-gray-800 bg-gray-200 bg-opacity-70"
                     } items-center rounded-lg`}
                   >
                     Tu cuenta es gratuita, solo puedes crear 6 proyectos.
@@ -259,7 +262,7 @@ export default function Works() {
                   : [...works].reverse().map((work) => (
                       <motion.div
                         key={work._id}
-                        className={`relative flex flex-col items-center justify-center w-64 h-60 m-5 rounded-lg transform transition-all duration-200 ease-in ${
+                        className={`relative flex flex-col items-center justify-center w-64 h-60 m-5 rounded-lg transform transition-all duration-100 ease-in ${
                           darkMode
                             ? "bg-gray-500 border-white border-4"
                             : "bg-gray-100 border-white border-4"

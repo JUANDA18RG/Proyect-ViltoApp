@@ -791,7 +791,7 @@ const SpaceWork = ({ projectId }) => {
       </div>
       {showDialog && (
         <div
-          className={`fixed bottom-24 left-24 p-2 ml-4 overflow-y-auto rounded-md shadow-lg text-justify  transform transition-all duration-500 ease-in-out ${
+          className={`fixed bottom-24 left-24 p-2 ml-4 overflow-y-auto rounded-md shadow-lg text-justify  transform transition-all duration-200 ease-in-out ${
             loading ? "w-12 h-12 " : "w-60 h-40"
           } ${
             darkMode
