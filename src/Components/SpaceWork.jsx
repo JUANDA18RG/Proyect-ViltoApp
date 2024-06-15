@@ -415,7 +415,7 @@ const SpaceWork = ({ projectId }) => {
                       baseColor={darkMode ? "#2D3748" : "#E0E0E0"}
                       highlightColor={darkMode ? "#4A5568" : "#F5F5F5"}
                     >
-                      <Skeleton circle={true} height={30} width={30} />
+                      <Skeleton circle={true} height={40} width={40} />
                     </SkeletonTheme>
                   ) : (
                     <ProyectosFavoritos projectId={projectId} />
@@ -425,7 +425,7 @@ const SpaceWork = ({ projectId }) => {
                       baseColor={darkMode ? "#2D3748" : "#E0E0E0"}
                       highlightColor={darkMode ? "#4A5568" : "#F5F5F5"}
                     >
-                      <Skeleton circle={true} height={30} width={30} />
+                      <Skeleton circle={true} height={40} width={40} />
                     </SkeletonTheme>
                   ) : (
                     <ButtonChat
@@ -438,7 +438,7 @@ const SpaceWork = ({ projectId }) => {
                       baseColor={darkMode ? "#2D3748" : "#E0E0E0"}
                       highlightColor={darkMode ? "#4A5568" : "#F5F5F5"}
                     >
-                      <Skeleton circle={true} height={30} width={30} />
+                      <Skeleton circle={true} height={40} width={40} />
                     </SkeletonTheme>
                   ) : (
                     <LinksProyect projectId={projectId} />
@@ -739,12 +739,14 @@ const SpaceWork = ({ projectId }) => {
                     </div>
                   </div>
                 ) : CargaSkeleton ? (
-                  <SkeletonTheme
-                    baseColor={darkMode ? "#3D4451" : "#D0D0D0"}
-                    highlightColor={darkMode ? "#5A6270" : "#C0C0C0"}
-                  >
-                    <Skeleton width={150} height={40} radius={25} />
-                  </SkeletonTheme>
+                  <div className="flex justify-center items-center h-full">
+                    <SkeletonTheme
+                      baseColor={darkMode ? "#3D4451" : "#D0D0D0"}
+                      highlightColor={darkMode ? "#5A6270" : "#C0C0C0"}
+                    >
+                      <Skeleton width={150} height={40} radius={25} />
+                    </SkeletonTheme>
+                  </div>
                 ) : (
                   <AddColumn projectId={projectId} />
                 )}
@@ -791,7 +793,7 @@ const SpaceWork = ({ projectId }) => {
       </div>
       {showDialog && (
         <div
-          className={`fixed bottom-24 left-24 p-2 ml-4 overflow-y-auto rounded-md shadow-lg text-justify  transform transition-all duration-200 ease-in-out ${
+          className={`fixed bottom-24 left-24 p-2 ml-4 overflow-y-auto rounded-md shadow-lg text-justify transition-all duration-100 ease-in-out transform ${
             loading ? "w-12 h-12 " : "w-60 h-40"
           } ${
             darkMode
