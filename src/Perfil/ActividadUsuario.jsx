@@ -59,7 +59,7 @@ export default function ActividadUsuario() {
             darkMode ? "text-white" : "text-gray-900"
           }`}
         >
-          Tus últimas acciones
+          Your last actions
         </h2>
         {acciones.length > 0 ? (
           <div className="space-y-6 overflow-auto max-h-80">
@@ -85,7 +85,7 @@ export default function ActividadUsuario() {
         ) : (
           <div className="flex justify-center items-center h-full">
             <p className="text-gray-500 text-center flex">
-              No hay acciones disponibles.
+              There are no actions available.
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"

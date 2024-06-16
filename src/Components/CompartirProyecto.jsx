@@ -144,9 +144,7 @@ export default function CompartirProyecto({ projectName, projectId }) {
           onClick={openModal}
           key={projectId}
         >
-          <span className="hidden md:inline text-lg md:text-sm ">
-            Compartir
-          </span>
+          <span className="hidden md:inline text-lg md:text-sm ">Share</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -211,9 +209,7 @@ export default function CompartirProyecto({ projectName, projectId }) {
                           : "text-black bg-white"
                       }`}
                     >
-                      <span>
-                        Compartir el proyecto {projectName} con otros usuarios
-                      </span>
+                      <span>Share project {projectName} with other users</span>
                     </h1>
                   </Dialog.Title>
                   <div className="mt-4">
@@ -222,7 +218,7 @@ export default function CompartirProyecto({ projectName, projectId }) {
                       value={selectedUserEmail || searchTerm}
                       onChange={handleSearchChange}
                       className="w-full p-2 border-2 focus:border-red-500 focus:ring-red-500 focus:ring-opacity-50 rounded-md"
-                      placeholder="Buscar usuarios..."
+                      placeholder="Search users..."
                     />
                     {searchTerm && (
                       <div
@@ -274,17 +270,16 @@ export default function CompartirProyecto({ projectName, projectId }) {
                           ))
                         ) : (
                           <p className="text-red-500 text-sm m-2 animate-fade-right flex items-center justify-center h-full">
-                            No se encontró ningún usuario.
+                            No user found.
                           </p>
                         )}
                       </div>
                     )}
 
                     <p className="text-sm text-gray-500 text-justify mt-5">
-                      En esta sección puedes buscar a los usuarios que deseas
-                      agregar al proyecto puedes agregar a cualquier usuario que
-                      este registrado en la plataforma y que no este ya en el
-                      proyecto
+                      In this section you can search for the users you want add
+                      to project you can add any user who is registered on the
+                      platform and is not already in the project
                     </p>
                   </div>
                   <div className="mt-6 items-center justify-center text-center">
@@ -293,7 +288,7 @@ export default function CompartirProyecto({ projectName, projectId }) {
                       className="inline-flex justify-center bg-gradient-to-r from-red-500 to-pink-500 shadow-md text-white rounded-md p-2 "
                       onClick={handleAddUserClick}
                     >
-                      Agregar Usuario
+                      Add User
                     </button>
                   </div>
                 </Dialog.Panel>

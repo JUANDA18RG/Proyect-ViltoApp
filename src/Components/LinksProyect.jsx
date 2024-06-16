@@ -170,7 +170,7 @@ export default function LinksProyect({ projectId }) {
                           : "text-black bg-white"
                       }`}
                     >
-                      Sección Para Links de Información del Proyecto
+                      Section for Project Information Links
                     </span>
                   </Dialog.Title>
                   <div className="mt-6 space-y-4 h-60 overflow-y-auto overflow-x-hidden">
@@ -182,7 +182,7 @@ export default function LinksProyect({ projectId }) {
                             : "text-black bg-gray-200"
                         }`}
                       >
-                        No hay links agregados
+                        There are no links added
                       </div>
                     ) : (
                       links.map((link, index) => (
@@ -226,14 +226,14 @@ export default function LinksProyect({ projectId }) {
                       type="text"
                       value={newLink}
                       onChange={(e) => setNewLink(e.target.value)}
-                      placeholder="Ingresar nuevo link"
+                      placeholder="Enter new link"
                       className="p-2 border rounded-md flex-grow focus:outline-none focus:border-red-500"
                     />
                     <button
                       onClick={handleAddLink}
                       className="ml-2 p-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-md shadow-md "
                     >
-                      Agregar Link
+                      Add Link
                     </button>
                   </div>
                   <div className="mt-6 flex justify-center">
@@ -242,7 +242,7 @@ export default function LinksProyect({ projectId }) {
                       className="inline-flex justify-center rounded-md border border-transparent bg-gradient-to-r from-red-500 to-pink-500 px-4 py-2 text-sm font-medium text-white "
                       onClick={closeModal}
                     >
-                      Cerrar
+                      Close
                     </button>
                   </div>
                 </Dialog.Panel>

@@ -71,7 +71,7 @@ export default function VisitasUsuario() {
             darkMode ? "text-white" : "text-gray-900"
           }`}
         >
-          Movimientos Generales del Usuario
+          General User Movements
         </h2>
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={data}>

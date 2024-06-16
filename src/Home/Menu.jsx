@@ -52,7 +52,7 @@ export default function Menu({ onMenuItemChange }) {
           }`}
         >
           <span className="flex">
-            Proyectos
+            Projects
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -78,7 +78,7 @@ export default function Menu({ onMenuItemChange }) {
           }`}
         >
           <span className="flex">
-            destacados
+            featured
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -104,7 +104,7 @@ export default function Menu({ onMenuItemChange }) {
           }`}
         >
           <span className="flex">
-            Miembros{" "}
+            Members{" "}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -123,7 +123,7 @@ export default function Menu({ onMenuItemChange }) {
         </button>
       </div>
       <Link className="flex items-center justify-center pb-20 text-sm">
-        <p className="text-gray-400">Términos y Condiciones</p>
+        <p className="text-gray-400">Terms and Conditions</p>
       </Link>
     </div>
   );

@@ -53,25 +53,25 @@ export default function EditarProyecto({ project, onUpdate }) {
     <div>
       {isEditing ? (
         <div className="flex flex-col items-center p-4">
-          <h2 className="text-md font-semibold mb-2">Editar proyecto</h2>
+          <h2 className="text-md font-semibold mb-2">Edit project</h2>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="h-8 p-2 mb-2 border-2 border-red-500 rounded bg-gray-200 items-center justify-center text-gray-800"
-            placeholder="Nombre del proyecto"
+            placeholder="Project's name"
           />
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="h-14 p-2 mb-2 border-2 border-red-500 rounded resize-none bg-gray-200 items-center justify-center text-gray-800"
-            placeholder="Descripción del proyecto"
+            placeholder="Project description"
           />
           <button
             onClick={handleSaveClick}
             className="flex items-center p-1 bg-gradient-to-r from-red-500 to-pink-500 rounded-md text-white"
           >
-            <span className="text-sm">Guardar</span>
+            <span className="text-sm">Save</span>
           </button>
         </div>
       ) : (

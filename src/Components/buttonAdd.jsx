@@ -120,9 +120,7 @@ export default function ButtonAdd({ setWorks }) {
         onClick={openModal}
         className="relative flex items-center justify-center space-x-2 md:space-x-2  bg-gradient-to-r from-red-500 to-pink-500 rounded-md p-2 text-white hover:animate-jump z-10 mr-2"
       >
-        <span className="hidden md:inline text-sm md:text-sm">
-          Agregar Proyecto
-        </span>
+        <span className="hidden md:inline text-sm md:text-sm">Add Project</span>
         <div className="md:flex items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -190,15 +188,15 @@ export default function ButtonAdd({ setWorks }) {
                             : "bg-white text-gray-900"
                         }`}
                       >
-                        Crear Proyecto
+                        Create Project
                       </span>
                     </h1>
                   </Dialog.Title>
                   <div className="mt-6 mb-5">
                     <p className="text-sm text-gray-500 text-justify">
-                      aqui puedes crear un nuevo proyecto colaborativo, solo
-                      necesitas un nombre y una descripcion de tu proyecto para
-                      empezar a trabajar.
+                      here you can create a new collaborative project, alone you
+                      need a name and description of your project to start to
+                      work.
                     </p>
                   </div>
                   <div
@@ -212,13 +210,13 @@ export default function ButtonAdd({ setWorks }) {
                           darkMode ? "text-white" : "text-gray-800"
                         }`}
                       >
-                        Nombre del Proyecto:
+                        Project name:
                       </span>
                       <input
                         id="projectTitle"
                         type="text"
                         className="p-2 w-full border-2 rounded-lg bg-gray-100 border-red-500 focus:ring-red-500 focus:ring-opacity-50 mr-2 shadow-md"
-                        placeholder="Nombre del Proyecto"
+                        placeholder="Project's name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         required
@@ -230,13 +228,13 @@ export default function ButtonAdd({ setWorks }) {
                           darkMode ? "text-white" : "text-gray-800"
                         }`}
                       >
-                        Descripcion del Proyecto:
+                        Project description:
                       </span>
                       <input
                         id="projectDescription"
                         type="text"
                         className="p-2 w-full border-2 rounded-lg bg-gray-100 border-red-500 focus:ring-red-500 focus:ring-opacity-50 mr-2 shadow-md"
-                        placeholder="Descripcion del Proyecto"
+                        placeholder="Project description"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                       />
@@ -253,7 +251,7 @@ export default function ButtonAdd({ setWorks }) {
                       className="inline-flex justify-center bg-gradient-to-r from-red-500 to-pink-500 shadow-md text-white rounded-md p-2"
                       onClick={handleSubmit}
                     >
-                      Crear Proyecto
+                      Create Project
                     </button>
                   </div>
                 </Dialog.Panel>

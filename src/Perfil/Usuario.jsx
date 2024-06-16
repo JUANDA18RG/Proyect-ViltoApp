@@ -143,7 +143,7 @@ export default function Usuario() {
           </SkeletonTheme>
         ) : (
           <button className="bg-gradient-to-r from-red-500 to-pink-500 text-white py-2 px-4 rounded-md mb-6 hover:animate-jump">
-            Gestionar Cuenta
+            Manage Account
           </button>
         )}
       </div>

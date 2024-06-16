@@ -107,16 +107,16 @@ export default function GuiaInicio() {
                           darkMode ? "bg-gray-700" : "bg-white"
                         }`}
                       >
-                        Bienvenidos a ViltoApp
+                        Welcome to ViltoApp
                       </span>
                     </h1>
                   </Dialog.Title>
                   <div className="mt-6">
                     <p className="text-sm text-gray-500 text-justify">
-                      Esta es tu area de trabajo, aqui podras ver tus proyectos
-                      activos y tambien donde podras crear nuevos proyectos y
-                      poder modificar los proyectos ya existentes en tu cuenta
-                      de ViltoApp.
+                      This is your work area, here you can see your projects
+                      assets and also where you can create new projects and be
+                      able to modify existing projects in your account by
+                      ViltoApp.
                     </p>
                   </div>
 
@@ -126,7 +126,7 @@ export default function GuiaInicio() {
                       className="inline-flex justify-center bg-gradient-to-r from-red-500 to-pink-500 shadow-md text-white rounded-md p-2"
                       onClick={closeModal}
                     >
-                      Entendido
+                      Ok, I understand
                     </button>
                   </div>
                 </Dialog.Panel>

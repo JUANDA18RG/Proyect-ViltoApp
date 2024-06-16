@@ -127,7 +127,7 @@ export default function Pago() {
               darkMode ? "text-white" : "text-gray-500"
             }`}
           >
-            Realiza tu pago para pasarte a premium en{" "}
+            Make your payment to upgrade to premium at{" "}
             <span className="text-white bg-gradient-to-r from-red-500 to-pink-500 p-1 text-xl rounded-lg">
               ViltoApp
             </span>

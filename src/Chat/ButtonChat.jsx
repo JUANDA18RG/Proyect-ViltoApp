@@ -176,7 +176,7 @@ export default function ButtonChat({ projectId, projectName }) {
           >
             <div className="relative rounded-md mb-2">
               <h1 className="relative text-xl text-center text-white p-2 flex bg-gradient-to-r from-red-500 to-pink-500 rounded-lg opacity-75">
-                Salir del Chat
+                Exit Chat
               </h1>
             </div>
           </div>
@@ -203,21 +203,23 @@ export default function ButtonChat({ projectId, projectName }) {
                     darkMode ? "text-white" : "text-gray-900"
                   }`}
                 >
-                  <span
-                    className={`rounded-md p-2 ${
-                      darkMode
-                        ? "bg-gradient-to-r from-red-500 to-pink-500 text-white"
-                        : "bg-gradient-to-r from-red-500 to-pink-500 text-white"
-                    }`}
-                  >
-                    {projectName}
-                  </span>{" "}
-                  - Chat del Proyecto
+                  <div className="flex items-center text-xl justify-center space-x-3 m-2">
+                    <span
+                      className={`rounded-md p-2 ${
+                        darkMode
+                          ? "bg-gradient-to-r from-red-500 to-pink-500 text-white"
+                          : "bg-gradient-to-r from-red-500 to-pink-500 text-white"
+                      } max-w-md truncate`}
+                    >
+                      {projectName}
+                    </span>
+                    <span className="m-1">-</span>
+                    <span className="m-1">Project Chat</span>
+                  </div>
                 </h1>
                 <p className="text-sm text-gray-500 leading-relaxed mt-5">
-                  Aquí puedes hablar con tus compañeros de proyecto. Esta
-                  herramienta facilita la colaboración, haciendo el trabajo más
-                  divertido y rápido.
+                  Here you can talk to your project colleagues. This tool
+                  facilitates collaboration, making work more fun and fast.
                 </p>
               </Dialog.Title>
               <div
@@ -232,7 +234,7 @@ export default function ButtonChat({ projectId, projectName }) {
                         darkMode ? "text-white" : "text-black"
                       }`}
                     >
-                      No hay mensajes de los integrantes del proyecto por ahora
+                      There are no messages from the project members for now
                     </p>
                   </div>
                 ) : (
@@ -304,7 +306,7 @@ export default function ButtonChat({ projectId, projectName }) {
                   type="submit"
                   className="mt-3 bg-gradient-to-r from-red-500 to-pink-500 ml-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-full text-white items-center mb-4"
                 >
-                  Enviar
+                  Send
                 </button>
               </form>
               {error && (

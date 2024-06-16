@@ -152,7 +152,7 @@ const Task = ({ columnId, projectId }) => {
           onClick={() => setAddingTask(true)}
           className="bg-gray-300 text-center items-center p-2 rounded-md flex text-gray-600 text-sm opacity-70 mb-4"
         >
-          Agregar Tarea
+          Add Task
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

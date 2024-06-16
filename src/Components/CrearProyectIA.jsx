@@ -102,7 +102,7 @@ export default function CrearProyectIA({ setWorks }) {
         className="bg-gradient-to-bl from-red-500 to-pink-500 rounded-md text-white hover:animate-jump z-10 ml-5 relative flex items-center justify-center space-x-2 md:space-x-2 p-2"
       >
         <span className="hidden md:inline text-sm md:text-sm">
-          Crear Proyecto con IA
+          Create Project with AI
         </span>
         <div className="md:flex items-center">
           <svg
@@ -170,15 +170,16 @@ export default function CrearProyectIA({ setWorks }) {
                             : "bg-white text-gray-900"
                         }`}
                       >
-                        Crear Proyecto con IA
+                        Create Project with AI
                       </span>
                     </h1>
                   </Dialog.Title>
                   <div className="mt-6 mb-5">
                     <p className="text-sm text-gray-500 text-justify">
-                      Aquí puedes crear un proyecto con inteligencia artificial.
-                      Da una descripción clara y acertada para que la IA te cree
-                      el proyecto y solo tengas que trabajar en él.
+                      Here you can create a project with artificial
+                      intelligence. Give a clear and accurate description so
+                      that the AI believes you the project and you just have to
+                      work on it.
                     </p>
                   </div>
                   <div
@@ -192,13 +193,13 @@ export default function CrearProyectIA({ setWorks }) {
                           darkMode ? "text-white" : "text-gray-800"
                         }`}
                       >
-                        Descripción del Proyecto:
+                        Project description:
                       </span>
                       <textarea
                         className="w-full p-2 rounded-md shadow-md border-2 resize-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Descripción del Proyecto"
+                        placeholder="Project description..."
                       />
                     </div>
                   </div>
@@ -233,7 +234,7 @@ export default function CrearProyectIA({ setWorks }) {
                         className="inline-flex justify-center bg-gradient-to-r from-red-500 to-pink-500 shadow-md text-white rounded-md p-2"
                         onClick={handleSubmit}
                       >
-                        Crear Proyecto con IA
+                        Create Project with AI
                       </button>
                     )}
                   </div>

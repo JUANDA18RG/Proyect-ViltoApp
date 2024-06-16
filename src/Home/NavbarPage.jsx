@@ -105,7 +105,7 @@ export default function NavbarPage() {
               alt="Corona"
               className="absolute top-0 left-0 transform -translate-x-1/2 -translate-y-1/2 w-10 h-8 -rotate-45 "
             />
-            <span className="mr-2 ml-2 font-semibold">Obtener Premium</span>
+            <span className="mr-2 ml-2 font-semibold">Get Premium</span>
           </Link>
         )}
         <Switch
@@ -211,7 +211,7 @@ export default function NavbarPage() {
                         active && "bg-white text-white"
                       }`}
                     >
-                      Perfil
+                      Profile
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -237,7 +237,7 @@ export default function NavbarPage() {
                       }`}
                       href="/"
                     >
-                      Ajustes
+                      Settings
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -267,14 +267,14 @@ export default function NavbarPage() {
                         className={`h-10 flex items-center px-2 text-sm rounded-md${active} justify-between`}
                         onClick={handleLogout}
                       >
-                        Cerrar Sesión
+                        Sign off
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
                           viewBox="0 0 24 24"
                           strokeWidth={1.5}
                           stroke="currentColor"
-                          className="w-6 h-6 m-1 ml-10"
+                          className="w-6 h-6 m-1 ml-20"
                         >
                           <path
                             strokeLinecap="round"

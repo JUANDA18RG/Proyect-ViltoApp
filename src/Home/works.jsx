@@ -195,7 +195,7 @@ export default function Works() {
                         : "text-gray-800 bg-gray-200 bg-opacity-70"
                     } items-center rounded-lg`}
                   >
-                    Tu cuenta es gratuita, solo puedes crear 6 proyectos.
+                    Your account is free, you can only create 6 projects.
                   </p>
                 </>
               )}

@@ -34,58 +34,58 @@ export default function MyModal() {
   }
 
   let [Ayuda] = useState({
-    Uso: [
+    Use: [
       {
         id: 1,
-        title: "Crear Columnas",
+        title: "Create Columns",
         Descripcion:
-          " Para crear una columna, haga clic en el botón 'Añadir columna' en la parte derecha de la pantalla. Luego, escriba el nombre de la columna y presione Enter.",
+          "To create a column, click the 'Add Column' button on the right side of the screen. Then, type the column name and press Enter.",
       },
       {
         id: 2,
-        title: "Crear Tareas",
+        title: "Create Tasks",
         Descripcion:
-          "Para crear una tarea, haga clic en el botón 'Añadir tarea' en la parte inferior de la columna. Luego, escriba el nombre de la tarea y presione Enter.",
+          "To create a task, click the 'Add Task' button at the bottom of the column. Then, type the name of the task and press Enter.",
       },
       {
         id: 3,
-        title: "Mover Tareas",
+        title: "Move Tasks",
         Descripcion:
-          "Para mover una tarea, haga clic en la tarea y arrástrela a la columna deseada.",
+          "To move a task, click on the task and drag it to the desired column.",
       },
     ],
-    Opciones: [
+    Options: [
       {
         id: 1,
-        title: "Agregar miembros al tablero",
+        title: "Add members to the board",
         Descripcion:
-          "Para agregar miembros al tablero, haga clic en el botón 'Agregar miembros' en la parte superior derecha de la pantalla. Luego, escriba el correo electrónico del miembro y presione Enter.",
+          "To add members to the board, click the 'Add Members' button at the top right of the screen. Then, type the member's email and press Enter.",
       },
       {
         id: 2,
-        title: "Poder Eliminar Tareas y Columnas",
+        title: "Being able to Delete Tasks and Columns",
         Descripcion:
-          "Para eliminar una tarea o columna, haga clic en el icono de la papelera en la parte superior derecha de la tarea o columna.",
+          "To delete a task or column, click the trash icon at the top right of the task or column.",
       },
     ],
-    Mensajes: [
+    Messages: [
       {
         id: 1,
-        title: "Chat en tiempo real",
+        title: "Real-time chat",
         Descripcion:
-          "Para chatear en tiempo real con los miembros del tablero, haga clic en el botón 'Chat' en la parte inferior derecha de la pantalla.",
+          "To chat in real time with board members, click the 'Chat' button at the bottom right of the screen.",
       },
       {
         id: 2,
-        title: "Notificaciones en tiempo real",
+        title: "Real-time notifications",
         Descripcion:
-          "Para recibir notificaciones en tiempo real, haga clic en el botón 'Notificaciones' en la parte inferior derecha de la pantalla.",
+          "To receive real-time notifications, click the 'Notifications' button at the bottom right of the screen.",
       },
       {
         id: 3,
-        title: "Comentarios IA",
+        title: "IA Comments",
         Descripcion:
-          "Cuando se crea una tarea o columna nueva, la IA de ViltoApp generará automáticamente comentarios con sugerencias y consejos para mejorar la productividad.",
+          "When a new task or column is created, ViltoApp's AI will automatically generate comments with suggestions and tips to improve productivity.",
       },
     ],
   });
@@ -162,7 +162,7 @@ export default function MyModal() {
                           : "text-black bg-white"
                       }`}
                     >
-                      <span>Guia de uso para el tablero de ViltoApp</span>
+                      <span>User guide for the ViltoApp dashboard</span>
                     </h1>
                   </Dialog.Title>
                   <div className="mt-2">
@@ -230,7 +230,7 @@ export default function MyModal() {
                       className="rounded-md px-4 py-2 text-sm text-white bg-gradient-to-r from-red-500 to-pink-500"
                       onClick={closeModal}
                     >
-                      Entendido
+                      Ok I got it!
                     </button>
                   </div>
                 </Dialog.Panel>
