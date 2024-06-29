@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import Spinner from "../Perfil/Spinner";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import ValoracionIA from "./ValoracionIA";
 
 export default function Usuario() {
   const { user, loading } = useAuth();
@@ -142,9 +143,7 @@ export default function Usuario() {
             <Skeleton width={200} height={50} radius={25} />
           </SkeletonTheme>
         ) : (
-          <button className="bg-gradient-to-r from-red-500 to-pink-500 text-white py-2 px-4 rounded-md mb-6 hover:animate-jump">
-            Manage Account
-          </button>
+          <ValoracionIA />
         )}
       </div>
 

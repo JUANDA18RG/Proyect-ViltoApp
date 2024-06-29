@@ -222,6 +222,25 @@ const SpaceWork = ({ projectId }) => {
         toast.success(`Tarea eliminada con éxito`, { autoClose: 3000 });
       };
 
+      const EstadoTareaActualizado = (data) => {
+        setColumns((prevColumns) =>
+          prevColumns.map((column) => ({
+            ...column,
+            tasks: column.tasks.map((task) =>
+              task._id === data._id
+                ? { ...task, estadoTarea: data.estadoTarea }
+                : task
+            ),
+          }))
+        );
+        toast.success(
+          `Estado de la tarea actualizado con éxito en la tarea ${data.name}`,
+          {
+            autoClose: 3000,
+          }
+        );
+      };
+
       socket.on("respuestaIA", handleRespuestaIA);
       socket.emit("obtenerProyecto", projectId);
       socket.on("proyecto", handleProyecto);
@@ -231,6 +250,7 @@ const SpaceWork = ({ projectId }) => {
       socket.on("tareaMovida", handleTareaMovida);
       socket.emit("esFavorito", projectId);
       socket.on("tareaEliminada", handleTareaEliminada);
+      socket.on("estadoTareaActualizado", EstadoTareaActualizado);
 
       return () => {
         socket.off("respuestaIA", handleRespuestaIA);
@@ -241,6 +261,7 @@ const SpaceWork = ({ projectId }) => {
         socket.off("tareaMovida", handleTareaMovida);
         socket.off("tareaEliminada", handleTareaEliminada);
         socket.off("esFavorito");
+        socket.off("estadoTareaActualizado", EstadoTareaActualizado);
       };
     }
   }, [projectId, forceUpdate, project?.name, project?.description, socket]);
@@ -380,6 +401,17 @@ const SpaceWork = ({ projectId }) => {
 
       return newColumns;
     });
+  };
+
+  const [dropdownTaskId, setDropdownTaskId] = useState(null);
+
+  const toggleDropdown = (taskId) => {
+    setDropdownTaskId(dropdownTaskId === taskId ? null : taskId);
+  };
+
+  const handleEstadoChange = (taskId, newStatus) => {
+    socket.emit("cambiarEstadoTarea", { taskId, newStatus });
+    setDropdownTaskId(null);
   };
 
   return (
@@ -614,15 +646,23 @@ const SpaceWork = ({ projectId }) => {
                                 </div>
                               </div>
                             ) : (
-                              column.taskIds.map((taskId, index) => (
-                                <Draggable
-                                  key={taskId}
-                                  draggableId={taskId}
-                                  index={index}
-                                  isDragDisabled={openMenuId === column.id}
-                                >
-                                  {(provided, snapshot) => {
-                                    return (
+                              column.taskIds.map((taskId, index) => {
+                                const task = column.tasks.find(
+                                  (task) => task._id === taskId
+                                );
+
+                                if (!task) {
+                                  return null; // No renderiza nada si no se encuentra la tarea
+                                }
+
+                                return (
+                                  <Draggable
+                                    key={taskId}
+                                    draggableId={taskId}
+                                    index={index}
+                                    isDragDisabled={openMenuId === column.id}
+                                  >
+                                    {(provided, snapshot) => (
                                       <div
                                         ref={provided.innerRef}
                                         {...provided.draggableProps}
@@ -633,7 +673,7 @@ const SpaceWork = ({ projectId }) => {
                                             ? 0.8
                                             : 1,
                                         }}
-                                        className={`flex justify-between items-center p-2 m-2 rounded-md border-2 shadow-sm overflow-visible group ${
+                                        className={`flex justify-between items-center p-2 mt-2  rounded-md border-2 shadow-sm overflow-visible group ${
                                           darkMode
                                             ? "bg-gray-800 text-white"
                                             : "bg-white text-black"
@@ -655,48 +695,112 @@ const SpaceWork = ({ projectId }) => {
                                             />
                                           </SkeletonTheme>
                                         ) : (
-                                          (() => {
-                                            const task = column.tasks.find(
-                                              (task) => task._id === taskId
-                                            );
-                                            return (
-                                              <>
-                                                <div className="flex-grow min-w-0 break-words">
-                                                  <p>{task && task.name}</p>
-                                                </div>
-                                                <button
+                                          <>
+                                            <div className="flex-grow min-w-0 break-words">
+                                              <p className="text-lg font-semibold">
+                                                {task.name}
+                                              </p>
+                                              <div className="relative inline-block">
+                                                <span
                                                   onClick={() =>
-                                                    handleDeleteTask(
-                                                      taskId,
-                                                      column.id
-                                                    )
+                                                    toggleDropdown(taskId)
                                                   }
-                                                  className="opacity-0 group-hover:opacity-100 ml-8 bg-gradient-to-r from-red-500 to-pink-500 rounded-full p-1 text-white transition-all duration-500 ease-in-out"
+                                                  className={`inline-block mt-2 px-2 py-1 text-xs font-semibold rounded cursor-pointer ${
+                                                    task.estadoTarea ===
+                                                    "finalizada"
+                                                      ? "bg-green-200 text-green-800"
+                                                      : task.estadoTarea ===
+                                                        "en progreso"
+                                                      ? "bg-blue-200 text-blue-800"
+                                                      : "bg-red-200 text-red-800"
+                                                  }`}
                                                 >
-                                                  <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                    strokeWidth={1.5}
-                                                    stroke="currentColor"
-                                                    className="w-4 h-4"
+                                                  {task.estadoTarea}
+                                                </span>
+                                                {dropdownTaskId === taskId && (
+                                                  <div
+                                                    className={`absolute right-[-30px] mt-3 w-36 border rounded shadow-md z-50 ${
+                                                      darkMode
+                                                        ? "bg-gray-700 text-white"
+                                                        : "bg-white text-black"
+                                                    }`}
                                                   >
-                                                    <path
-                                                      strokeLinecap="round"
-                                                      strokeLinejoin="round"
-                                                      d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                                                    />
-                                                  </svg>
-                                                </button>
-                                              </>
-                                            );
-                                          })()
+                                                    <ul className="py-1">
+                                                      <li className="flex justify-center">
+                                                        <button
+                                                          className="flex items-center justify-center w-full cursor-pointer hover:bg-red-500 hover:text-white transition-colors duration-300 m-1 px-4 py-2 rounded-lg text-sm "
+                                                          onClick={() =>
+                                                            handleEstadoChange(
+                                                              task._id,
+                                                              "pendiente"
+                                                            )
+                                                          }
+                                                        >
+                                                          Pendiente
+                                                        </button>
+                                                      </li>
+                                                      <li className="flex justify-center">
+                                                        <button
+                                                          className="flex items-center justify-center w-full cursor-pointer hover:bg-blue-500 hover:text-white transition-colors duration-300 m-1 px-4 py-2 rounded-lg text-sm"
+                                                          onClick={() =>
+                                                            handleEstadoChange(
+                                                              task._id,
+                                                              "en progreso"
+                                                            )
+                                                          }
+                                                        >
+                                                          En Progreso
+                                                        </button>
+                                                      </li>
+                                                      <li className="flex justify-center">
+                                                        <button
+                                                          className="flex items-center w-full justify-center cursor-pointer hover:bg-green-500 hover:text-white transition-colors duration-300 m-1 px-4 py-2 rounded-lg text-sm "
+                                                          onClick={() =>
+                                                            handleEstadoChange(
+                                                              task._id,
+                                                              "finalizada"
+                                                            )
+                                                          }
+                                                        >
+                                                          Finalizada
+                                                        </button>
+                                                      </li>
+                                                    </ul>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            </div>
+                                            <button
+                                              onClick={() =>
+                                                handleDeleteTask(
+                                                  taskId,
+                                                  column.id
+                                                )
+                                              }
+                                              className="opacity-0 group-hover:opacity-100 ml-8 bg-gradient-to-r from-red-500 to-pink-500 rounded-full p-1 text-white transition-opacity duration-500 ease-in-out"
+                                            >
+                                              <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                strokeWidth={1.5}
+                                                stroke="currentColor"
+                                                className="w-4 h-4"
+                                              >
+                                                <path
+                                                  strokeLinecap="round"
+                                                  strokeLinejoin="round"
+                                                  d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                                                />
+                                              </svg>
+                                            </button>
+                                          </>
                                         )}
                                       </div>
-                                    );
-                                  }}
-                                </Draggable>
-                              ))
+                                    )}
+                                  </Draggable>
+                                );
+                              })
                             )}
                             {provided.placeholder}
                             <Task columnId={column.id} projectId={projectId} />

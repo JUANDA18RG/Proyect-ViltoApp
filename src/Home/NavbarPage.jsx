@@ -8,6 +8,7 @@ import logo from "/assets/Logo.png";
 import { useEffect, useState } from "react";
 import userImage from "/assets/user.png";
 import { Switch } from "@headlessui/react";
+import Search from "./Search";
 
 export default function NavbarPage() {
   const auth = useAuth();
@@ -93,19 +94,19 @@ export default function NavbarPage() {
           </Link>
         </div>
       </div>
-
       <div className=" items-center space-x-14 hidden md:flex ">
+        <Search />
         {!auth.isPremium && (
           <Link
             to={"/Pago"}
-            className="relative flex items-center justify-center h-8 px-3 text-sm font-medium text-white rounded-lg bg-gradient-to-b from-purple-500 to-pink-500 animate-jump-in "
+            className="relative flex items-center justify-center h-8 px-3 text-sm font-medium text-white rounded-lg bg-gradient-to-b from-purple-500 to-pink-500 animate-jump-in"
           >
             <img
               src={Corona}
               alt="Corona"
               className="absolute top-0 left-0 transform -translate-x-1/2 -translate-y-1/2 w-10 h-8 -rotate-45 "
             />
-            <span className="mr-2 ml-2 font-semibold">Get Premium</span>
+            <span className="mr-1 ml-1 font-semibold">Get Premium</span>
           </Link>
         )}
         <Switch
